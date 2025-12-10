@@ -1,5 +1,7 @@
-import { flowgladServer } from '@/lib/flowglad';
+import { flowglad } from '@/lib/flowglad';
 import { findUsagePriceByMeterSlug } from '@/lib/billing-helpers';
+import { auth } from '@/lib/auth';
+import { headers } from 'next/headers';
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 
@@ -48,7 +50,18 @@ export async function POST(request: Request) {
       transactionId ||
       `usage_${Date.now()}_${Math.random().toString(36).substring(7)}`;
 
+    // Get customer ID from session
+    const session = await auth.api.getSession({ headers: await headers() });
+    const userId = session?.user?.id;
+    if (!userId) {
+      return NextResponse.json(
+        { error: 'User not found' },
+        { status: 401 }
+      );
+    }
+
     // Get billing information to extract required IDs
+    const flowgladServer = flowglad(userId);
     const billing = await flowgladServer.getBilling();
 
     if (!billing.customer) {
@@ -104,7 +117,6 @@ export async function POST(request: Request) {
     const usageEvent = await flowgladServer.createUsageEvent({
       subscriptionId,
       priceId,
-      usageMeterId,
       amount: amountNumber,
       transactionId: finalTransactionId,
     });
