@@ -112,7 +112,7 @@ export async function POST(request: Request) {
 
     // Create usage event with all required IDs
     // Note: customerId is automatically resolved from the session by FlowgladServer
-    // usageMeterId is automatically resolved from priceId by Flowglad
+    // usageMeterId is automatically resolved from priceSlug by Flowglad
     const usageEvent = await flowgladServer.createUsageEvent({
       subscriptionId,
       priceSlug,
