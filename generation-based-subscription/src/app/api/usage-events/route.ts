@@ -99,13 +99,12 @@ export async function POST(request: Request) {
       );
     }
 
-    const priceId = usagePrice.id;
-    const usageMeterId = usagePrice.usageMeterId;
+    const priceSlug = usagePrice.slug;
 
-    if (!usageMeterId) {
+    if (!priceSlug) {
       return NextResponse.json(
         {
-          error: `Usage price found but missing usageMeterId for meter: ${usageMeterSlug}`,
+          error: `Usage price found but missing priceSlug for meter: ${usageMeterSlug}`,
         },
         { status: 500 }
       );
@@ -113,10 +112,10 @@ export async function POST(request: Request) {
 
     // Create usage event with all required IDs
     // Note: customerId is automatically resolved from the session by FlowgladServer
+    // usageMeterId is automatically resolved from priceId by Flowglad
     const usageEvent = await flowgladServer.createUsageEvent({
       subscriptionId,
-      priceId,
-      usageMeterId,
+      priceSlug,
       amount: amountNumber,
       transactionId: finalTransactionId,
     });
