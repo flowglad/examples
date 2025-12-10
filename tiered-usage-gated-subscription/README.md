@@ -26,7 +26,6 @@ This project demonstrates the "Tiered Usage-Gated Subscription Template Pricing 
 - Node.js >= 18.18.0
 - Bun >= 1.3.1
 - PostgreSQL database (or Docker to run the included `docker-compose.yml`)
-- `yalc` (for linking local Flowglad packages) - Install globally with `npm install -g yalc` or `bun install -g yalc`
 
 ## Getting Started
 
@@ -44,39 +43,14 @@ This will enable all the subscription plans, usage meters, and features defined 
 
 ### 2. Install Dependencies
 
-**Important:** This project is part of a monorepo. You must install dependencies from the root of the monorepo first, then navigate into this example directory.
-
-From the root of the monorepo:
+Navigate into this project directory and install dependencies:
 
 ```bash
+cd tiered-usage-gated-subscription
 bun install
 ```
 
-Then navigate into this example directory:
-
-```bash
-cd examples/tiered-usage-gated-subscription
-```
-
-### 3. Link Flowglad Packages
-
-This example project uses `yalc` to link local Flowglad packages for development. You must link the packages before running the project:
-
-```bash
-bun run link:packages
-```
-
-This command will:
-- Add Flowglad packages to yalc's local registry
-- Link them into this project's `node_modules`
-- Update dependencies
-
-**Note:** If you need to unlink packages later (e.g., to use published npm packages), run:
-```bash
-bun run unlink:packages
-```
-
-### 4. Set Up Environment Variables
+### 3. Set Up Environment Variables
 
 Copy the example environment file:
 
@@ -95,7 +69,7 @@ Fill in the required values in `.env.local`:
 - **`FLOWGLAD_SECRET_KEY`** - Secret key for Flowglad API calls
   - Get your secret key from: [https://flowglad.com](https://flowglad.com)
 
-### 5. Set Up Database
+### 4. Set Up Database
 
 If you don't have a PostgreSQL database available, you can use the included `docker-compose.yml` file to spin up a local PostgreSQL instance:
 
@@ -124,7 +98,7 @@ docker-compose down
 
 **Note:** If you already have a PostgreSQL database, you can skip this step and use your existing database connection string instead.
 
-### 6. Run Database Migrations
+### 5. Run Database Migrations
 
 Generate and run database migrations:
 
@@ -133,7 +107,7 @@ bun db:generate
 bun db:migrate
 ```
 
-### 7. Start Development Server
+### 6. Start Development Server
 
 ```bash
 bun dev
@@ -152,8 +126,6 @@ Open [http://localhost:3000](http://localhost:3000) to see the application.
 - `bun db:generate` - Generate database migrations
 - `bun db:migrate` - Run database migrations
 - `bun db:studio` - Open Drizzle Studio (database GUI)
-- `bun link:packages` - Link local Flowglad packages using yalc (required before first run)
-- `bun unlink:packages` - Unlink Flowglad packages and restore to npm registry versions
 
 ## Project Structure
 
