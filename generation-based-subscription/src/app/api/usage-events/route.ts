@@ -1,5 +1,7 @@
-import { flowgladServer } from '@/lib/flowglad';
+import { flowglad } from '@/lib/flowglad';
 import { findUsagePriceByMeterSlug } from '@/lib/billing-helpers';
+import { auth } from '@/lib/auth';
+import { headers } from 'next/headers';
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 
@@ -48,7 +50,18 @@ export async function POST(request: Request) {
       transactionId ||
       `usage_${Date.now()}_${Math.random().toString(36).substring(7)}`;
 
+    // Get customer ID from session
+    const session = await auth.api.getSession({ headers: await headers() });
+    const userId = session?.user?.id;
+    if (!userId) {
+      return NextResponse.json(
+        { error: 'User not found' },
+        { status: 401 }
+      );
+    }
+
     // Get billing information to extract required IDs
+    const flowgladServer = flowglad(userId);
     const billing = await flowgladServer.getBilling();
 
     if (!billing.customer) {
@@ -86,13 +99,12 @@ export async function POST(request: Request) {
       );
     }
 
-    const priceId = usagePrice.id;
-    const usageMeterId = usagePrice.usageMeterId;
+    const priceSlug = usagePrice.slug;
 
-    if (!usageMeterId) {
+    if (!priceSlug) {
       return NextResponse.json(
         {
-          error: `Usage price found but missing usageMeterId for meter: ${usageMeterSlug}`,
+          error: `Usage price found but missing priceSlug for meter: ${usageMeterSlug}`,
         },
         { status: 500 }
       );
@@ -100,10 +112,10 @@ export async function POST(request: Request) {
 
     // Create usage event with all required IDs
     // Note: customerId is automatically resolved from the session by FlowgladServer
+    // usageMeterId is automatically resolved from priceSlug by Flowglad
     const usageEvent = await flowgladServer.createUsageEvent({
       subscriptionId,
-      priceId,
-      usageMeterId,
+      priceSlug,
       amount: amountNumber,
       transactionId: finalTransactionId,
     });
