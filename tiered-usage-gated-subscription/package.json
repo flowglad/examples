@@ -17,12 +17,10 @@
     "type-check": "tsc --noEmit",
     "db:generate": "drizzle-kit generate --config=drizzle.config.ts",
     "db:migrate": "drizzle-kit migrate --config=drizzle.config.ts",
-    "db:studio": "drizzle-kit studio --config=drizzle.config.ts",
-    "link:packages": "yalc add @flowglad/nextjs @flowglad/react @flowglad/server @flowglad/shared @flowglad/types && yalc update && bun install --force && yalc update",
-    "unlink:packages": "yalc remove --all && bun install"
+    "db:studio": "drizzle-kit studio --config=drizzle.config.ts"
   },
   "dependencies": {
-    "@flowglad/nextjs": "0.12.3",
+    "@flowglad/nextjs": "0.15.0",
     "@radix-ui/react-dropdown-menu": "^2.1.16",
     "@radix-ui/react-progress": "^1.1.8",
     "@radix-ui/react-slot": "^1.2.3",
