@@ -9,7 +9,7 @@
   },
   "preinstall": "bunx --bun only-allow bun",
   "scripts": {
-    "dev": "next dev -p 3001",
+    "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "eslint . --ext .ts,.tsx,.js,.jsx",
