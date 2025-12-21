@@ -41,10 +41,6 @@ export function HomeClient() {
   const previousUserIdRef = useRef<string | undefined>(undefined);
   const autoScrollDiv = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    console.log(billing.purchases)
-  }, [billing]);
-
   // Refetch billing data when user ID changes to prevent showing previous user's data
   useEffect(() => {
     const currentUserId = session?.user?.id;
@@ -129,14 +125,12 @@ export function HomeClient() {
   const messageGenerationsRemaining =
     messageGenerationBalance?.availableBalance ?? 0;
 
-
   // Compute plan totals dynamically from current subscription's feature items
   // This calculates how many usage credits (e.g., "360 fast generations")
   // are included in the current subscription plan
   const messageGenerationsTotal = computeMessageUsageTotal(
     billing.purchases,
-    billing.pricingModel,
-
+    billing.pricingModel
   );
 
   const messageGenerationsProgress =
@@ -249,7 +243,7 @@ export function HomeClient() {
       <main className="flex min-h-screen w-full max-w-7xl flex-col p-8">
         <div className="w-full space-y-8">
           {/* Image Display Area with Action Buttons */}
-          <Card className="max-w-2xl mx-auto h-[100%]">
+          <Card className="max-w-2xl mx-auto">
             <CardHeader>
               <CardTitle>Current Plan: {planName}</CardTitle>
               {/* Usage Meters */}
@@ -367,7 +361,6 @@ export function HomeClient() {
                           >
                             {isGenerating ? 'Generating...' : 'Generate'}
                           </Button>
-                          {messageGenerationsTotal}
                         </span>
                       </TooltipTrigger>
                       {(!hasMessageGenerationAccess ||
