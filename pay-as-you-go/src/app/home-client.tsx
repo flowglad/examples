@@ -30,6 +30,7 @@ export function HomeClient() {
   const { data: session, isPending: isSessionPending } =
     authClient.useSession();
   const billing = useBilling();
+
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
   const [generateError, setGenerateError] = useState<string | null>(null);
   const [topUpError, setTopUpError] = useState<string | null>(null);
@@ -39,7 +40,7 @@ export function HomeClient() {
     Array<{ type: 'user' | 'assistant'; content: string }>
   >([]);
   const previousUserIdRef = useRef<string | undefined>(undefined);
-  const autoScrollDiv = useRef<HTMLDivElement>(null);
+  const autoScrollDiv = useRef<HTMLDivElement>(null); // ref for auto scrolling chat
 
   // Refetch billing data when user ID changes to prevent showing previous user's data
   useEffect(() => {
@@ -59,36 +60,7 @@ export function HomeClient() {
     }
   }, [session?.user?.id, billing]);
 
-  // Check if user is on free plan and redirect to pricing page
-  useEffect(() => {
-    async function getThing() {
-      if (isSessionPending || !billing.loaded) {
-        return;
-      }
-
-      billing.subscriptions;
-
-      const balance = billing.checkUsageBalance?.('message_credits');
-      console.log('balance', balance);
-      if (!billing.checkFeatureAccess?.('100_messages')) {
-        console.log('no access');
-        // await billing.createCheckoutSession?.({
-        //   priceSlug: 'message_topup',
-        //   successUrl: window.location.href,
-        //   cancelUrl: window.location.href,
-        //   quantity: 1,
-        //   autoRedirect: true
-        // });
-      }
-      console.log(
-        'feature access',
-        billing.checkFeatureAccess?.('100_messages')
-      );
-    }
-
-    getThing();
-  }, [isSessionPending, billing.loaded, billing.currentSubscriptions, router]);
-
+  // whenever chat history changes, scroll to bottom of chat thread
   useEffect(() => {
     autoScrollDiv.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
@@ -105,10 +77,7 @@ export function HomeClient() {
     return <DashboardSkeleton />;
   }
 
-  // Get current subscription plan
-  // By default, each customer can only have one active subscription at a time,
-  // so accessing the first currentSubscriptions is sufficient.
-  // Multiple subscriptions per customer can be enabled in dashboard > settings
+  // Get current subscription plan (free plan since that's the default and only plan)
   const currentSubscription = billing.currentSubscriptions?.[0];
   const planName = currentSubscription?.name || 'Unknown Plan';
 
@@ -116,23 +85,18 @@ export function HomeClient() {
     return <DashboardSkeleton />;
   }
 
-  const messageGenerationBalance = billing.checkUsageBalance('message_credits');
-
-  // Check if user has access to usage meters (has balance object, even if balance is 0)
-  const hasMessageGenerationAccess = messageGenerationBalance != null;
-
-  // Calculate progress for usage meters - get slug from price using priceId
+  // Number of credits a user has left, if any, using usage meter slug
   const messageGenerationsRemaining =
-    messageGenerationBalance?.availableBalance ?? 0;
+    billing.checkUsageBalance('message_credits')?.availableBalance ?? 0;
 
-  // Compute plan totals dynamically from current subscription's feature items
-  // This calculates how many usage credits (e.g., "360 fast generations")
-  // are included in the current subscription plan
+  // Compute credit totals dynamically from user's purchases
+  // ex. user bought two 100 credit topups, so the total would be 200 credits
   const messageGenerationsTotal = computeMessageUsageTotal(
     billing.purchases,
     billing.pricingModel
   );
 
+  // calculate the progress of the usage progress bar
   const messageGenerationsProgress =
     messageGenerationsTotal > 0
       ? Math.min(
@@ -143,16 +107,24 @@ export function HomeClient() {
 
   // Action handlers
   const handleGenerateMessage = async () => {
-    if (
-      !messageInput ||
-      !hasMessageGenerationAccess ||
-      messageGenerationsRemaining === 0
-    ) {
+    if (!messageInput || messageGenerationsRemaining === 0) {
       return;
     }
 
     setIsGenerating(true);
     setGenerateError(null);
+
+    const msgs = messages;
+
+    setMessages([
+      ...msgs,
+      {
+        type: 'user',
+        content: messageInput || '',
+      },
+    ]);
+
+    setMessageInput(null);
 
     try {
       // Generate a unique transaction ID for idempotency
@@ -175,13 +147,14 @@ export function HomeClient() {
         throw new Error(errorData.error || 'Failed to create usage event');
       }
 
-      // Cycle through mock images
+      // Cycle through mock messages
       const nextIndex = (currentMessageIndex + 1) % mockMessages.length;
       setCurrentMessageIndex(nextIndex);
       const nextMessage = mockMessages[nextIndex];
       if (nextMessage) {
+        // add user message again and add response to the chat history (avoids double state update problem)
         setMessages([
-          ...messages,
+          ...msgs,
           {
             type: 'user',
             content: messageInput,
@@ -191,8 +164,6 @@ export function HomeClient() {
             content: nextMessage,
           },
         ]);
-
-        setMessageInput(null);
       }
 
       // Reload billing data to update usage balances
@@ -242,24 +213,23 @@ export function HomeClient() {
     <div className="flex min-h-screen items-center justify-center bg-background">
       <main className="flex min-h-screen w-full max-w-7xl flex-col p-8">
         <div className="w-full space-y-8">
-          {/* Image Display Area with Action Buttons */}
           <Card className="max-w-2xl mx-auto">
             <CardHeader>
               <CardTitle>Current Plan: {planName}</CardTitle>
               {/* Usage Meters */}
-              <div className="space-y-2 pt-6">
-                <h3 className="text-sm font-medium text-muted-foreground">
-                  Usage Meters
-                </h3>
-                <div className="space-y-6">
-                  {/* Message Generations Meter */}
-                  {/* Show if user has access OR if we have a balance (even if total is 0, show remaining) */}
-                  {(hasMessageGenerationAccess ||
-                    messageGenerationsRemaining > 0) && (
+              {messageGenerationsRemaining > 0 && (
+                <div className="space-y-2 pt-6">
+                  <h3 className="text-sm font-medium text-muted-foreground">
+                    Usage Meters
+                  </h3>
+                  <div className="space-y-6">
+                    {/* Message Generations Meter */}
+                    {/* Show if user has access OR if we have a balance (even if total is 0, show remaining) */}
+
                     <div className="space-y-2">
                       <div className="flex items-center justify-between">
                         <span className="text-sm font-medium">
-                          Messasge Generations
+                          Message Generations
                         </span>
                         <span className="text-sm text-muted-foreground">
                           {messageGenerationsRemaining}
@@ -278,9 +248,9 @@ export function HomeClient() {
                         className="w-full"
                       />
                     </div>
-                  )}
+                  </div>
                 </div>
-              </div>
+              )}
               {/* Credit Top-Ups */}
               <div>
                 <div className="w-full mt-2">
@@ -290,10 +260,16 @@ export function HomeClient() {
                       <span className="w-full">
                         <Button
                           onClick={handlePurchaseMessageTopUp}
-                          variant="secondary"
+                          variant={
+                            messageGenerationsRemaining === 0
+                              ? 'default'
+                              : 'secondary'
+                          }
                           className="w-full transition-transform hover:-translate-y-px"
                         >
-                          Purchase Additional Messages ($100.00 for 100)
+                          Purchase{' '}
+                          {messageGenerationsRemaining === 0 ? '' : 'Additional'}{' '}
+                          Messages ($100.00 for 100)
                         </Button>
                       </span>
                     </TooltipTrigger>
@@ -315,13 +291,13 @@ export function HomeClient() {
                     key={i}
                     className={cn(
                       'w-full flex ',
-                      m.type == 'assistant' ? 'justify-start ' : 'justify-end'
+                      m.type === 'assistant' ? 'justify-start ' : 'justify-end'
                     )}
                   >
                     <p
                       className={cn(
-                        'max-w-1/2 w-fit p-2 rounded-md',
-                        m.type == 'assistant'
+                        'max-w-1/2 w-fit py-2 px-3 rounded-md text-sm',
+                        m.type === 'assistant'
                           ? 'bg-secondary text-black'
                           : 'bg-primary text-white'
                       )}
@@ -354,30 +330,23 @@ export function HomeClient() {
                             className="w-full transition-transform hover:-translate-y-px"
                             // size="sm"
                             disabled={
-                              !hasMessageGenerationAccess ||
-                              messageGenerationsRemaining === 0 ||
-                              isGenerating
+                              messageGenerationsRemaining === 0 || isGenerating
                             }
                           >
                             {isGenerating ? 'Generating...' : 'Generate'}
                           </Button>
                         </span>
                       </TooltipTrigger>
-                      {(!hasMessageGenerationAccess ||
-                        messageGenerationsRemaining === 0) && (
-                        <TooltipContent>
-                          {!hasMessageGenerationAccess
-                            ? 'Not available in your plan'
-                            : 'No credits remaining'}
-                        </TooltipContent>
+                      {messageGenerationsRemaining === 0 && (
+                        <TooltipContent>No Credits Remaining</TooltipContent>
                       )}
                     </Tooltip>
-                    {generateError && (
-                      <p className="text-sm text-destructive mt-2">
-                        {generateError}
-                      </p>
-                    )}
                   </div>
+                  {generateError && (
+                    <p className="text-sm text-destructive mt-2">
+                      {generateError}
+                    </p>
+                  )}
                 </div>
               </div>
             </CardContent>
