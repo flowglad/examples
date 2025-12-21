@@ -1,7 +1,7 @@
 # Flowglad Example Project
 
 An example of how to integrate Flowglad into a Next.js project with BetterAuth. 
-This project demonstrates the "Generation-Based Subscription Template Pricing Model".
+This project demonstrates the "Pay-As-You-Go Template Pricing Model".
 
 ## Tech Stack
 
@@ -46,7 +46,7 @@ This will enable all the subscription plans, usage meters, and features defined 
 Navigate into this project directory and install dependencies:
 
 ```bash
-cd generation-based-subscription
+cd pay-as-you-go
 bun install
 ```
 
@@ -68,6 +68,9 @@ Fill in the required values in `.env.local`:
   
 - **`FLOWGLAD_SECRET_KEY`** - Secret key for Flowglad API calls
   - Get your secret key from: [https://flowglad.com](https://flowglad.com)
+
+- **`NEXT_PUBLIC_CREDIT_TOPUP_PRICE_ID`** - The price id of your topup product
+  - This can be found in the Flowglad dashboard, after creating your pricing model
 
 ### 4. Set Up Database
 
