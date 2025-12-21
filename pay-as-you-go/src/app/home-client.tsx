@@ -169,6 +169,7 @@ export function HomeClient() {
       // Reload billing data to update usage balances
       await billing.reload();
     } catch (error) {
+      setMessages(msgs);
       setGenerateError(
         error instanceof Error
           ? error.message
