@@ -1,8 +1,6 @@
 'use client';
-
 import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import Image from 'next/image';
 import { authClient } from '@/lib/auth-client';
 import { useBilling } from '@flowglad/nextjs';
 import { computeMessageUsageTotal } from '@/lib/billing-helpers';
@@ -269,7 +267,9 @@ export function HomeClient() {
                           className="w-full transition-transform hover:-translate-y-px"
                         >
                           Purchase{' '}
-                          {messageGenerationsRemaining === 0 ? '' : 'Additional'}{' '}
+                          {messageGenerationsRemaining === 0
+                            ? ''
+                            : 'Additional'}{' '}
                           Messages ($100.00 for 100)
                         </Button>
                       </span>
