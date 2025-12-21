@@ -1,0 +1,75 @@
+isDefault: false
+name: "Pay as You Go"
+features:
+  - type: "usage_credit_grant"
+    slug: "100_messages"
+    name: "100 Messages"
+    description: ""
+    amount: 100
+    renewalFrequency: "once"
+    active: true
+    usageMeterSlug: "message_credits"
+products:
+  - product:
+      name: "Free Plan"
+      description: "Default plan"
+      active: true
+      default: true
+      slug: "free"
+    prices:
+      - intervalUnit: null
+        name: "Free Plan"
+        intervalCount: null
+        type: "single_payment"
+        trialPeriodDays: null
+        isDefault: true
+        unitPrice: 0
+        usageEventsPerUnit: null
+        active: true
+        slug: "free"
+        usageMeterId: null
+    features: []
+  - product:
+      name: "message_credits"
+      active: true
+      singularQuantityLabel: "unit"
+      pluralQuantityLabel: "units"
+      default: false
+      slug: "message_credits"
+    prices:
+      - intervalUnit: "month"
+        intervalCount: 1
+        type: "usage"
+        trialPeriodDays: null
+        isDefault: true
+        unitPrice: 0
+        usageEventsPerUnit: 1
+        active: true
+        slug: "message_credits"
+        usageMeterSlug: "message_credits"
+    features: []
+  - product:
+      name: "Message Topup"
+      description: ""
+      imageURL: ""
+      active: true
+      default: false
+      slug: "message_topup"
+    prices:
+      - intervalUnit: null
+        name: "Default Price"
+        intervalCount: null
+        type: "single_payment"
+        trialPeriodDays: null
+        isDefault: true
+        unitPrice: 10000
+        usageEventsPerUnit: null
+        active: true
+        slug: "message_topup"
+        usageMeterId: null
+    features:
+      - "100_messages"
+usageMeters:
+  - name: "message_credits"
+    slug: "message_credits"
+    aggregationType: "sum"
