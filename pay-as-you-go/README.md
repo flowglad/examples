@@ -69,9 +69,6 @@ Fill in the required values in `.env.local`:
 - **`FLOWGLAD_SECRET_KEY`** - Secret key for Flowglad API calls
   - Get your secret key from: [https://flowglad.com](https://flowglad.com)
 
-- **`NEXT_PUBLIC_CREDIT_TOPUP_PRICE_ID`** - The price id of your topup product
-  - This can be found in the Flowglad dashboard, after creating your pricing model
-
 ### 4. Set Up Database
 
 Generate and run database migrations:
