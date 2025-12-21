@@ -235,7 +235,7 @@ export function HomeClient() {
                           {messageGenerationsTotal > 0
                             ? `/${messageGenerationsTotal}`
                             : ''}{' '}
-                          credits
+                          remaining
                         </span>
                       </div>
                       <Progress

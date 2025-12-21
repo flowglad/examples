@@ -24,7 +24,7 @@ export function computeMessageUsageTotal(
     if (!pricingModel?.usageMeters || !purchases || purchases.length == 0)
       return 0;
 
-    const topUpPriceId = 'price_cG491gqZz7aFDXnLd9UVT';
+    const topUpPriceId = process.env.NEXT_PUBLIC_CREDIT_TOPUP_PRICE_ID!;
 
     // Filter to only usage credit grant features that match our slug
     let total = 0;
