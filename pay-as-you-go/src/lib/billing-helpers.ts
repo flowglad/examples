@@ -21,7 +21,7 @@ export function computeMessageUsageTotal(
 ): number {
   try {
     // Early returns if we don't have the necessary data
-    if (!pricingModel?.usageMeters || !purchases || purchases.length == 0)
+    if (!pricingModel?.usageMeters || !purchases || purchases.length === 0)
       return 0;
 
     const topUpPriceId = process.env.NEXT_PUBLIC_CREDIT_TOPUP_PRICE_ID!;
