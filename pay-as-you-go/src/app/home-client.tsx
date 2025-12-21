@@ -263,13 +263,13 @@ export function HomeClient() {
                   <div
                     key={i}
                     className={cn(
-                      'w-full flex ',
+                      'w-full flex',
                       m.type === 'assistant' ? 'justify-start ' : 'justify-end'
                     )}
                   >
                     <p
                       className={cn(
-                        'max-w-1/2 w-fit py-2 px-3 rounded-md text-sm',
+                        'w-fit max-w-[50%] wrap-anywhere py-2 px-3 rounded-md text-sm',
                         m.type === 'assistant'
                           ? 'bg-secondary text-black'
                           : 'bg-primary text-white'
