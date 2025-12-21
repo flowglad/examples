@@ -87,22 +87,6 @@ export function HomeClient() {
   const messageGenerationsRemaining =
     billing.checkUsageBalance('message_credits')?.availableBalance ?? 0;
 
-  // Compute credit totals dynamically from user's purchases
-  // ex. user bought two 100 credit topups, so the total would be 200 credits
-  const messageGenerationsTotal = computeMessageUsageTotal(
-    billing.purchases,
-    billing.pricingModel
-  );
-
-  // calculate the progress of the usage progress bar
-  const messageGenerationsProgress =
-    messageGenerationsTotal > 0
-      ? Math.min(
-          (messageGenerationsRemaining / messageGenerationsTotal) * 100,
-          100
-        )
-      : 0;
-
   // Action handlers
   const handleGenerateMessage = async () => {
     if (!messageInput || messageGenerationsRemaining === 0) {
@@ -223,7 +207,7 @@ export function HomeClient() {
                   </h3>
                   <div className="space-y-6">
                     {/* Message Generations Meter */}
-                    {/* Show if user has access OR if we have a balance (even if total is 0, show remaining) */}
+                    {/* Show if user has access OR if we have a balance (show remaining) */}
 
                     <div className="space-y-2">
                       <div className="flex items-center justify-between">
@@ -231,21 +215,9 @@ export function HomeClient() {
                           Message Generations
                         </span>
                         <span className="text-sm text-muted-foreground">
-                          {messageGenerationsRemaining}
-                          {messageGenerationsTotal > 0
-                            ? `/${messageGenerationsTotal}`
-                            : ''}{' '}
-                          remaining
+                          {messageGenerationsRemaining} remaining
                         </span>
                       </div>
-                      <Progress
-                        value={
-                          messageGenerationsTotal > 0
-                            ? messageGenerationsProgress
-                            : 0
-                        }
-                        className="w-full"
-                      />
                     </div>
                   </div>
                 </div>
