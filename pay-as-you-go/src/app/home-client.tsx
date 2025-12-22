@@ -3,9 +3,7 @@ import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { authClient } from '@/lib/auth-client';
 import { useBilling } from '@flowglad/nextjs';
-import { computeMessageUsageTotal } from '@/lib/billing-helpers';
 import { DashboardSkeleton } from '@/components/dashboard-skeleton';
-import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -24,7 +22,6 @@ const mockMessages = [
 ];
 
 export function HomeClient() {
-  const router = useRouter();
   const { data: session, isPending: isSessionPending } =
     authClient.useSession();
   const billing = useBilling();
