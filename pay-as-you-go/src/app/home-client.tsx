@@ -93,9 +93,7 @@ export function HomeClient() {
     setIsGenerating(true);
     setGenerateError(null);
 
-    const msgs = messages;
-
-    setMessages([
+    setMessages((msgs) => [
       ...msgs,
       {
         type: 'user',
@@ -132,12 +130,8 @@ export function HomeClient() {
       const nextMessage = mockMessages[nextIndex];
       if (nextMessage) {
         // add user message again and add response to the chat history (avoids double state update problem)
-        setMessages([
+        setMessages((msgs) => [
           ...msgs,
-          {
-            type: 'user',
-            content: messageInput,
-          },
           {
             type: 'assistant',
             content: nextMessage,
@@ -148,7 +142,8 @@ export function HomeClient() {
       // Reload billing data to update usage balances
       await billing.reload();
     } catch (error) {
-      setMessages(msgs);
+      // remove user message from chat history
+      setMessages((msgs) => msgs.slice(0, -1));
       setGenerateError(
         error instanceof Error
           ? error.message
