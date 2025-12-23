@@ -79,9 +79,15 @@ export function HomeClient() {
     return <DashboardSkeleton />;
   }
 
+  const messageGenerationsBalance =
+    billing.checkUsageBalance('message_credits');
+
+  // Check if user has access to usage meter (has balance object, even if balance is 0)
+  const hasMessageGenerationsAccess = messageGenerationsBalance != null;
+
   // Number of credits a user has left, if any, using usage meter slug
   const messageGenerationsRemaining =
-    billing.checkUsageBalance('message_credits')?.availableBalance ?? 0;
+    messageGenerationsBalance?.availableBalance ?? 0;
 
   // Action handlers
   const handleGenerateMessage = async () => {
@@ -223,17 +229,14 @@ export function HomeClient() {
                         <Button
                           onClick={handlePurchaseMessageTopUp}
                           variant={
-                            messageGenerationsRemaining === 0
+                            messageGenerationsRemaining === 0 ||
+                            !hasMessageGenerationsAccess
                               ? 'default'
                               : 'secondary'
                           }
                           className="w-full transition-transform hover:-translate-y-px"
                         >
-                          Purchase{' '}
-                          {messageGenerationsRemaining === 0
-                            ? ''
-                            : 'Additional'}{' '}
-                          Messages ($100.00 for 100)
+                          {`Purchase${messageGenerationsRemaining === 0 ? '' : ' Additional'} Messages ($${((billing.getPrice('message_topup')?.unitPrice ?? 0) / 100).toFixed(2)} for 100)`}
                         </Button>
                       </span>
                     </TooltipTrigger>
