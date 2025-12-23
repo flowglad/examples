@@ -1,6 +1,5 @@
 'use client';
 import { useEffect, useState, useRef } from 'react';
-import { useRouter } from 'next/navigation';
 import { authClient } from '@/lib/auth-client';
 import { useBilling } from '@flowglad/nextjs';
 import { DashboardSkeleton } from '@/components/dashboard-skeleton';
