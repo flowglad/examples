@@ -1,0 +1,23 @@
+{
+  "projectName": "generation-based-subscription",
+  "mode": "file-router",
+  "typescript": true,
+  "tailwind": true,
+  "packageManager": "bun",
+  "addOnOptions": {
+    "drizzle": {
+      "database": "postgresql"
+    }
+  },
+  "git": true,
+  "version": 1,
+  "framework": "react-cra",
+  "chosenAddOns": [
+    "eslint",
+    "nitro",
+    "start",
+    "tanstack-query",
+    "shadcn",
+    "drizzle"
+  ]
+}
