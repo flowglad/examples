@@ -15,9 +15,7 @@ export const flowglad = (customerExternalId: string) => {
   return new FlowgladServer({
     customerExternalId,
     getCustomerDetails: async () => {
-      const session = await auth.api.getSession({
-        headers: getRequestHeaders(),
-      })
+      const session = await getSessionFromRequest()
 
       if (!session?.user) {
         throw new Error('User not authenticated')

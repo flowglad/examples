@@ -1,5 +1,4 @@
-import type { BillingWithChecks } from '@flowglad/shared'
-import type { Price, UsageMeter, Product } from '@flowglad/types'
+import type { BillingWithChecks, Price, Product, UsageMeter } from '@flowglad/shared'
 
 type UsageMeterSlug = 'fast_generations' | 'hd_video_minutes'
 
