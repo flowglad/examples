@@ -12,9 +12,13 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '../components/ui/tooltip'
+import { authMiddleware } from '@/middleware/auth'
 
 export const Route = createFileRoute('/')({
   component: Dashboard,
+  server: {
+    middleware: [authMiddleware],
+  }
 })
 
 // Mock images to cycle through

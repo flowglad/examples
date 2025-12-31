@@ -1,8 +1,12 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { PricingCardsGrid } from '../components/pricing-cards-grid'
+import { authMiddleware } from '@/middleware/auth'
 
 export const Route = createFileRoute('/pricing')({
   component: PricingPage,
+  server: {
+    middleware: [authMiddleware],
+  },
 })
 
 function PricingPage() {

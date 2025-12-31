@@ -1,40 +1,34 @@
 import { FlowgladServer } from '@flowglad/server'
+import { getRequestHeaders } from '@tanstack/react-start/server'
 import { auth } from './auth'
 
 // Helper to get session from request headers
-export async function getSessionFromRequest(request: Request) {
+export async function getSessionFromRequest() {
   const session = await auth.api.getSession({
-    headers: request.headers,
+    headers: getRequestHeaders(),
   })
   return session
 }
 
 // Factory function that creates a FlowgladServer for a specific customer
 // Pass the request so getCustomerDetails can access the session
-export const flowglad = (customerExternalId: string, request?: Request) => {
+export const flowglad = (customerExternalId: string) => {
   return new FlowgladServer({
     customerExternalId,
     getCustomerDetails: async () => {
       // If request is provided, get session from it
-      if (request) {
-        const session = await auth.api.getSession({
-          headers: request.headers,
-        })
 
-        if (!session?.user) {
-          throw new Error('User not authenticated')
-        }
+      const session = await auth.api.getSession({
+        headers: getRequestHeaders(),
+      })
 
-        return {
-          email: session.user.email || '',
-          name: session.user.name || '',
-        }
+      if (!session?.user) {
+        throw new Error('User not authenticated')
       }
 
-      // Fallback: return empty details (Flowglad will use existing customer data)
       return {
-        email: '',
-        name: '',
+        email: session.user.email || '',
+        name: session.user.name || '',
       }
     },
   })

@@ -2,9 +2,13 @@ import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
 import { authClient } from '../lib/auth-client'
 import { Button } from '../components/ui/button'
+import { authMiddleware } from '@/middleware/auth'
 
 export const Route = createFileRoute('/sign-in')({
   component: SignInPage,
+  server: {
+    middleware: [authMiddleware],
+  },
 })
 
 function SignInPage() {

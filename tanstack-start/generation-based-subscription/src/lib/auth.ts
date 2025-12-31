@@ -1,7 +1,9 @@
 import { betterAuth } from 'better-auth'
 import { drizzleAdapter } from 'better-auth/adapters/drizzle'
+import { tanstackStartCookies } from 'better-auth/tanstack-start'
 import { db } from '../db'
 import { betterAuthSchema } from '../db/schema'
+
 
 const betterAuthSecret = process.env.BETTER_AUTH_SECRET
 if (!betterAuthSecret) {
@@ -21,6 +23,7 @@ export const auth = betterAuth({
     usePlural: true,
     schema: betterAuthSchema,
   }),
+  plugins: [tanstackStartCookies()],
 })
 
 export type Session = typeof auth.$Infer.Session
