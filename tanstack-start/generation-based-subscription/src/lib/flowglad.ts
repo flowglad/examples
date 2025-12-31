@@ -11,13 +11,10 @@ export async function getSessionFromRequest() {
 }
 
 // Factory function that creates a FlowgladServer for a specific customer
-// Pass the request so getCustomerDetails can access the session
 export const flowglad = (customerExternalId: string) => {
   return new FlowgladServer({
     customerExternalId,
     getCustomerDetails: async () => {
-      // If request is provided, get session from it
-
       const session = await auth.api.getSession({
         headers: getRequestHeaders(),
       })

@@ -1,20 +1,19 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { requestHandler } from '@flowglad/server'
-import { flowglad, getSessionFromRequest } from '../../../lib/flowglad'
 import type { HTTPMethod } from '@flowglad/shared'
+import { flowglad, getSessionFromRequest } from '@/lib/flowglad'
 
 // Handle Flowglad API requests
 async function handleFlowgladRequest(request: Request): Promise<Response> {
   // Auth check
-  const session = await getSessionFromRequest(request)
+  const session = await getSessionFromRequest()
   if (!session?.user) {
     return Response.json({ error: 'User not authenticated' }, { status: 401 })
   }
 
   // Create the handler with the request in closure so getCustomerDetails can access it
   const flowgladHandler = requestHandler({
-    flowglad: (customerExternalId: string) =>
-      flowglad(customerExternalId, request),
+    flowglad: (customerExternalId: string) => flowglad(customerExternalId),
     getCustomerExternalId: async () => session.user.id,
   })
 
