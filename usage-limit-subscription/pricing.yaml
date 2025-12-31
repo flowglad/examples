@@ -62,18 +62,18 @@ products:
       pluralQuantityLabel: "requests"
       default: false
       slug: "fast_request_overages"
-    prices:
-      - intervalUnit: "month"
-        name: "Fast Request Overage"
-        intervalCount: 1
-        type: "usage"
-        trialPeriodDays: null
-        isDefault: true
-        unitPrice: 10
-        usageEventsPerUnit: 1
-        active: true
-        slug: "fast_request_overage"
-        usageMeterSlug: "fast_premium_requests"
+    price:
+      intervalUnit: "month"
+      name: "Fast Request Overage"
+      intervalCount: 1
+      type: "usage"
+      trialPeriodDays: null
+      isDefault: true
+      unitPrice: 10
+      usageEventsPerUnit: 1
+      active: true
+      slug: "fast_request_overage"
+      usageMeterSlug: "fast_premium_requests"
     features: []
   - product:
       name: "Hobby"
@@ -81,17 +81,17 @@ products:
       active: true
       default: true
       slug: "hobby"
-    prices:
-      - intervalUnit: "month"
-        name: "Hobby Plan (Free)"
-        intervalCount: 1
-        type: "subscription"
-        isDefault: true
-        unitPrice: 0
-        usageEventsPerUnit: null
-        active: true
-        slug: "hobby_monthly"
-        usageMeterId: null
+    price:
+      intervalUnit: "month"
+      name: "Hobby Plan (Free)"
+      intervalCount: 1
+      type: "subscription"
+      isDefault: true
+      unitPrice: 0
+      usageEventsPerUnit: null
+      active: true
+      slug: "hobby_monthly"
+      usageMeterId: null
     features:
       - "hobby_trial_requests"
   - product:
@@ -100,18 +100,18 @@ products:
       active: true
       default: false
       slug: "pro_monthly"
-    prices:
-      - intervalUnit: "month"
-        name: "Pro Plan (Monthly)"
-        intervalCount: 1
-        type: "subscription"
-        trialPeriodDays: 14
-        isDefault: true
-        unitPrice: 2000
-        usageEventsPerUnit: null
-        active: true
-        slug: "pro_monthly"
-        usageMeterId: null
+    price:
+      intervalUnit: "month"
+      name: "Pro Plan (Monthly)"
+      intervalCount: 1
+      type: "subscription"
+      trialPeriodDays: 14
+      isDefault: true
+      unitPrice: 2000
+      usageEventsPerUnit: null
+      active: true
+      slug: "pro_monthly"
+      usageMeterId: null
     features:
       - "pro_fast_requests"
       - "unlimited_slow_requests"
@@ -123,17 +123,17 @@ products:
       active: true
       default: false
       slug: "pro_plus"
-    prices:
-      - intervalUnit: "month"
-        name: "Pro+ Plan (Monthly)"
-        intervalCount: 1
-        type: "subscription"
-        isDefault: true
-        unitPrice: 6000
-        usageEventsPerUnit: null
-        active: true
-        slug: "pro_plus_monthly"
-        usageMeterId: null
+    price:
+      intervalUnit: "month"
+      name: "Pro+ Plan (Monthly)"
+      intervalCount: 1
+      type: "subscription"
+      isDefault: true
+      unitPrice: 6000
+      usageEventsPerUnit: null
+      active: true
+      slug: "pro_plus_monthly"
+      usageMeterId: null
     features:
       - "pro_plus_fast_requests"
       - "unlimited_slow_requests"
@@ -145,17 +145,17 @@ products:
       active: true
       default: false
       slug: "ultra"
-    prices:
-      - intervalUnit: "month"
-        name: "Ultra Plan (Monthly)"
-        intervalCount: 1
-        type: "subscription"
-        isDefault: true
-        unitPrice: 20000
-        usageEventsPerUnit: null
-        active: true
-        slug: "ultra_monthly"
-        usageMeterId: null
+    price:
+      intervalUnit: "month"
+      name: "Ultra Plan (Monthly)"
+      intervalCount: 1
+      type: "subscription"
+      isDefault: true
+      unitPrice: 20000
+      usageEventsPerUnit: null
+      active: true
+      slug: "ultra_monthly"
+      usageMeterId: null
     features:
       - "ultra_fast_requests"
       - "unlimited_slow_requests"
