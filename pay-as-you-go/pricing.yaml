@@ -16,18 +16,18 @@ products:
       active: true
       default: true
       slug: "free"
-    prices:
-      - intervalUnit: null
-        name: "Free Plan"
-        intervalCount: null
-        type: "single_payment"
-        trialPeriodDays: null
-        isDefault: true
-        unitPrice: 0
-        usageEventsPerUnit: null
-        active: true
-        slug: "free"
-        usageMeterId: null
+    price:
+      intervalUnit: null
+      name: "Free Plan"
+      intervalCount: null
+      type: "single_payment"
+      trialPeriodDays: null
+      isDefault: true
+      unitPrice: 0
+      usageEventsPerUnit: null
+      active: true
+      slug: "free"
+      usageMeterId: null
     features: []
   - product:
       name: "message_credits"
@@ -36,17 +36,17 @@ products:
       pluralQuantityLabel: "units"
       default: false
       slug: "message_credits"
-    prices:
-      - intervalUnit: "month"
-        intervalCount: 1
-        type: "usage"
-        trialPeriodDays: null
-        isDefault: true
-        unitPrice: 0
-        usageEventsPerUnit: 1
-        active: true
-        slug: "message_credits"
-        usageMeterSlug: "message_credits"
+    price:
+      intervalUnit: "month"
+      intervalCount: 1
+      type: "usage"
+      trialPeriodDays: null
+      isDefault: true
+      unitPrice: 0
+      usageEventsPerUnit: 1
+      active: true
+      slug: "message_credits"
+      usageMeterSlug: "message_credits"
     features: []
   - product:
       name: "Message Topup"
@@ -55,18 +55,18 @@ products:
       active: true
       default: false
       slug: "message_topup"
-    prices:
-      - intervalUnit: null
-        name: "Default Price"
-        intervalCount: null
-        type: "single_payment"
-        trialPeriodDays: null
-        isDefault: true
-        unitPrice: 10000
-        usageEventsPerUnit: null
-        active: true
-        slug: "message_topup"
-        usageMeterId: null
+    price:
+      intervalUnit: null
+      name: "Default Price"
+      intervalCount: null
+      type: "single_payment"
+      trialPeriodDays: null
+      isDefault: true
+      unitPrice: 10000
+      usageEventsPerUnit: null
+      active: true
+      slug: "message_topup"
+      usageMeterId: null
     features:
       - "100_messages"
 usageMeters:
