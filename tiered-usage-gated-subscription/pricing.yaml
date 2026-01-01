@@ -156,17 +156,17 @@ products:
       pluralQuantityLabel: "users"
       default: false
       slug: "business_monthly"
-    prices:
-      - intervalUnit: "month"
-        name: "Business Plan (per user/month)"
-        intervalCount: 1
-        type: "subscription"
-        isDefault: true
-        unitPrice: 3000
-        usageEventsPerUnit: null
-        active: true
-        slug: "business_monthly"
-        usageMeterId: null
+    price:
+      intervalUnit: "month"
+      name: "Business Plan (per user/month)"
+      intervalCount: 1
+      type: "subscription"
+      isDefault: true
+      unitPrice: 3000
+      usageEventsPerUnit: null
+      active: true
+      slug: "business_monthly"
+      usageMeterId: null
     features:
       - "gpt_5_fast"
       - "gpt_5_thinking"
@@ -194,17 +194,17 @@ products:
       active: true
       default: true
       slug: "free_tier"
-    prices:
-      - intervalUnit: "month"
-        name: "Free Plan"
-        intervalCount: 1
-        type: "subscription"
-        isDefault: true
-        unitPrice: 0
-        usageEventsPerUnit: null
-        active: true
-        slug: "free_monthly"
-        usageMeterId: null
+    price:
+      intervalUnit: "month"
+      name: "Free Plan"
+      intervalCount: 1
+      type: "subscription"
+      isDefault: true
+      unitPrice: 0
+      usageEventsPerUnit: null
+      active: true
+      slug: "free_monthly"
+      usageMeterId: null
     features:
       - "gpt_5_fast"
       - "context_16k"
@@ -220,18 +220,18 @@ products:
       active: true
       default: false
       slug: "o3_tracking"
-    prices:
-      - intervalUnit: "month"
-        name: "Default Price"
-        intervalCount: 1
-        type: "usage"
-        trialPeriodDays: null
-        isDefault: true
-        unitPrice: 0
-        usageEventsPerUnit: 1
-        active: true
-        slug: "o3_tracking"
-        usageMeterSlug: "o3_messages"
+    price:
+      intervalUnit: "month"
+      name: "Default Price"
+      intervalCount: 1
+      type: "usage"
+      trialPeriodDays: null
+      isDefault: true
+      unitPrice: 0
+      usageEventsPerUnit: 1
+      active: true
+      slug: "o3_tracking"
+      usageMeterSlug: "o3_messages"
     features: []
   - product:
       name: "o4 mini-high Tracking"
@@ -239,18 +239,18 @@ products:
       active: true
       default: false
       slug: "o4_mini_high_tracking"
-    prices:
-      - intervalUnit: "month"
-        name: "Default Price"
-        intervalCount: 1
-        type: "usage"
-        trialPeriodDays: null
-        isDefault: true
-        unitPrice: 0
-        usageEventsPerUnit: 1
-        active: true
-        slug: "o4_mini_high_tracking"
-        usageMeterSlug: "o4_mini_high_messages"
+    price:
+      intervalUnit: "month"
+      name: "Default Price"
+      intervalCount: 1
+      type: "usage"
+      trialPeriodDays: null
+      isDefault: true
+      unitPrice: 0
+      usageEventsPerUnit: 1
+      active: true
+      slug: "o4_mini_high_tracking"
+      usageMeterSlug: "o4_mini_high_messages"
     features: []
   - product:
       name: "o4 mini Tracking"
@@ -258,18 +258,18 @@ products:
       active: true
       default: false
       slug: "o4_mini_tracking"
-    prices:
-      - intervalUnit: "month"
-        name: "Default Price"
-        intervalCount: 1
-        type: "usage"
-        trialPeriodDays: null
-        isDefault: true
-        unitPrice: 0
-        usageEventsPerUnit: 1
-        active: true
-        slug: "o4_mini_tracking"
-        usageMeterSlug: "o4_mini_messages"
+    price:
+      intervalUnit: "month"
+      name: "Default Price"
+      intervalCount: 1
+      type: "usage"
+      trialPeriodDays: null
+      isDefault: true
+      unitPrice: 0
+      usageEventsPerUnit: 1
+      active: true
+      slug: "o4_mini_tracking"
+      usageMeterSlug: "o4_mini_messages"
     features: []
   - product:
       name: "GPT5 Tracking"
@@ -277,18 +277,18 @@ products:
       active: true
       default: false
       slug: "gpt5_tracking"
-    prices:
-      - intervalUnit: "month"
-        name: "Default Price"
-        intervalCount: 1
-        type: "usage"
-        trialPeriodDays: null
-        isDefault: true
-        unitPrice: 0
-        usageEventsPerUnit: 1
-        active: true
-        slug: "gpt5_tracking"
-        usageMeterSlug: "gpt_5_thinking_messages"
+    price:
+      intervalUnit: "month"
+      name: "Default Price"
+      intervalCount: 1
+      type: "usage"
+      trialPeriodDays: null
+      isDefault: true
+      unitPrice: 0
+      usageEventsPerUnit: 1
+      active: true
+      slug: "gpt5_tracking"
+      usageMeterSlug: "gpt_5_thinking_messages"
     features: []
   - product:
       name: "Agent Tracking"
@@ -296,18 +296,18 @@ products:
       active: true
       default: false
       slug: "agent_tracking"
-    prices:
-      - intervalUnit: "month"
-        name: "Default Price"
-        intervalCount: 1
-        type: "usage"
-        trialPeriodDays: null
-        isDefault: true
-        unitPrice: 0
-        usageEventsPerUnit: 1
-        active: true
-        slug: "agent_tracking"
-        usageMeterSlug: "agent_messages"
+    price:
+      intervalUnit: "month"
+      name: "Default Price"
+      intervalCount: 1
+      type: "usage"
+      trialPeriodDays: null
+      isDefault: true
+      unitPrice: 0
+      usageEventsPerUnit: 1
+      active: true
+      slug: "agent_tracking"
+      usageMeterSlug: "agent_messages"
     features: []
   - product:
       name: "Deep Research Tracking"
@@ -315,18 +315,18 @@ products:
       active: true
       default: false
       slug: "deep_research_tracking"
-    prices:
-      - intervalUnit: "month"
-        name: "Default Price"
-        intervalCount: 1
-        type: "usage"
-        trialPeriodDays: null
-        isDefault: true
-        unitPrice: 0
-        usageEventsPerUnit: 1
-        active: true
-        slug: "deep_research_tracking"
-        usageMeterSlug: "deep_research_requests"
+    price:
+      intervalUnit: "month"
+      name: "Default Price"
+      intervalCount: 1
+      type: "usage"
+      trialPeriodDays: null
+      isDefault: true
+      unitPrice: 0
+      usageEventsPerUnit: 1
+      active: true
+      slug: "deep_research_tracking"
+      usageMeterSlug: "deep_research_requests"
     features: []
   - product:
       name: "Plus"
@@ -334,17 +334,17 @@ products:
       active: true
       default: false
       slug: "plus"
-    prices:
-      - intervalUnit: "month"
-        name: "Plus Plan (Monthly)"
-        intervalCount: 1
-        type: "subscription"
-        isDefault: true
-        unitPrice: 2000
-        usageEventsPerUnit: null
-        active: true
-        slug: "plus_monthly"
-        usageMeterId: null
+    price:
+      intervalUnit: "month"
+      name: "Plus Plan (Monthly)"
+      intervalCount: 1
+      type: "subscription"
+      isDefault: true
+      unitPrice: 2000
+      usageEventsPerUnit: null
+      active: true
+      slug: "plus_monthly"
+      usageMeterId: null
     features:
       - "gpt_5_fast"
       - "gpt_5_thinking"
@@ -371,17 +371,17 @@ products:
       active: true
       default: false
       slug: "pro"
-    prices:
-      - intervalUnit: "month"
-        name: "Pro Plan (Monthly)"
-        intervalCount: 1
-        type: "subscription"
-        isDefault: true
-        unitPrice: 20000
-        usageEventsPerUnit: null
-        active: true
-        slug: "pro_monthly"
-        usageMeterId: null
+    price:
+      intervalUnit: "month"
+      name: "Pro Plan (Monthly)"
+      intervalCount: 1
+      type: "subscription"
+      isDefault: true
+      unitPrice: 20000
+      usageEventsPerUnit: null
+      active: true
+      slug: "pro_monthly"
+      usageMeterId: null
     features:
       - "gpt_5_fast"
       - "gpt_5_thinking"
