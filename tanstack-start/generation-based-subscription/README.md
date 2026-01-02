@@ -1,310 +1,144 @@
-Welcome to your new TanStack app! 
+# Flowglad Example Project
 
-# Getting Started
+An example of how to integrate Flowglad into a TanStack Start project with BetterAuth. 
+This project demonstrates the "Generation-Based Subscription Template Pricing Model".
 
-To run this application:
+## Tech Stack
+
+- **[TanStack Start](https://tanstack.com/start)** - Full-stack React framework with file-based routing
+- **[TanStack Query](https://tanstack.com/query)** - Powerful asynchronous state management
+- **[TanStack Router](https://tanstack.com/router)** - Type-safe routing for React
+- **[Vite](https://vite.dev)** - Next generation frontend tooling
+- **[BetterAuth](https://www.better-auth.com)** - Modern authentication and user management
+- **[Flowglad](https://flowglad.com)** - Billing and subscription management
+- **[Drizzle ORM](https://orm.drizzle.team)** - PostgreSQL database with type-safe queries
+- **[TypeScript](https://www.typescriptlang.org)** - Type safety throughout
+- **[Tailwind CSS](https://tailwindcss.com)** - Utility-first CSS framework
+- **[shadcn/ui](https://ui.shadcn.com)** - Beautiful UI component library
+
+## Features
+
+- ✅ **Authentication** - Email/password authentication with BetterAuth
+- ✅ **Billing** - Subscription management with Flowglad
+- ✅ **Database** - PostgreSQL with Drizzle ORM migrations
+- ✅ **UI Components** - Pre-built shadcn/ui components
+- ✅ **TypeScript** - Full type safety across the stack
+
+## Prerequisites
+
+- Node.js >= 18.18.0
+- Bun >= 1.3.1
+- PostgreSQL database
+
+## Getting Started
+
+### 1. Set Up Your Pricing Model
+
+To use this example project, you'll need to upload the `pricing.yaml` file to your Flowglad dashboard and set it as your default pricing model:
+
+1. Log in to your [Flowglad dashboard](https://flowglad.com)
+2. Navigate to the Pricing Models section [Flowglad pricing models page](https://app.flowglad.com/store/pricing-models)
+3. Click on Create Pricing Model
+4. Import the `pricing.yaml` file from the root of this project
+5. Once uploaded, set it as your default pricing model in the dashboard settings
+
+This will enable all the subscription plans, usage meters, and features defined in the pricing configuration for your application.
+
+### 2. Install Dependencies
+
+Navigate into this project directory and install dependencies:
 
 ```bash
+cd generation-based-subscription
 bun install
-bun --bun run start
 ```
 
-# Building For Production
+### 3. Set Up Environment Variables
 
-To build this application for production:
+Copy the example environment file:
 
 ```bash
-bun --bun run build
+cp .env.example .env.local
 ```
 
-## Testing
+Fill in the required values in `.env.local`:
 
-This project uses [Vitest](https://vitest.dev/) for testing. You can run the tests with:
+- **`DATABASE_URL`** - PostgreSQL connection string
+  - Example: `postgresql://user:password@localhost:5432/dbname`
+  
+- **`BETTER_AUTH_SECRET`** - Secret key for BetterAuth session encryption
+  - Generate with: `openssl rand -base64 32`
+  
+- **`FLOWGLAD_SECRET_KEY`** - Secret key for Flowglad API calls
+  - Get your secret key from: [https://flowglad.com](https://flowglad.com)
+
+### 4. Set Up Database
+
+Generate and run database migrations:
 
 ```bash
-bun --bun run test
+bun db:generate
+bun db:migrate
 ```
 
-## Styling
-
-This project uses [Tailwind CSS](https://tailwindcss.com/) for styling.
-
-
-## Linting & Formatting
-
-
-This project uses [eslint](https://eslint.org/) and [prettier](https://prettier.io/) for linting and formatting. Eslint is configured using [tanstack/eslint-config](https://tanstack.com/config/latest/docs/eslint). The following scripts are available:
+### 5. Start Development Server
 
 ```bash
-bun --bun run lint
-bun --bun run format
-bun --bun run check
+bun dev
 ```
 
+Open [http://localhost:3000](http://localhost:3000) to see the application.
 
-## Shadcn
+## Available Scripts
 
-Add components using the latest version of [Shadcn](https://ui.shadcn.com/).
+- `bun dev` - Start development server
+- `bun build` - Build for production
+- `bun preview` - Preview production build
+- `bun lint` - Run ESLint
+- `bun check` - Format and fix lint errors
+- `bun db:generate` - Generate database migrations
+- `bun db:migrate` - Run database migrations
+- `bun db:push` - Push schema changes to database
+- `bun db:pull` - Pull schema from database
+- `bun db:studio` - Open Drizzle Studio (database GUI)
 
-```bash
-pnpm dlx shadcn@latest add button
+## Project Structure
+
+```
+├── src/
+│   ├── routes/              # TanStack Router file-based routes
+│   │   ├── api/            # API routes (BetterAuth, Flowglad)
+│   │   ├── __root.tsx      # Root layout component
+│   │   ├── index.tsx       # Home page
+│   │   ├── pricing.tsx     # Pricing page
+│   │   ├── sign-in.tsx     # Sign in page
+│   │   └── sign-up.tsx     # Sign up page
+│   ├── components/         # React components
+│   │   └── ui/            # shadcn/ui components
+│   ├── db/                # Database schema and client
+│   ├── hooks/             # Custom React hooks
+│   ├── integrations/      # Third-party integrations
+│   │   └── tanstack-query/ # TanStack Query configuration
+│   ├── lib/               # Utility functions and configurations
+│   │   ├── auth.ts        # BetterAuth configuration
+│   │   ├── auth-client.ts # BetterAuth client
+│   │   └── flowglad.ts    # Flowglad configuration
+│   ├── middleware/        # Server middleware
+│   └── router.tsx         # Router configuration
+├── drizzle/              # Generated database migrations
+├── pricing.yaml          # Flowglad pricing model configuration
+├── vite.config.ts        # Vite configuration
+└── public/               # Static assets
 ```
 
+## Authentication
 
+This project uses BetterAuth for authentication. Users can sign up and sign in with email/password. The authentication state is managed server-side with secure cookies.
 
-## Routing
-This project uses [TanStack Router](https://tanstack.com/router). The initial setup is a file based router. Which means that the routes are managed as files in `src/routes`.
+## Billing
 
-### Adding A Route
+Flowglad is integrated for subscription and billing management. The Flowglad provider is configured to work with BetterAuth sessions. The pricing model is defined in `pricing.yaml` at the root of the project, which includes subscription plans, usage meters, and features.
 
-To add a new route to your application just add another a new file in the `./src/routes` directory.
+## Database
 
-TanStack will automatically generate the content of the route file for you.
-
-Now that you have two routes you can use a `Link` component to navigate between them.
-
-### Adding Links
-
-To use SPA (Single Page Application) navigation you will need to import the `Link` component from `@tanstack/react-router`.
-
-```tsx
-import { Link } from "@tanstack/react-router";
-```
-
-Then anywhere in your JSX you can use it like so:
-
-```tsx
-<Link to="/about">About</Link>
-```
-
-This will create a link that will navigate to the `/about` route.
-
-More information on the `Link` component can be found in the [Link documentation](https://tanstack.com/router/v1/docs/framework/react/api/router/linkComponent).
-
-### Using A Layout
-
-In the File Based Routing setup the layout is located in `src/routes/__root.tsx`. Anything you add to the root route will appear in all the routes. The route content will appear in the JSX where you use the `<Outlet />` component.
-
-Here is an example layout that includes a header:
-
-```tsx
-import { Outlet, createRootRoute } from '@tanstack/react-router'
-import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
-
-import { Link } from "@tanstack/react-router";
-
-export const Route = createRootRoute({
-  component: () => (
-    <>
-      <header>
-        <nav>
-          <Link to="/">Home</Link>
-          <Link to="/about">About</Link>
-        </nav>
-      </header>
-      <Outlet />
-      <TanStackRouterDevtools />
-    </>
-  ),
-})
-```
-
-The `<TanStackRouterDevtools />` component is not required so you can remove it if you don't want it in your layout.
-
-More information on layouts can be found in the [Layouts documentation](https://tanstack.com/router/latest/docs/framework/react/guide/routing-concepts#layouts).
-
-
-## Data Fetching
-
-There are multiple ways to fetch data in your application. You can use TanStack Query to fetch data from a server. But you can also use the `loader` functionality built into TanStack Router to load the data for a route before it's rendered.
-
-For example:
-
-```tsx
-const peopleRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: "/people",
-  loader: async () => {
-    const response = await fetch("https://swapi.dev/api/people");
-    return response.json() as Promise<{
-      results: {
-        name: string;
-      }[];
-    }>;
-  },
-  component: () => {
-    const data = peopleRoute.useLoaderData();
-    return (
-      <ul>
-        {data.results.map((person) => (
-          <li key={person.name}>{person.name}</li>
-        ))}
-      </ul>
-    );
-  },
-});
-```
-
-Loaders simplify your data fetching logic dramatically. Check out more information in the [Loader documentation](https://tanstack.com/router/latest/docs/framework/react/guide/data-loading#loader-parameters).
-
-### React-Query
-
-React-Query is an excellent addition or alternative to route loading and integrating it into you application is a breeze.
-
-First add your dependencies:
-
-```bash
-bun install @tanstack/react-query @tanstack/react-query-devtools
-```
-
-Next we'll need to create a query client and provider. We recommend putting those in `main.tsx`.
-
-```tsx
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-
-// ...
-
-const queryClient = new QueryClient();
-
-// ...
-
-if (!rootElement.innerHTML) {
-  const root = ReactDOM.createRoot(rootElement);
-
-  root.render(
-    <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />
-    </QueryClientProvider>
-  );
-}
-```
-
-You can also add TanStack Query Devtools to the root route (optional).
-
-```tsx
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-
-const rootRoute = createRootRoute({
-  component: () => (
-    <>
-      <Outlet />
-      <ReactQueryDevtools buttonPosition="top-right" />
-      <TanStackRouterDevtools />
-    </>
-  ),
-});
-```
-
-Now you can use `useQuery` to fetch your data.
-
-```tsx
-import { useQuery } from "@tanstack/react-query";
-
-import "./App.css";
-
-function App() {
-  const { data } = useQuery({
-    queryKey: ["people"],
-    queryFn: () =>
-      fetch("https://swapi.dev/api/people")
-        .then((res) => res.json())
-        .then((data) => data.results as { name: string }[]),
-    initialData: [],
-  });
-
-  return (
-    <div>
-      <ul>
-        {data.map((person) => (
-          <li key={person.name}>{person.name}</li>
-        ))}
-      </ul>
-    </div>
-  );
-}
-
-export default App;
-```
-
-You can find out everything you need to know on how to use React-Query in the [React-Query documentation](https://tanstack.com/query/latest/docs/framework/react/overview).
-
-## State Management
-
-Another common requirement for React applications is state management. There are many options for state management in React. TanStack Store provides a great starting point for your project.
-
-First you need to add TanStack Store as a dependency:
-
-```bash
-bun install @tanstack/store
-```
-
-Now let's create a simple counter in the `src/App.tsx` file as a demonstration.
-
-```tsx
-import { useStore } from "@tanstack/react-store";
-import { Store } from "@tanstack/store";
-import "./App.css";
-
-const countStore = new Store(0);
-
-function App() {
-  const count = useStore(countStore);
-  return (
-    <div>
-      <button onClick={() => countStore.setState((n) => n + 1)}>
-        Increment - {count}
-      </button>
-    </div>
-  );
-}
-
-export default App;
-```
-
-One of the many nice features of TanStack Store is the ability to derive state from other state. That derived state will update when the base state updates.
-
-Let's check this out by doubling the count using derived state.
-
-```tsx
-import { useStore } from "@tanstack/react-store";
-import { Store, Derived } from "@tanstack/store";
-import "./App.css";
-
-const countStore = new Store(0);
-
-const doubledStore = new Derived({
-  fn: () => countStore.state * 2,
-  deps: [countStore],
-});
-doubledStore.mount();
-
-function App() {
-  const count = useStore(countStore);
-  const doubledCount = useStore(doubledStore);
-
-  return (
-    <div>
-      <button onClick={() => countStore.setState((n) => n + 1)}>
-        Increment - {count}
-      </button>
-      <div>Doubled - {doubledCount}</div>
-    </div>
-  );
-}
-
-export default App;
-```
-
-We use the `Derived` class to create a new store that is derived from another store. The `Derived` class has a `mount` method that will start the derived store updating.
-
-Once we've created the derived store we can use it in the `App` component just like we would any other store using the `useStore` hook.
-
-You can find out everything you need to know on how to use TanStack Store in the [TanStack Store documentation](https://tanstack.com/store/latest).
-
-# Demo files
-
-Files prefixed with `demo` can be safely deleted. They are there to provide a starting point for you to play around with the features you've installed.
-
-# Learn More
-
-You can learn more about all of the offerings from TanStack in the [TanStack documentation](https://tanstack.com).
+The project uses Drizzle ORM with PostgreSQL. The schema includes the necessary tables for BetterAuth (users, sessions, accounts, verifications). You can extend the schema in `src/db/schema.ts`.
