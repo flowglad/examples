@@ -52,8 +52,8 @@ export const Route = createFileRoute('/api/usage-events')({
             `usage_${Date.now()}_${Math.random().toString(36).substring(7)}`
 
           // Get customer ID from session
-          const session = await getSessionFromRequest(request)
-          const userId = session?.user ? session.user.id : null
+          const session = await getSessionFromRequest()
+          const userId = session?.user.id
 
           if (!userId) {
             return Response.json({ error: 'User not found' }, { status: 401 })
@@ -63,7 +63,6 @@ export const Route = createFileRoute('/api/usage-events')({
           const flowgladServer = flowglad(userId)
           const billing = await flowgladServer.getBilling()
 
-          // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
           if (!billing.customer) {
             return Response.json(
               { error: 'Customer not found' },
