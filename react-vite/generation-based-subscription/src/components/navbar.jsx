@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useClerk, useUser } from '@clerk/clerk-react';
+import { authClient } from '../lib/auth-client';
 import { useBilling } from '@flowglad/react';
 import {
   DropdownMenu,
@@ -19,8 +19,7 @@ import { Button } from './ui/button';
 
 export function Navbar() {
   const navigate = useNavigate();
-  const { signOut } = useClerk();
-  const { user } = useUser();
+  const { data: session } = authClient.useSession();
   const billing = useBilling();
   const [isCancelling, setIsCancelling] = useState(false);
   const [isUncancelling, setIsUncancelling] = useState(false);
@@ -35,7 +34,7 @@ export function Navbar() {
   }
 
   async function handleSignOut() {
-    await signOut();
+    await authClient.signOut();
     navigate('/sign-in');
   }
 
@@ -128,11 +127,11 @@ export function Navbar() {
     }
   }
 
-  if (!user) {
+  if (!session?.user) {
     return null;
   }
 
-  const accountName = user.fullName || user.primaryEmailAddress?.emailAddress || 'Account';
+  const accountName = session.user.name || session.user.email || 'Account';
   
   // Get current subscription using the same pattern as other components
   const subscriptions = Array.isArray(billing?.subscriptions) ? billing.subscriptions : [];

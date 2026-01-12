@@ -1,5 +1,6 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { SignedIn, SignedOut, RedirectToSignIn } from '@clerk/clerk-react';
+import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
+import { authClient } from './lib/auth-client';
 import { FlowgladProviderWrapper } from './components/providers';
 import { TooltipProvider } from './components/ui/tooltip';
 import { Navbar } from './components/navbar';
@@ -9,14 +10,24 @@ import { SignInPage } from './pages/sign-in';
 import { SignUpPage } from './pages/sign-up';
 
 function ProtectedRoute({ children }) {
-  return (
-    <>
-      <SignedIn>{children}</SignedIn>
-      <SignedOut>
-        <RedirectToSignIn redirectUrl="/" />
-      </SignedOut>
-    </>
-  );
+  const navigate = useNavigate();
+  const { data: session, isPending } = authClient.useSession();
+
+  useEffect(() => {
+    if (!isPending && !session?.user) {
+      navigate('/sign-in', { replace: true });
+    }
+  }, [session, isPending, navigate]);
+
+  if (isPending) {
+    return <div>Loading...</div>;
+  }
+
+  if (!session?.user) {
+    return null;
+  }
+
+  return children;
 }
 
 function App() {
@@ -32,9 +43,7 @@ function App() {
               element={
                 <ProtectedRoute>
                   <FlowgladProviderWrapper>
-                    <SignedIn>
                       <Navbar />
-                    </SignedIn>
                     <HomePage />
                   </FlowgladProviderWrapper>
                 </ProtectedRoute>
@@ -45,9 +54,7 @@ function App() {
               element={
                 <ProtectedRoute>
                   <FlowgladProviderWrapper>
-                    <SignedIn>
                       <Navbar />
-                    </SignedIn>
                     <PricingPage />
                   </FlowgladProviderWrapper>
                 </ProtectedRoute>

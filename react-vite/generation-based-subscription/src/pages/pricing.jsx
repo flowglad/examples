@@ -7,19 +7,6 @@ export function PricingPage() {
   const [isReloading, setIsReloading] = useState(false);
   const [hasReloaded, setHasReloaded] = useState(false);
   
-  // Log billing state
-  useEffect(() => {
-    console.log('PricingPage - billing state:', {
-      loaded: billing.loaded,
-      loadBilling: billing.loadBilling,
-      hasReload: !!billing.reload,
-      hasErrors: !!billing.errors,
-      errors: billing.errors,
-      currentSubscriptionsLength: billing.currentSubscriptions?.length || 0,
-      purchasesLength: billing.purchases?.length || 0,
-    });
-  }, [billing]);
-  
   /**
    * Reload billing data after successful checkout
    * 
@@ -42,13 +29,9 @@ export function PricingPage() {
           setIsReloading(true);
           try {
             await billing.reload();
-            console.log('   New state:', {
-              currentSubscriptionsLength: billing.currentSubscriptions?.length || 0,
-              purchasesLength: billing.purchases?.length || 0,
-            });
             setHasReloaded(true);
           } catch (error) {
-            console.error(' PricingPage: Error reloading billing data:', error);
+            console.error('Error reloading billing data:', error);
           } finally {
             setIsReloading(false);
             // Clean up URL params after reload completes

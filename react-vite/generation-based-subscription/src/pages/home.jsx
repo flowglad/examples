@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useUser } from '@clerk/clerk-react';
+import { authClient } from '../lib/auth-client';
 import { useBilling } from '@flowglad/react';
 import { computeUsageTotal } from '../lib/billing-helpers';
 import { DashboardSkeleton } from '../components/dashboard-skeleton';
@@ -32,7 +32,7 @@ const mockVideoGif = [
 
 export function HomePage() {
   const navigate = useNavigate();
-  const { isLoaded: isUserLoaded, user } = useUser();
+  const { data: session, isPending: isUserPending } = authClient.useSession();
   const billing = useBilling();
   
   // Extract current subscriptions using Flowglad's current flag
@@ -87,7 +87,7 @@ export function HomePage() {
 
   // Refetch billing data when user ID changes
   useEffect(() => {
-    const currentUserId = user?.id;
+    const currentUserId = session?.user?.id;
     if (
       currentUserId &&
       currentUserId !== previousUserIdRef.current &&
@@ -100,12 +100,12 @@ export function HomePage() {
       previousUserIdRef.current = currentUserId;
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.id, billing.loaded, billing.reload]);
+  }, [session?.user?.id, billing.loaded, billing.reload]);
 
 
   // Check if user is on free plan and redirect to pricing page
   useEffect(() => {
-    if (!isUserLoaded || !billing.loaded) {
+    if (isUserPending || !billing.loaded) {
       return;
     }
 
@@ -117,14 +117,14 @@ export function HomePage() {
       setIsRedirecting(true);
       navigate('/pricing');
     }
-  }, [isUserLoaded, billing.loaded, currentSubscriptions, navigate]);
+  }, [isUserPending, billing.loaded, currentSubscriptions, navigate]);
   
   // Show skeleton while redirecting
   if (isRedirecting) {
     return <DashboardSkeleton />;
   }
 
-  if (!isUserLoaded || !billing.loaded) {
+  if (isUserPending || !billing.loaded) {
     return <DashboardSkeleton />;
   }
 
@@ -223,9 +223,6 @@ export function HomePage() {
   // Build request headers for API calls
   const getRequestHeaders = () => ({
     'Content-Type': 'application/json',
-    'X-User-Id': user?.id || '',
-    'X-User-Email': user?.primaryEmailAddress?.emailAddress || '',
-    'X-User-Name': user?.fullName || user?.firstName || '',
   });
 
   const handleGenerateFastImage = async () => {
@@ -243,6 +240,7 @@ export function HomePage() {
       const response = await fetch('/api/usage-events', {
         method: 'POST',
         headers: getRequestHeaders(),
+        credentials: 'include', // Include cookies for Better Auth session
         body: JSON.stringify({
           usageMeterSlug: 'fast_generations',
           amount,
@@ -307,6 +305,7 @@ export function HomePage() {
       const response = await fetch('/api/usage-events', {
         method: 'POST',
         headers: getRequestHeaders(),
+        credentials: 'include', // Include cookies for Better Auth session
         body: JSON.stringify({
           usageMeterSlug: 'hd_video_minutes',
           amount,

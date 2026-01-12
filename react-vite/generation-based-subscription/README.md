@@ -1,19 +1,20 @@
 # Flowglad React + Vite Example
 
-An example of how to integrate Flowglad into a React + Vite project with Clerk authentication.
+An example of how to integrate Flowglad into a React + Vite project with Better Auth authentication.
 This project demonstrates the "Generation-Based Subscription Template Pricing Model".
 
 ## Tech Stack
 
 - **Frontend**: React 19 + Vite
-- **Authentication**: Clerk
+- **Authentication**: Better Auth
+- **Database**: PostgreSQL with Drizzle ORM
 - **Billing**: Flowglad (`@flowglad/react` + `@flowglad/server`)
 - **Backend**: Express.js (API routes for Flowglad)
 - **Styling**: Tailwind CSS
 
 ## Features
 
-- ✅ **Authentication** - Email/password and social authentication with Clerk
+- ✅ **Authentication** - Email/password authentication with Better Auth
 - ✅ **Billing** - Subscription management with Flowglad
 - ✅ **Usage Tracking** - Track usage credits for AI generations
 - ✅ **Pricing Page** - Display subscription plans dynamically from Flowglad
@@ -24,8 +25,8 @@ This project demonstrates the "Generation-Based Subscription Template Pricing Mo
 ## Prerequisites
 
 - Node.js 18+ or Bun
+- PostgreSQL database (local or hosted)
 - A [Flowglad account](https://app.flowglad.com/sign-up)
-- A [Clerk account](https://clerk.com)
 
 ## Getting Started
 
@@ -52,48 +53,48 @@ bun install
 
 ### 3. Set Up Environment Variables
 
-Create a `.env` file in the root of this project:
-
+Copy the example environment file
 ```bash
-# Flowglad API Key
-# Get your secret key from: https://flowglad.com
-FLOWGLAD_SECRET_KEY=sk_test_...
+cp .env.example .env.local
+```
 
-# Clerk Authentication
-# Get your keys from: https://clerk.com
-VITE_CLERK_PUBLISHABLE_KEY=pk_test_...
-CLERK_PUBLISHABLE_KEY=pk_test_...
-CLERK_SECRET_KEY=sk_test_...
+Fill in the required values in `.env.local`:
 
-# Server Configuration
+- **`DATABASE_URL`** - PostgreSQL connection string
+  - Example: `postgresql://user:password@localhost:5432/dbname`
+  
+- **`BETTER_AUTH_SECRET`** - Secret key for BetterAuth session encryption
+  - Generate with: `openssl rand -base64 32`
+  
+- **`FLOWGLAD_SECRET_KEY`** - Secret key for Flowglad API calls
+  - Get your secret key from: [https://flowglad.com](https://flowglad.com)
+
+### Server Configuration
+```
 SERVER_PORT=3001
 VITE_APP_URL=http://localhost:5173
 ```
 
-**Environment Variables Explained:**
+### 4. Set up Database
 
-- **`FLOWGLAD_SECRET_KEY`** - Your Flowglad secret API key
-  - Get your secret key from: [https://flowglad.com](https://flowglad.com)
+Generate and run the database migrations
 
-- **`VITE_CLERK_PUBLISHABLE_KEY`** - Your Clerk publishable key (for frontend)
-  - Get your keys from: [https://clerk.com](https://clerk.com)
-  - Create a new application in Clerk and copy the publishable key
+```bash
+# Generate migration files
+bun run db:generate
 
-- **`CLERK_PUBLISHABLE_KEY`** - Your Clerk publishable key (for backend)
-  - Same value as `VITE_CLERK_PUBLISHABLE_KEY` but without the `VITE_` prefix
-  - Required by `@clerk/express` middleware
+# Run migrations to create tables
+bun run db:migrate
 
-- **`CLERK_SECRET_KEY`** - Your Clerk secret key (backend)
-  - Get this from your Clerk dashboard
-  - Used by the Express backend to verify session tokens
+# (Optional) Open Drizzle Studio to inspect your database
+bun run db:studio
+```
 
-### 4. Configure Clerk
-
-In your Clerk dashboard:
-
-1. Create a new application or use an existing one
-2. Enable Email/Password authentication (and any social providers you want)
-3. Copy the Publishable Key to your `.env` file
+This will create the following tables:
+- `users` - User accounts
+- `sessions` - User sessions
+- `accounts` - Authentication accounts (email/password)
+- `verifications` - Email verification tokens
 
 ### 5. Start Development Server
 
@@ -117,11 +118,19 @@ Vite automatically proxies `/api/*` requests to the Express backend.
 - `bun run build` - Build the frontend for production
 - `bun run preview` - Preview the production build
 - `bun run lint` - Run ESLint
+- `bun run db:generate` - Generate Drizzle migration files
+- `bun run db:migrate` - Run database migrations
+- `bun run db:studio` - Open Drizzle Studio to inspect database
 
 ## Project Structure
 
 ```
 ├── server/
+│   ├── db/
+│   │   ├── schema.js      # Drizzle schema (Better Auth tables)
+│   │   └── client.js      # Database client
+│   ├── lib/
+│   │   └── auth.js        # Better Auth configuration
 │   └── index.js           # Express backend with Flowglad routes
 ├── src/
 │   ├── components/
@@ -134,16 +143,19 @@ Vite automatically proxies `/api/*` requests to the Express backend.
 │   ├── hooks/
 │   │   └── use-mobile.js  # Mobile breakpoint hook
 │   ├── lib/
+│   │   ├── auth-client.js # Better Auth React client
 │   │   ├── billing-helpers.js  # Billing utility functions
 │   │   └── utils.js       # General utilities (cn)
 │   ├── pages/
 │   │   ├── home.jsx       # Dashboard with usage tracking
 │   │   ├── pricing.jsx    # Pricing plans page
-│   │   ├── sign-in.jsx    # Clerk sign-in page
-│   │   └── sign-up.jsx    # Clerk sign-up page
+│   │   ├── sign-in.jsx    # Better Auth sign-in page
+│   │   └── sign-up.jsx    # Better Auth sign-up page
 │   ├── App.jsx            # Main app with routing
-│   ├── main.jsx           # Entry point with Clerk provider
+│   ├── main.jsx           # Entry point
 │   └── index.css          # Tailwind CSS styles
+├── drizzle/               # Generated migration files
+├── drizzle.config.js      # Drizzle configuration
 ├── pricing.yaml           # Flowglad pricing model configuration
 ├── vite.config.js         # Vite config with API proxy
 └── tailwind.config.js     # Tailwind CSS config
@@ -153,13 +165,15 @@ Vite automatically proxies `/api/*` requests to the Express backend.
 
 ### Frontend (React + Vite)
 
-The frontend uses `@flowglad/react` for billing integration:
+The frontend uses `@flowglad/react` for billing integration and `better-auth/react` for authentication:
 
 - **FlowgladProvider**: Wraps the app and provides billing context
 - **useBilling hook**: Access billing data, create checkouts, manage subscriptions
+- **authClient**: Better Auth React client for authentication
 
 ```jsx
 import { useBilling } from '@flowglad/react';
+import { authClient } from './lib/auth-client';
 
 function MyComponent() {
   const { 
@@ -168,6 +182,8 @@ function MyComponent() {
     createCheckoutSession,
     currentSubscriptions,
   } = useBilling();
+  
+  const { data: session } = authClient.useSession();
   
   // Check if user has access to a feature
   if (checkFeatureAccess('premium_feature')) {
@@ -178,79 +194,59 @@ function MyComponent() {
 
 ### Backend (Express)
 
-The Express backend handles Flowglad API calls with `@flowglad/server`:
+The Express backend handles Flowglad API calls with `@flowglad/server` and authentication with Better Auth:
 
+- `GET /api/auth/session` - Get current user session
+- `ALL /api/auth/*` - Better Auth API routes (sign in, sign up, etc.)
 - `GET /api/flowglad/billing` - Get customer billing data
 - `POST /api/flowglad/checkout-sessions` - Create checkout sessions
 - `POST /api/flowglad/subscriptions/:id/cancel` - Cancel subscription
 - `POST /api/usage-events` - Create usage events
 
-User authentication is handled via Clerk session tokens passed as cookies. The Express backend verifies these tokens using `@clerk/express` middleware.
+User authentication is handled via Better Auth session cookies. The Express backend verifies sessions using Better Auth's session validation.
 
 ## Authentication Flow
 
-1. User signs in/up via Clerk components
-2. Clerk creates a session and stores the token in cookies (`__session`)
-3. Frontend makes API requests to Express backend (cookies automatically included)
-4. Express backend uses `@clerk/express` middleware to verify and authenticate the request
-5. Express backend extracts user ID from Clerk auth and creates FlowgladServer with user ID as customerExternalId
-6. Flowglad manages customer billing data linked to Clerk user ID
+1. User signs in/up via Better Auth forms
+2. Better Auth creates a session and stores it in the database
+3. Session token is stored in HTTP-only cookies
+4. Frontend makes API requests to Express backend (cookies automatically included)
+5. Express backend uses Better Auth to verify the session from cookies
+6. Express backend extracts user ID from session and creates FlowgladServer with user ID as customerExternalId
+7. Flowglad manages customer billing data linked to Better Auth user ID
+
+## Auth Architecture
+
+- **Auth Configuration**: `server/lib/auth.js` - Better Auth instance with Drizzle adapter
+- **Auth Client**: `src/lib/auth-client.js` - React client for Better Auth
+- **Session Validation**: Express middleware in `server/index.js` validates sessions on protected routes
+- **Protected Routes**: React Router `ProtectedRoute` component checks session before rendering
+- **Database**: Better Auth tables managed by Drizzle ORM in `server/db/schema.js`
 
 ## Billing Flow
 
-1. New user signs in → redirected to pricing page
+1. New user signs up → redirected to pricing page
 2. User selects a plan → checkout session created → redirected to Flowglad checkout
 3. After payment → subscription activated → redirected to dashboard
 4. Dashboard shows usage meters and generation buttons
 5. Each generation consumes credits via usage events
 6. User can purchase top-ups or manage subscription from navbar
 
-## Customization
+## Creating a Test User
 
-### Adding New Features
+1. Start the development server: `bun dev`
+2. Navigate to [http://localhost:5173/sign-up](http://localhost:5173/sign-up)
+3. Fill in the sign-up form with:
+   - Email: `test@example.com`
+   - Password: (at least 8 characters)
+   - Name: (optional)
+4. Click "Sign Up"
+5. You'll be automatically signed in and redirected to the dashboard
 
-1. Add feature definitions to `pricing.yaml`
-2. Use `checkFeatureAccess('feature_slug')` to gate features
+## Billing
 
-### Adding New Usage Meters
+Flowglad is integrated for subscription and billing management. The Flowglad provider is configured to work with BetterAuth sessions. The pricing model is defined in `pricing.yaml` at the root of the project, which includes subscription plans, usage meters, and features.
 
-1. Add usage meter to `pricing.yaml`
-2. Add usage price product
-3. Use `checkUsageBalance('meter_slug')` to check balance
-4. Call `/api/usage-events` to record usage
+## Database
 
-## Troubleshooting
-
-### "User not authenticated" error
-
-Make sure:
-- Clerk is properly configured with all three keys:
-  - `VITE_CLERK_PUBLISHABLE_KEY` (frontend)
-  - `CLERK_PUBLISHABLE_KEY` (backend)
-  - `CLERK_SECRET_KEY` (backend)
-- User is signed in before accessing billing features
-- Session cookies are being sent with requests (check browser developer tools → Network → Cookies)
-- CORS is configured correctly with `credentials: true`
-- `@clerk/express` middleware is properly initialized
-
-### Billing data not loading
-
-Check:
-- FLOWGLAD_SECRET_KEY is set correctly
-- Express server is running (check terminal for logs)
-- Vite proxy is configured correctly
-
-### Pricing plans not showing
-
-Ensure:
-- pricing.yaml is uploaded to Flowglad dashboard
-- Pricing model is set as default
-- Products have active subscription prices
-
-## Learn More
-
-- [Flowglad Documentation](https://docs.flowglad.com)
-- [Flowglad React SDK](https://docs.flowglad.com/sdks/react)
-- [Clerk Documentation](https://clerk.com/docs)
-- [Vite Documentation](https://vitejs.dev)
-- [Tailwind CSS](https://tailwindcss.com)
+The project uses Drizzle ORM with PostgreSQL. The schema includes the necessary tables for BetterAuth (users, sessions, accounts, verifications). You can extend the schema in `server/db/schema.ts`.

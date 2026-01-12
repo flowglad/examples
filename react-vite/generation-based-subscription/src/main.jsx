@@ -1,15 +1,7 @@
 import React, { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import { ClerkProvider } from '@clerk/clerk-react';
 import './index.css';
 import App from './App.jsx';
-
-// Get Clerk publishable key from environment
-const clerkPubKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
-
-if (!clerkPubKey) {
-  console.error('Missing VITE_CLERK_PUBLISHABLE_KEY environment variable');
-}
 
 // Error boundary component
 function ErrorFallback({ error }) {
@@ -45,23 +37,10 @@ class ErrorBoundary extends React.Component {
   }
 }
 
-// Only render if we have a Clerk key
-if (!clerkPubKey) {
-  createRoot(document.getElementById('root')).render(
-    <div style={{ padding: '20px', textAlign: 'center' }}>
-      <h1>Configuration Error</h1>
-      <p>Missing VITE_CLERK_PUBLISHABLE_KEY environment variable</p>
-      <p>Please add it to your .env file and restart the dev server</p>
-    </div>
-  );
-} else {
   createRoot(document.getElementById('root')).render(
     <StrictMode>
       <ErrorBoundary>
-        <ClerkProvider publishableKey={clerkPubKey}>
           <App />
-        </ClerkProvider>
       </ErrorBoundary>
     </StrictMode>
   );
-}

@@ -1,20 +1,19 @@
 import { FlowgladProvider } from '@flowglad/react';
-import { useUser } from '@clerk/clerk-react';
+import { authClient } from '../lib/auth-client';
 
 export function FlowgladProviderWrapper({ children }) {
-  const { isLoaded, isSignedIn } = useUser();
+  const { data: session, isPending } = authClient.useSession();
 
   // Only load billing when user is signed in
-  // Authentication is handled via Clerk session cookies on the backend
-  const loadBilling = isLoaded && isSignedIn;
-
+  // Authentication is handled via Better Auth session cookies on the backend
+  const loadBilling = !isPending && !!session?.user;
 
   return (
     <FlowgladProvider 
       loadBilling={loadBilling}
       requestConfig={{
         // Enable credentials for auth cookies
-        withCredentials: true,
+        withCredentials: true, // Flowglad SDK uses withCredentials for XMLHttpRequest-style config
       }}
     >
       {children}
