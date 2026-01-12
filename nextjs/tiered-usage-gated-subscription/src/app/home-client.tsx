@@ -245,25 +245,19 @@ export function HomeClient() {
     try {
       // Create usage event if always required OR if model is limited (has usage meter)
       if (alwaysCreateUsageEvent || !isUnlimited) {
-        const transactionId = `${transactionIdPrefix}_${Date.now()}_${Math.random().toString(36).substring(7)}`;
-        const amount = 1;
+        if (!billing.createUsageEvent) {
+          throw new Error('createUsageEvent is not available');
+        }
 
-        const response = await fetch('/api/usage-events', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            priceSlug,
-            usageMeterSlug,
-            amount,
-            transactionId,
-          }),
+        const result = await billing.createUsageEvent({
+          usageMeterSlug,
         });
 
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || 'Failed to create usage event');
+        if ('error' in result) {
+          throw new Error(
+            (result.error.json?.error as string) ||
+              'Failed to create usage event'
+          );
         }
 
         if (billing.reload) {

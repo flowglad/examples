@@ -1,5 +1,5 @@
 {
-  "id": "e1c4a87d-52d4-4112-8d76-80aa1b288c9e",
+  "id": "2023db0c-250d-40ca-adda-6dc03ddfb85f",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -104,15 +104,7 @@
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "accounts_provider_id_account_id_unique": {
-          "name": "accounts_provider_id_account_id_unique",
-          "columns": [
-            "provider_id",
-            "account_id"
-          ]
-        }
-      },
+      "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
