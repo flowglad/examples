@@ -13,7 +13,6 @@ import { Route as SignUpRouteImport } from './routes/sign-up'
 import { Route as SignInRouteImport } from './routes/sign-in'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as ApiUsageEventsRouteImport } from './routes/api/usage-events'
 import { Route as ApiFlowgladSplatRouteImport } from './routes/api/flowglad/$'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 
@@ -37,11 +36,6 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiUsageEventsRoute = ApiUsageEventsRouteImport.update({
-  id: '/api/usage-events',
-  path: '/api/usage-events',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ApiFlowgladSplatRoute = ApiFlowgladSplatRouteImport.update({
   id: '/api/flowglad/$',
   path: '/api/flowglad/$',
@@ -58,7 +52,6 @@ export interface FileRoutesByFullPath {
   '/pricing': typeof PricingRoute
   '/sign-in': typeof SignInRoute
   '/sign-up': typeof SignUpRoute
-  '/api/usage-events': typeof ApiUsageEventsRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/flowglad/$': typeof ApiFlowgladSplatRoute
 }
@@ -67,7 +60,6 @@ export interface FileRoutesByTo {
   '/pricing': typeof PricingRoute
   '/sign-in': typeof SignInRoute
   '/sign-up': typeof SignUpRoute
-  '/api/usage-events': typeof ApiUsageEventsRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/flowglad/$': typeof ApiFlowgladSplatRoute
 }
@@ -77,7 +69,6 @@ export interface FileRoutesById {
   '/pricing': typeof PricingRoute
   '/sign-in': typeof SignInRoute
   '/sign-up': typeof SignUpRoute
-  '/api/usage-events': typeof ApiUsageEventsRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/flowglad/$': typeof ApiFlowgladSplatRoute
 }
@@ -88,7 +79,6 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/sign-in'
     | '/sign-up'
-    | '/api/usage-events'
     | '/api/auth/$'
     | '/api/flowglad/$'
   fileRoutesByTo: FileRoutesByTo
@@ -97,7 +87,6 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/sign-in'
     | '/sign-up'
-    | '/api/usage-events'
     | '/api/auth/$'
     | '/api/flowglad/$'
   id:
@@ -106,7 +95,6 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/sign-in'
     | '/sign-up'
-    | '/api/usage-events'
     | '/api/auth/$'
     | '/api/flowglad/$'
   fileRoutesById: FileRoutesById
@@ -116,7 +104,6 @@ export interface RootRouteChildren {
   PricingRoute: typeof PricingRoute
   SignInRoute: typeof SignInRoute
   SignUpRoute: typeof SignUpRoute
-  ApiUsageEventsRoute: typeof ApiUsageEventsRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiFlowgladSplatRoute: typeof ApiFlowgladSplatRoute
 }
@@ -151,13 +138,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/usage-events': {
-      id: '/api/usage-events'
-      path: '/api/usage-events'
-      fullPath: '/api/usage-events'
-      preLoaderRoute: typeof ApiUsageEventsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/api/flowglad/$': {
       id: '/api/flowglad/$'
       path: '/api/flowglad/$'
@@ -180,7 +160,6 @@ const rootRouteChildren: RootRouteChildren = {
   PricingRoute: PricingRoute,
   SignInRoute: SignInRoute,
   SignUpRoute: SignUpRoute,
-  ApiUsageEventsRoute: ApiUsageEventsRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiFlowgladSplatRoute: ApiFlowgladSplatRoute,
 }

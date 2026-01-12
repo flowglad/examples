@@ -175,26 +175,22 @@ function Dashboard() {
     setGenerateError(null)
 
     try {
-      // Generate a unique transaction ID for idempotency
-      const transactionId = `fast_image_${Date.now()}_${Math.random().toString(36).substring(7)}`
+      if (!billing.createUsageEvent) {
+        throw new Error('createUsageEvent is not available')
+      }
       // Random amount between 3-5
       const amount = Math.floor(Math.random() * 3) + 3
 
-      const response = await fetch('/api/usage-events', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          usageMeterSlug: 'fast_generations',
-          amount,
-          transactionId,
-        }),
+      const result = await billing.createUsageEvent({
+        usageMeterSlug: 'fast_generations',
+        amount,
       })
 
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || 'Failed to create usage event')
+      if ('error' in result) {
+        throw new Error(
+          (result.error.json?.error as string) ||
+            'Failed to create usage event',
+        )
       }
 
       // Cycle through mock images
@@ -232,21 +228,17 @@ function Dashboard() {
       // Random amount between 1-3 minutes
       const amount = Math.floor(Math.random() * 3) + 1
 
-      const response = await fetch('/api/usage-events', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          usageMeterSlug: 'hd_video_minutes',
-          amount,
-          transactionId,
-        }),
+      const result = await billing.createUsageEvent({
+        usageMeterSlug: 'hd_video_minutes',
+        amount,
+        transactionId,
       })
 
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || 'Failed to create usage event')
+      if ('error' in result) {
+        throw new Error(
+          (result.error.json?.error as string) ||
+            'Failed to create usage event',
+        )
       }
 
       // Cycle through mock video GIFs
