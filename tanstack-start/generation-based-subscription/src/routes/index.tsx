@@ -64,7 +64,7 @@ function Dashboard() {
 
   // Refetch billing data when user ID changes to prevent showing previous user's data
   useEffect(() => {
-    const currentUserId = session?.user.id
+    const currentUserId = session?.user?.id
     // Only refetch if user ID actually changed and billing is loaded
     if (
       currentUserId &&
@@ -78,7 +78,7 @@ function Dashboard() {
       // Update ref even if we don't reload (e.g., on initial mount)
       previousUserIdRef.current = currentUserId
     }
-  }, [session?.user.id, billing])
+  }, [session?.user?.id, billing])
 
   // Check if user is on free plan and redirect to pricing page
   useEffect(() => {
