@@ -188,7 +188,7 @@ function Dashboard() {
 
       if ('error' in result) {
         throw new Error(
-          (result.error.json?.error as string) ||
+          (result.error.json?.message as string) ||
             'Failed to create usage event',
         )
       }
@@ -233,7 +233,7 @@ function Dashboard() {
 
       if ('error' in result) {
         throw new Error(
-          (result.error.json?.error as string) ||
+          (result.error.json?.message as string) ||
             'Failed to create usage event',
         )
       }

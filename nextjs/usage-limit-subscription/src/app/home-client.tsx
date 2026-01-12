@@ -153,7 +153,7 @@ export function HomeClient() {
 
       if ('error' in result) {
         throw new Error(
-          (result.error.json?.error as string) || 'Failed to create usage event'
+          (result.error.json?.message as string) || 'Failed to create usage event'
         );
       }
 
