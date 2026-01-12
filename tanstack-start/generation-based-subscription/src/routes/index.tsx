@@ -223,15 +223,12 @@ function Dashboard() {
     setHdVideoError(null)
 
     try {
-      // Generate a unique transaction ID for idempotency
-      const transactionId = `hd_video_${Date.now()}_${Math.random().toString(36).substring(7)}`
       // Random amount between 1-3 minutes
       const amount = Math.floor(Math.random() * 3) + 1
 
       const result = await billing.createUsageEvent({
         usageMeterSlug: 'hd_video_minutes',
         amount,
-        transactionId,
       })
 
       if ('error' in result) {
