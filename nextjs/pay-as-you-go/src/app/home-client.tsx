@@ -109,24 +109,20 @@ export function HomeClient() {
     setMessageInput(null);
 
     try {
-      // Generate a unique transaction ID for idempotency
-      const transactionId = `message_${Date.now()}_${Math.random().toString(36).substring(7)}`;
+      if (!billing.createUsageEvent) {
+        throw new Error('createUsageEvent is not available');
+      }
 
-      const response = await fetch('/api/usage-events', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          usageMeterSlug: 'message_credits',
-          amount: 1,
-          transactionId,
-        }),
+      const result = await billing.createUsageEvent({
+        usageMeterSlug: 'message_credits',
+        amount: 1,
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to create usage event');
+      if ('error' in result) {
+        throw new Error(
+          (result.error.json?.message as string) ||
+            'Failed to create usage event'
+        );
       }
 
       // Cycle through mock messages
