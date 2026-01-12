@@ -18,7 +18,7 @@ export const Route = createFileRoute('/')({
   component: Dashboard,
   server: {
     middleware: [authMiddleware],
-  }
+  },
 })
 
 // Mock images to cycle through
@@ -187,8 +187,9 @@ function Dashboard() {
       })
 
       if ('error' in result) {
+        const errorMsg = result.error.json?.error ?? result.error.json?.message
         throw new Error(
-          (result.error.json?.message as string) ||
+          (typeof errorMsg === 'string' ? errorMsg : null) ||
             'Failed to create usage event',
         )
       }
@@ -232,8 +233,9 @@ function Dashboard() {
       })
 
       if ('error' in result) {
+        const errorMsg = result.error.json?.error ?? result.error.json?.message
         throw new Error(
-          (result.error.json?.message as string) ||
+          (typeof errorMsg === 'string' ? errorMsg : null) ||
             'Failed to create usage event',
         )
       }

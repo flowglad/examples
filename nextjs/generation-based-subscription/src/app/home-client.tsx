@@ -178,8 +178,10 @@ export function HomeClient() {
       });
 
       if ('error' in result) {
+        const errorMsg = result.error.json?.error ?? result.error.json?.message;
         throw new Error(
-          (result.error.json?.message as string) || 'Failed to create usage event'
+          (typeof errorMsg === 'string' ? errorMsg : null) ||
+            'Failed to create usage event'
         );
       }
 
@@ -222,8 +224,10 @@ export function HomeClient() {
       });
 
       if ('error' in result) {
+        const errorMsg = result.error.json?.error ?? result.error.json?.message;
         throw new Error(
-          (result.error.json?.message as string) || 'Failed to create usage event'
+          (typeof errorMsg === 'string' ? errorMsg : null) ||
+            'Failed to create usage event'
         );
       }
 

@@ -254,8 +254,10 @@ export function HomeClient() {
         });
 
         if ('error' in result) {
+          const errorMsg =
+            result.error.json?.error ?? result.error.json?.message;
           throw new Error(
-            (result.error.json?.message as string) ||
+            (typeof errorMsg === 'string' ? errorMsg : null) ||
               'Failed to create usage event'
           );
         }
