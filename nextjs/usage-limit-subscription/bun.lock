@@ -4,7 +4,7 @@
     "": {
       "name": "nextjs-starter",
       "dependencies": {
-        "@flowglad/nextjs": "0.15.0",
+        "@flowglad/nextjs": "0.16.2",
         "@radix-ui/react-dropdown-menu": "^2.1.16",
         "@radix-ui/react-progress": "^1.1.8",
         "@radix-ui/react-slot": "^1.2.3",
@@ -145,15 +145,15 @@
 
     "@floating-ui/utils": ["@floating-ui/utils@0.2.10", "", {}, "sha512-aGTxbpbg8/b5JfU1HXSrbH3wXZuLPJcNEcZQFMxLs3oSzgtVu6nFPkbbGGUvBcUjKV2YyB9Wxxabo+HEH9tcRQ=="],
 
-    "@flowglad/nextjs": ["@flowglad/nextjs@0.15.0", "", { "dependencies": { "@flowglad/node": "0.24.0", "@flowglad/react": "0.15.0", "@flowglad/server": "0.15.0", "@flowglad/shared": "0.15.0", "@vercel/mcp-adapter": "0.11.1", "zod": "4.1.5" }, "peerDependencies": { "next": "^14.0.3 || ^15.0.0 || ^16.0.0", "react": "^19.0.0 || ^18.0.0" } }, "sha512-5CDd1SkH+dwt16QzvLgZVH5ydbO0uu4AXMkZ5hOBGfONmsvGZ6r0bS3dtQQJtHPBkMGZVqwm529JsFHbTD6hdQ=="],
+    "@flowglad/nextjs": ["@flowglad/nextjs@0.16.2", "", { "dependencies": { "@flowglad/node": "0.24.0", "@flowglad/react": "0.16.2", "@flowglad/server": "0.16.2", "@flowglad/shared": "0.16.2", "@vercel/mcp-adapter": "0.11.1", "zod": "4.1.5" }, "peerDependencies": { "better-auth": "^1.3.17", "next": "^14.0.3 || ^15.0.0 || ^16.0.0", "react": "^19.0.0 || ^18.0.0" }, "optionalPeers": ["better-auth"] }, "sha512-FtdSFV3uD4rnjfI5iA3wqawc6weTUTq1afd/RLnzx6RP44qXg0v2cZzVLZuNHiPiWY9SB3qTnmgD1evL8RVYaw=="],
 
     "@flowglad/node": ["@flowglad/node@0.24.0", "", {}, "sha512-P5UhUaYNAGuCT9hLTQC34o+az4hsfMSuSGpYzg9bPQIrRnTkWvJfmyOmE+cGSlaGZCdLNnEwxCwDQr+lVeOyRw=="],
 
-    "@flowglad/react": ["@flowglad/react@0.15.0", "", { "dependencies": { "@flowglad/node": "0.24.0", "@flowglad/shared": "0.15.0", "@tanstack/react-query": "5.66.0", "clsx": "2.1.1", "date-fns": "4.1.0", "tailwind-merge": "3.0.2", "zod": "4.1.5" }, "peerDependencies": { "react": "^19.0.0 || ^18.0.0" } }, "sha512-/CkqMI0dpyezn4enQ1F2m0XzoyHZFXRQ0pB3EAcSMj1683/aRgnDaqbqiaT3mt4ieEf3/D8Cxnm4xOs+xfPf0g=="],
+    "@flowglad/react": ["@flowglad/react@0.16.2", "", { "dependencies": { "@flowglad/node": "0.24.0", "@flowglad/shared": "0.16.2", "@tanstack/react-query": "5.66.0", "clsx": "2.1.1", "date-fns": "4.1.0", "tailwind-merge": "3.0.2", "zod": "4.1.5" }, "peerDependencies": { "react": "^19.0.0 || ^18.0.0" } }, "sha512-BiSf2rTeeLDlNpviooPLMwCgEHCwUplO3l7uqey78HyZiTlrnbDMmh6xY4lVVB6CWIvptjbVg9sPissihW/XCQ=="],
 
-    "@flowglad/server": ["@flowglad/server@0.15.0", "", { "dependencies": { "@flowglad/node": "0.24.0", "@flowglad/shared": "0.15.0", "zod": "4.1.5" } }, "sha512-XyFRnnx0wl8qOsv+c5kj3+pDxVSGAsoC1YivHTCrGPWGXPCHGhGNsH0XgXxV5BjxjjRuYjb57OkV553WUn/eWQ=="],
+    "@flowglad/server": ["@flowglad/server@0.16.2", "", { "dependencies": { "@flowglad/node": "0.24.0", "@flowglad/shared": "0.16.2", "nanoid": "^3.3.11", "zod": "4.1.5" }, "peerDependencies": { "better-auth": "^1.3.17", "express": "^4.0.0" }, "optionalPeers": ["better-auth", "express"] }, "sha512-C0mKYL4AVCzy8rqB38TpG3oiMrec3CgHG0zgh8UWnkpYW8A8qN0qSLHHkUmN5Oncvzr3YSJZ4MpmBcWpD7xnjA=="],
 
-    "@flowglad/shared": ["@flowglad/shared@0.15.0", "", { "dependencies": { "@flowglad/node": "0.24.0", "date-fns": "4.1.0", "zod": "4.1.5" } }, "sha512-6Go6C4JSdloYUcfc98FvVosElhgFegz1tRGW0CFuaf6LPAr442hW/f71HUKouRKrTUD1YMhjoZvPJD+QA7neag=="],
+    "@flowglad/shared": ["@flowglad/shared@0.16.2", "", { "dependencies": { "@flowglad/node": "0.24.0", "date-fns": "4.1.0", "zod": "4.1.5" } }, "sha512-kdNJ7IwVeCxtqpO6HldK7s5Cil9K0r4OFU6s/1ShM922EqU98OrLHqTkXeyXCX/7EW8U+XmDrFRxfINI2KYc4g=="],
 
     "@hexagon/base64": ["@hexagon/base64@1.1.28", "", {}, "sha512-lhqDEAvWixy3bZ+UOYbPwUbBkwBq5C1LAJ/xPC8Oi+lL54oyakv/npbA0aU2hgCsx/1NUd4IBvV03+aUBWxerw=="],
 
