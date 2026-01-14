@@ -37,10 +37,10 @@ class ErrorBoundary extends React.Component {
   }
 }
 
-  createRoot(document.getElementById('root')).render(
+createRoot(document.getElementById('root')).render(
     <StrictMode>
       <ErrorBoundary>
-          <App />
+        <App />
       </ErrorBoundary>
     </StrictMode>
   );

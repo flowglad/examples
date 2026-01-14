@@ -249,4 +249,4 @@ Flowglad is integrated for subscription and billing management. The Flowglad pro
 
 ## Database
 
-The project uses Drizzle ORM with PostgreSQL. The schema includes the necessary tables for BetterAuth (users, sessions, accounts, verifications). You can extend the schema in `server/db/schema.ts`.
+The project uses Drizzle ORM with PostgreSQL. The schema includes the necessary tables for BetterAuth (users, sessions, accounts, verifications). You can extend the schema in `server/db/schema.js`.

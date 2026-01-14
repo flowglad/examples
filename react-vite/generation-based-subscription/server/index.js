@@ -23,9 +23,6 @@ if (!process.env.BETTER_AUTH_SECRET) {
   process.exit(1);
 }
 
-// Cache for user details (in production, use a real database)
-const userCache = new Map();
-
 const app = express();
 const PORT = process.env.SERVER_PORT || 3001;
 
@@ -94,13 +91,6 @@ const flowglad = (customerExternalId) => {
   return new FlowgladServer({
     customerExternalId,
     getCustomerDetails: async (externalId) => {
-      // Get user details from cache (if available)
-      const cachedUser = userCache.get(externalId);
-      if (cachedUser) {
-        return cachedUser;
-      }
-      
-      // Fetch user from database
       try {
         const [user] = await db
           .select({
@@ -112,29 +102,24 @@ const flowglad = (customerExternalId) => {
           .limit(1);
         
         if (user && user.email) {
-          const customerDetails = {
+          return {
             email: user.email,
             name: user.name || '',
           };
-          // Cache the user details
-          userCache.set(externalId, customerDetails);
-          return customerDetails;
         }
         
         // Fallback if user not found in database
-        const fallback = {
+        return {
           email: `user_${externalId}@example.com`,
           name: 'User',
         };
-        return fallback;
       } catch (error) {
         console.error('[Flowglad] Error fetching user from database:', error);
         // Fallback on error
-        const fallback = {
+        return {
           email: `user_${externalId}@example.com`,
           name: 'User',
         };
-        return fallback;
       }
     },
   });

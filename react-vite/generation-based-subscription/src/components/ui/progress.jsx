@@ -7,6 +7,11 @@ const Progress = React.forwardRef(({ className, value, ...props }, ref) => {
   return (
     <div
       ref={ref}
+      role="progressbar"
+      aria-valuenow={clampedValue}
+      aria-valuemin="0"
+      aria-valuemax="100"
+      aria-valuetext={`${clampedValue}%`}
       className={cn(
         'relative h-2 w-full overflow-hidden rounded-full bg-primary/20',
         className

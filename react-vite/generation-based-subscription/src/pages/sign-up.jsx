@@ -19,9 +19,9 @@ export function SignUpPage() {
 
     try {
       const result = await authClient.signUp.email({
-        email,
+        email: email.trim(),
         password,
-        name: name || undefined,
+        name: name && name.trim() ? name.trim() : 'User',
       });
 
       if (result.error) {
@@ -29,7 +29,6 @@ export function SignUpPage() {
         return;
       }
 
-      // Redirect to home page after successful sign up
       navigate('/', { replace: true });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');

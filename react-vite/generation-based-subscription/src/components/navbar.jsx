@@ -188,6 +188,11 @@ export function Navbar() {
                         </DropdownMenuItem>
                       </span>
                     </TooltipTrigger>
+                    <TooltipContent className="max-w-xs max-h-32 overflow-y-auto">
+                      <p>
+                        Your subscription will remain active until the end of the current billing period
+                      </p>
+                    </TooltipContent>
                   </Tooltip>
                   {cancelError && (
                     <DropdownMenuItem disabled className="text-destructive text-xs">

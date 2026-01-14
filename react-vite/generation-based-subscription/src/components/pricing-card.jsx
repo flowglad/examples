@@ -149,8 +149,7 @@ export function PricingCard({ plan, isCurrentPlan = false, hideFeatures = false 
               isDefaultPlan ||
               isLoading ||
               !billing.loaded ||
-              !billing.createCheckoutSession ||
-              !billing.getPrice
+              !billing.createCheckoutSession
             }
             size="sm"
             onClick={handleCheckout}

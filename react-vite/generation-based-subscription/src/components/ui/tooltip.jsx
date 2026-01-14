@@ -13,9 +13,10 @@ function TooltipProvider({ children, delayDuration = 200 }) {
 
 function Tooltip({ children }) {
   const [open, setOpen] = React.useState(false);
+  const existingContext = React.useContext(TooltipContext);
   
   return (
-    <TooltipContext.Provider value={{ open, setOpen }}>
+    <TooltipContext.Provider value={{ ...existingContext, open, setOpen }}>
       <div className="relative inline-block">
         {children}
       </div>
@@ -60,7 +61,7 @@ const TooltipContent = React.forwardRef(({ className, sideOffset = 4, children, 
     <div
       ref={ref}
       className={cn(
-        'absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-2 overflow-hidden rounded-md border bg-popover px-3 py-1.5 text-sm text-popover-foreground shadow-md animate-in fade-in-0 zoom-in-95',
+        'absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-2 rounded-md border bg-popover px-3 py-1.5 text-sm text-popover-foreground shadow-md animate-in fade-in-0 zoom-in-95 max-w-xs',
         className
       )}
       {...props}
