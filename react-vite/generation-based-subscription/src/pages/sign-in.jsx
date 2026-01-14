@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { authClient } from '../lib/auth-client';
 import { Button } from '../components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
+import { Link } from 'react-router-dom';
 
 export function SignInPage() {
   const navigate = useNavigate();
@@ -87,9 +88,9 @@ export function SignInPage() {
           </form>
           <div className="mt-4 text-center text-sm">
             <span className="text-muted-foreground">Don't have an account? </span>
-            <a href="/sign-up" className="text-primary hover:underline">
+            <Link to="/sign-up" className="text-primary hover:underline">
               Sign up
-            </a>
+            </Link>
           </div>
         </CardContent>
       </Card>

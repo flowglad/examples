@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { authClient } from '../lib/auth-client';
 import { Button } from '../components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
@@ -99,9 +99,9 @@ export function SignUpPage() {
           </form>
           <div className="mt-4 text-center text-sm">
             <span className="text-muted-foreground">Already have an account? </span>
-            <a href="/sign-in" className="text-primary hover:underline">
+            <Link to="/sign-in" className="text-primary hover:underline">
               Sign in
-            </a>
+            </Link>
           </div>
         </CardContent>
       </Card>

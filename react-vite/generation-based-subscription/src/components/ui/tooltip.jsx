@@ -31,9 +31,10 @@ const TooltipTrigger = React.forwardRef(({ asChild, children, ...props }, ref) =
   const handleMouseLeave = () => setOpen?.(false);
   
   if (asChild && React.isValidElement(children)) {
+    // Clone element without passing ref to avoid ref access during render
+    // The child component should handle its own ref if needed
     return React.cloneElement(children, {
       ...props,
-      ref,
       onMouseEnter: handleMouseEnter,
       onMouseLeave: handleMouseLeave,
     });
@@ -52,7 +53,7 @@ const TooltipTrigger = React.forwardRef(({ asChild, children, ...props }, ref) =
 });
 TooltipTrigger.displayName = 'TooltipTrigger';
 
-const TooltipContent = React.forwardRef(({ className, sideOffset = 4, children, ...props }, ref) => {
+const TooltipContent = React.forwardRef(({ className, children, ...props }, ref) => {
   const { open } = React.useContext(TooltipContext);
   
   if (!open) return null;

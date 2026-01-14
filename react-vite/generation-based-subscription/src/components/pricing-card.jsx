@@ -21,6 +21,9 @@ export function PricingCard({ plan, isCurrentPlan = false, hideFeatures = false 
   const billing = useBilling();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  
+  // Ensure features is always an array
+  const { features = [] } = plan;
 
   if (!billing.loaded) {
     return <div>Loading...</div>;
@@ -123,12 +126,12 @@ export function PricingCard({ plan, isCurrentPlan = false, hideFeatures = false 
       {!hideFeatures && (
         <CardContent className="flex-1 px-3 md:px-6 pt-0">
           <ul className="space-y-1.5 md:space-y-3">
-            {plan.features.length === 0 ? (
+            {features.length === 0 ? (
               <li className="text-muted-foreground text-xs md:text-sm">
                 No features included
               </li>
             ) : (
-              plan.features.map((feature) => (
+              features.map((feature) => (
                 <li key={feature} className="flex items-start gap-1.5 md:gap-2">
                   <Check className="mt-0.5 h-3 w-3 md:h-4 md:w-4 shrink-0 text-primary" />
                   <span className="text-xs md:text-sm">{feature}</span>
