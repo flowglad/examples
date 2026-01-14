@@ -144,26 +144,19 @@ export function HomeClient() {
     setRequestError(null);
 
     try {
-      // Generate a unique transaction ID for idempotency
-      const transactionId = `fast_request_${Date.now()}_${Math.random().toString(36).substring(7)}`;
-      // Use 1 request per fast premium request
-      const amount = 1;
-
-      const response = await fetch('/api/usage-events', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          usageMeterSlug: 'fast_premium_requests',
-          amount,
-          transactionId,
-        }),
+      if (!billing.createUsageEvent) {
+        throw new Error('createUsageEvent is not available');
+      }
+      const result = await billing.createUsageEvent({
+        usageMeterSlug: 'fast_premium_requests',
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to create usage event');
+      if ('error' in result) {
+        const errorMsg = result.error.json?.error ?? result.error.json?.message;
+        throw new Error(
+          (typeof errorMsg === 'string' ? errorMsg : null) ||
+            'Failed to create usage event'
+        );
       }
 
       // Reload billing data to update usage balances

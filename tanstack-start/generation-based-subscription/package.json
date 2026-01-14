@@ -17,9 +17,9 @@
     "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
-    "@flowglad/react": "^0.16.1",
-    "@flowglad/server": "^0.16.1",
-    "@flowglad/shared": "^0.16.1",
+    "@flowglad/react": "^0.16.2",
+    "@flowglad/server": "^0.16.2",
+    "@flowglad/shared": "^0.16.2",
     "@radix-ui/react-dropdown-menu": "^2.1.16",
     "@radix-ui/react-progress": "^1.1.8",
     "@radix-ui/react-slot": "^1.2.4",

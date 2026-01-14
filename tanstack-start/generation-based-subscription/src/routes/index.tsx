@@ -18,7 +18,7 @@ export const Route = createFileRoute('/')({
   component: Dashboard,
   server: {
     middleware: [authMiddleware],
-  }
+  },
 })
 
 // Mock images to cycle through
@@ -64,7 +64,7 @@ function Dashboard() {
 
   // Refetch billing data when user ID changes to prevent showing previous user's data
   useEffect(() => {
-    const currentUserId = session?.user.id
+    const currentUserId = session?.user?.id
     // Only refetch if user ID actually changed and billing is loaded
     if (
       currentUserId &&
@@ -78,7 +78,7 @@ function Dashboard() {
       // Update ref even if we don't reload (e.g., on initial mount)
       previousUserIdRef.current = currentUserId
     }
-  }, [session?.user.id, billing])
+  }, [session?.user?.id, billing])
 
   // Check if user is on free plan and redirect to pricing page
   useEffect(() => {
@@ -175,26 +175,23 @@ function Dashboard() {
     setGenerateError(null)
 
     try {
-      // Generate a unique transaction ID for idempotency
-      const transactionId = `fast_image_${Date.now()}_${Math.random().toString(36).substring(7)}`
+      if (!billing.createUsageEvent) {
+        throw new Error('createUsageEvent is not available')
+      }
       // Random amount between 3-5
       const amount = Math.floor(Math.random() * 3) + 3
 
-      const response = await fetch('/api/usage-events', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          usageMeterSlug: 'fast_generations',
-          amount,
-          transactionId,
-        }),
+      const result = await billing.createUsageEvent({
+        usageMeterSlug: 'fast_generations',
+        amount,
       })
 
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || 'Failed to create usage event')
+      if ('error' in result) {
+        const errorMsg = result.error.json?.error ?? result.error.json?.message
+        throw new Error(
+          (typeof errorMsg === 'string' ? errorMsg : null) ||
+            'Failed to create usage event',
+        )
       }
 
       // Cycle through mock images
@@ -227,26 +224,20 @@ function Dashboard() {
     setHdVideoError(null)
 
     try {
-      // Generate a unique transaction ID for idempotency
-      const transactionId = `hd_video_${Date.now()}_${Math.random().toString(36).substring(7)}`
       // Random amount between 1-3 minutes
       const amount = Math.floor(Math.random() * 3) + 1
 
-      const response = await fetch('/api/usage-events', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          usageMeterSlug: 'hd_video_minutes',
-          amount,
-          transactionId,
-        }),
+      const result = await billing.createUsageEvent({
+        usageMeterSlug: 'hd_video_minutes',
+        amount,
       })
 
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || 'Failed to create usage event')
+      if ('error' in result) {
+        const errorMsg = result.error.json?.error ?? result.error.json?.message
+        throw new Error(
+          (typeof errorMsg === 'string' ? errorMsg : null) ||
+            'Failed to create usage event',
+        )
       }
 
       // Cycle through mock video GIFs
