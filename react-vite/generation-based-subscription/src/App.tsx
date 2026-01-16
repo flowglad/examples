@@ -9,7 +9,7 @@ import { PricingPage } from './pages/pricing';
 import { SignInPage } from './pages/sign-in';
 import { SignUpPage } from './pages/sign-up';
 
-function ProtectedRoute({ children }) {
+function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
   const { data: session, isPending } = authClient.useSession();
 

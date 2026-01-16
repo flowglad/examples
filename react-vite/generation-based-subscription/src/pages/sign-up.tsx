@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { authClient } from '../lib/auth-client';
 import { Button } from '../components/ui/button';
 
@@ -16,15 +15,18 @@ export function SignUpPage() {
     e.preventDefault();
     setLoading(true);
     setError(null);
-    await authClient.signUp.email(
-      { name, email, password, callbackURL: '/' },
-      {
-        onError: (ctx) => setError(ctx.error.message),
-        onSuccess: () => navigate('/'),
-        onRequest: () => {},
-      }
-    );
-    setLoading(false);
+    try{
+      await authClient.signUp.email(
+        { name, email, password, callbackURL: '/' },
+        {
+          onError: (ctx) => setError(ctx.error.message),
+          onSuccess: () => navigate('/'),
+          onRequest: () => {},
+        }
+      );
+    } finally{
+      setLoading(false);
+    }
   }
 
   return (
@@ -36,6 +38,7 @@ export function SignUpPage() {
           onChange={(e) => setName(e.target.value)}
           placeholder="Name"
           className="w-full rounded border px-3 py-2"
+          required
         />
         <input
           type="email"
