@@ -1,10 +1,10 @@
 /// <reference types="vite/client" />
 
-declare global {
-  interface ImportMetaEnv {
+interface ImportMetaEnv {
     readonly VITE_APP_URL?: string;
     // Add other VITE_ prefixed env variables here as needed
   }
-}
-
+interface ImportMeta {
+    readonly env: ImportMetaEnv;
+  }
 export {};

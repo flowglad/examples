@@ -42,25 +42,50 @@ interface DropdownMenuTriggerProps extends React.ButtonHTMLAttributes<HTMLButton
 }
 
 const DropdownMenuTrigger = React.forwardRef<HTMLButtonElement, DropdownMenuTriggerProps>(
-  ({ asChild, children, ...props }, ref) => {
+  ({ asChild, children, onClick: onClickProp, ...props }, ref) => {
     const context = React.useContext(DropdownMenuContext);
     if (!context) throw new Error('DropdownMenuTrigger must be used within DropdownMenu');
     const { open, setOpen } = context;
 
-  const handleClick = () => setOpen(!open);
+  const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    setOpen(!open);
+  };
 
   if (asChild && React.isValidElement(children)) {
     // Clone element without passing ref to avoid ref access during render
     // The child component should handle its own ref if needed
+    const childOnClick = (children as React.ReactElement<any>).props.onClick;
+    const composedOnClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+      childOnClick?.(e);
+      onClickProp?.(e);
+      if (!e.defaultPrevented) {
+        handleClick(e);
+      }
+    };
     return React.cloneElement(children as React.ReactElement<any>, {
       ...props,
-      onClick: handleClick,
+      onClick: composedOnClick,
+      'aria-haspopup': 'menu',
       'aria-expanded': open,
     });
   }
 
+  const composedOnClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    onClickProp?.(e);
+    if (!e.defaultPrevented) {
+      handleClick(e);
+    }
+  };
+
   return (
-    <button ref={ref} onClick={handleClick} aria-expanded={open} {...props}>
+    <button
+      ref={ref}
+      type="button"
+      aria-haspopup="menu"
+      aria-expanded={open}
+      onClick={composedOnClick}
+      {...props}
+    >
       {children}
     </button>
   );

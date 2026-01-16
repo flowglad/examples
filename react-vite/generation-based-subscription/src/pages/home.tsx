@@ -69,7 +69,8 @@ export function HomePage() {
             await billing.reload();
             setHasReloadedAfterCheckout(true);
           } catch {
-            // Error reloading billing data
+            // Log but don't disrupt UX on reload failure
+            console.error('Error reloading billing data after checkout');
           } finally {
             setIsReloadingAfterCheckout(false);
             // Clean up URL params after reload completes
@@ -179,7 +180,7 @@ export function HomePage() {
   const fastGenerationsTotal = computeUsageTotal(
     'fast_generations',
     currentSubscription,
-    billing.pricingModel
+    pricingModel
   );
   const fastGenerationsProgress =
     fastGenerationsTotal > 0
@@ -190,7 +191,7 @@ export function HomePage() {
   const hdVideoMinutesTotal = computeUsageTotal(
     'hd_video_minutes',
     currentSubscription,
-    billing.pricingModel
+    pricingModel
   );
   const hdVideoMinutesProgress =
     hdVideoMinutesTotal > 0

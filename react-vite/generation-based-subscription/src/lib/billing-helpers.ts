@@ -72,7 +72,8 @@ export function computeUsageTotal(
 
       const meterSlug = usageMeterById[item.usageMeterId];
       if (meterSlug === usageMeterSlug) {
-        total += item.amount;
+        const amount = typeof item.amount === 'number' ? item.amount : 0;
+        total += amount;
       }
     }
 

@@ -169,7 +169,7 @@ export function Navbar() {
           <DropdownMenuItem onSelect={() => navigate('/pricing')}>Pricing</DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem onSelect={handleSignOut}>Log out</DropdownMenuItem>
-          {!currentSubscription?.isFreePlan && (
+          {currentSubscription && !currentSubscription.isFreePlan && (
             <>
               {!isCancelled ? (
                 <>
