@@ -68,6 +68,8 @@ export function HomePage() {
           try {
             await billing.reload();
             setHasReloadedAfterCheckout(true);
+            // Clear manual usage adjustments after successful reload to prevent double-counting
+            setManualUsageAdjustments({ fast_generations: 0, hd_video_minutes: 0 });
           } catch {
             // Log but don't disrupt UX on reload failure
             console.error('Error reloading billing data after checkout');
@@ -94,7 +96,12 @@ export function HomePage() {
       typeof billing.reload === 'function'
     ) {
       previousUserIdRef.current = currentUserId;
-      billing.reload().catch(() => {
+      billing.reload()
+        .then(() => {
+          // Clear manual usage adjustments after successful reload to prevent double-counting
+          setManualUsageAdjustments({ fast_generations: 0, hd_video_minutes: 0 });
+        })
+        .catch(() => {
          // Log but don't disrupt UX on reload failure
          console.error('Error reloading billing data after user change');
         });
