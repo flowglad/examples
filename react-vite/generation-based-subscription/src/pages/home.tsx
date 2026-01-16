@@ -94,7 +94,10 @@ export function HomePage() {
       typeof billing.reload === 'function'
     ) {
       previousUserIdRef.current = currentUserId;
-      billing.reload();
+      billing.reload().catch(() => {
+         // Log but don't disrupt UX on reload failure
+         console.error('Error reloading billing data after user change');
+        });
     } else if (currentUserId) {
       previousUserIdRef.current = currentUserId;
     }
