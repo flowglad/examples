@@ -14,13 +14,28 @@ import { Button } from './ui/button';
 import { cn } from '../lib/utils';
 import { isDefaultPlanBySlug } from '../lib/billing-helpers';
 
+export interface PricingPlan {
+  name: string;
+  description?: string;
+  displayPrice: string;
+  slug: string;
+  features: string[];
+  isPopular?: boolean;
+}
+
+interface PricingCardProps {
+  plan: PricingPlan;
+  isCurrentPlan?: boolean;
+  hideFeatures?: boolean;
+}
+
 /**
  * PricingCard component displays a single pricing plan
  */
-export function PricingCard({ plan, isCurrentPlan = false, hideFeatures = false }) {
+export function PricingCard({ plan, isCurrentPlan = false, hideFeatures = false }: PricingCardProps) {
   const billing = useBilling();
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
   
   // Ensure features is always an array
   const { features = [] } = plan;
@@ -40,49 +55,35 @@ export function PricingCard({ plan, isCurrentPlan = false, hideFeatures = false 
   const priceSlug = plan.slug;
   const displayPrice = plan.displayPrice;
   
-  // Check if this plan is a default plan
-  const pricingModel = billing.pricingModel || billing.catalog;
-  const isDefaultPlan = isDefaultPlanBySlug(pricingModel, priceSlug);
+  // Check if this plan is a default plan by checking the pricing model
+  const isDefaultPlan = isDefaultPlanBySlug(billing.pricingModel, priceSlug);
 
   const handleCheckout = async () => {
     setError(null);
 
-    // Get price using SDK or fallback
-    const getPrice = (slug) => {
-      if (billing.getPrice) return billing.getPrice(slug);
-      const pricingModel = billing.pricingModel || billing.catalog;
-      if (!pricingModel?.products) return null;
-      for (const product of pricingModel.products) {
-        const price = product.prices?.find((p) => p.slug === slug);
-        if (price) return price;
-      }
-      return null;
-    };
-
-    const priceObj = getPrice(priceSlug);
+    // Get price object from slug to get the price ID
+    const priceObj = billing.getPrice(priceSlug);
     if (!priceObj) {
-      setError(`Price not found for "${priceSlug}". Please contact support.`);
+      const errorMsg = `Price not found for "${priceSlug}". Please contact support.`;
+      setError(errorMsg);
       return;
     }
 
     setIsLoading(true);
     try {
-      if (!billing.createCheckoutSession) {
-        throw new Error('Checkout not available');
-      }
       await billing.createCheckoutSession({
         priceId: priceObj.id,
-        successUrl: `${window.location.origin}/pricing?checkout=success`,
+        successUrl: `${window.location.origin}/`,
         cancelUrl: window.location.href,
         quantity: 1,
         autoRedirect: true,
       });
-    } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : 'Failed to start checkout. Please try again.'
-      );
+    } catch (error) {
+      const errorMsg =
+        error instanceof Error
+          ? error.message
+          : 'Failed to start checkout. Please try again.';
+      setError(errorMsg);
     } finally {
       setIsLoading(false);
     }

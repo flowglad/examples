@@ -1,7 +1,12 @@
 import * as React from 'react';
 import { cn } from '../../lib/utils';
 
-const Progress = React.forwardRef(({ className, value, ...props }, ref) => {
+interface ProgressProps extends React.HTMLAttributes<HTMLDivElement> {
+  value?: number;
+}
+
+const Progress = React.forwardRef<HTMLDivElement, ProgressProps>(
+  ({ className, value, ...props }, ref) => {
   const clampedValue = Math.max(0, Math.min(100, value || 0));
   
   return (
@@ -9,8 +14,8 @@ const Progress = React.forwardRef(({ className, value, ...props }, ref) => {
       ref={ref}
       role="progressbar"
       aria-valuenow={clampedValue}
-      aria-valuemin="0"
-      aria-valuemax="100"
+      aria-valuemin={0}
+      aria-valuemax={100}
       aria-valuetext={`${clampedValue}%`}
       className={cn(
         'relative h-2 w-full overflow-hidden rounded-full bg-primary/20',
@@ -24,7 +29,8 @@ const Progress = React.forwardRef(({ className, value, ...props }, ref) => {
       />
     </div>
   );
-});
+  }
+);
 Progress.displayName = 'Progress';
 
 export { Progress };

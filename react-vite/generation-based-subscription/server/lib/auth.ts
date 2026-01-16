@@ -1,11 +1,12 @@
 // Load environment variables first
-require('dotenv').config();
+import dotenv from 'dotenv';
+// Prefer .env.local for local development (consistent with other examples)
+dotenv.config({ path: '.env.local' });
 
-const { betterAuth } = require('better-auth');
-const { drizzleAdapter } = require('better-auth/adapters/drizzle');
-const { flowgladPlugin } = require('@flowglad/server/better-auth');
-const { db } = require('../db/client');
-const { betterAuthSchema } = require('../db/schema');
+import { betterAuth } from 'better-auth';
+import { drizzleAdapter } from 'better-auth/adapters/drizzle';
+import { db } from '../db/client.js';
+import { betterAuthSchema } from '../db/schema.js';
 
 const betterAuthSecret = process.env.BETTER_AUTH_SECRET;
 if (!betterAuthSecret) {
@@ -29,13 +30,7 @@ const auth = betterAuth({
   }),
   // Trust proxy for proper cookie handling behind reverse proxy
   trustedOrigins: [process.env.VITE_APP_URL || 'http://localhost:5173'],
-  // Flowglad plugin for customer management
-  plugins: [
-    flowgladPlugin({
-      customerType: 'user',
-    }),
-  ],
 });
 
-module.exports = { auth };
+export { auth };
 

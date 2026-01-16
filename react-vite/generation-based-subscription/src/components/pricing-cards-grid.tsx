@@ -1,6 +1,7 @@
-import { useRef } from 'react';
+import { useRef, useMemo } from 'react';
 import Autoplay from 'embla-carousel-autoplay';
 import { PricingCard } from './pricing-card';
+import type { PricingPlan } from './pricing-card';
 import {
   Carousel,
   CarouselContent,
@@ -22,66 +23,69 @@ import {
  * PricingCardsGrid component displays all pricing plans in a responsive grid or carousel
  */
 export function PricingCardsGrid() {
-  const billing = useBilling();
   const isMobile = useMobile();
-  
-  // Extract current subscriptions using Flowglad's current flag
-  const subscriptions = Array.isArray(billing?.subscriptions) ? billing.subscriptions : [];
-  const currentSubscriptions = subscriptions.filter((s) => s?.current === true);
-  
   const autoplayPlugin = useRef(
     Autoplay({
       delay: 3000,
       stopOnInteraction: true,
     })
   );
+  const billing = useBilling();
   
-  // Build plans from pricingModel (or catalog as fallback)
-  const pricingModel = billing.catalog;
-  let plans = [];
-  
-  if (billing.loaded && billing.loadBilling && !billing.errors && pricingModel) {
-    const { products } = pricingModel;
+  // Build plans from pricingModel
+  const plans = useMemo<PricingPlan[]>(() => {
+    // Early return if billing isn't ready or has no pricing model
+    if (
+      !billing.loaded ||
+      !billing.loadBilling ||
+      billing.errors ||
+      !billing.pricingModel
+    ) {
+      return [];
+    }
 
-    // Filter products: subscription or single_payment type, active, not default/free
+    const { products } = billing.pricingModel;
+
+    // Filter products: subscription type, active, not default/free
     const filteredProducts = products.filter((product) => {
-      if (product.default === true) {
-        return false;
-      }
+      // Skip default/free products
+      if (product.default === true) return false;
 
+      // Find active subscription price
       const matchingPrice = product.prices.find(
-        (price) => 
-          (price.type === 'subscription' || price.type === 'single_payment') && 
-          price.active === true
+        (price) => price.type === 'subscription' && price.active === true
       );
 
       return !!matchingPrice;
     });
 
-    // Transform products to plan format
+    // Transform products to PricingPlan format
     const transformedPlans = filteredProducts
       .map((product) => {
         const price = product.prices.find(
-          (p) => 
-            (p.type === 'subscription' || p.type === 'single_payment') && 
-            p.active === true
+          (p) => p.type === 'subscription' && p.active === true
         );
 
         if (!price || !price.slug) return null;
 
-        const formatPrice = (cents) => {
+        // Format price from cents to display string
+        const formatPrice = (cents: number): string => {
           const dollars = cents / 100;
           return `$${dollars.toLocaleString('en-US', { maximumFractionDigits: 0 })}`;
         };
 
         const displayPrice = formatPrice(price.unitPrice);
 
+        // Build features list from feature objects (features have name and description)
         const featureNames =
           product.features
             .map((feature) => feature.name)
-            .filter((name) => typeof name === 'string' && name.length > 0) ?? [];
+            .filter(
+              (name): name is string =>
+                typeof name === 'string' && name.length > 0
+            ) ?? [];
 
-        const plan = {
+        const plan: PricingPlan = {
           name: product.name,
           displayPrice: displayPrice,
           slug: price.slug,
@@ -92,70 +96,50 @@ export function PricingCardsGrid() {
           plan.description = product.description;
         }
 
+        // Determine if popular (hardcoded "Pro" as popular)
         if (product.name === 'Pro') {
           plan.isPopular = true;
         }
 
         return plan;
       })
-      .filter((plan) => plan !== null);
+      .filter((plan): plan is PricingPlan => plan !== null);
 
-    // Sort by price
-    plans = transformedPlans.sort((a, b) => {
-      const getPriceValue = (priceStr) => {
+    // Sort by price (extract numeric value for sorting)
+    return transformedPlans.sort((a, b) => {
+      const getPriceValue = (priceStr: string) => {
         return parseFloat(priceStr.replace(/[$,]/g, '')) || 0;
       };
       return getPriceValue(a.displayPrice) - getPriceValue(b.displayPrice);
     });
+  }, [billing]);
+
+  // Early returns after all hooks to prevent type issues in the rest of the component
+  if (!billing.loaded || !billing.loadBilling) {
+    return null; // or loading skeleton
   }
 
-  // Get price using SDK function or fallback
-  const getPrice = (slug) => {
-    if (billing.getPrice) {
-      return billing.getPrice(slug);
-    }
-    // Fallback: search through catalog/products
-    const pricingModel =  billing.catalog;
-    if (!pricingModel?.products) return null;
-    for (const product of pricingModel.products) {
-      const price = product.prices?.find((p) => p.slug === slug);
-      if (price) return price;
-    }
-    return null;
-  };
+  if (billing.errors) {
+    return null; // or error message
+  }
 
-  // Define isPlanCurrent function
-  const isPlanCurrent = (plan) => {
-    if (!billing.loaded) return false;
-
-    const price = getPrice(plan.slug);
+  const isPlanCurrent = (plan: PricingPlan): boolean => {
+    if (
+      !billing.currentSubscriptions ||
+      billing.currentSubscriptions.length === 0
+    ) {
+      return false;
+    }
+    const priceSlug = plan.slug;
+    const price = billing.getPrice(priceSlug);
     if (!price) return false;
-
-    // Compare against current subscription priceIds
     const currentPriceIds = new Set(
-      currentSubscriptions
-        .map((s) => s?.priceId)
-        .filter((id) => typeof id === 'string' && id.length > 0)
+      billing.currentSubscriptions
+        .map((sub) => sub.priceId)
+        .filter((id): id is string => typeof id === 'string' && id.length > 0)
     );
-
     return currentPriceIds.has(price.id);
   };
-
-  // Show error message if there are errors
-  if (billing?.errors) {
-    return (
-      <div className="w-full space-y-8">
-        <div className="text-center text-red-500">
-          <p className="text-lg font-semibold">Error loading pricing plans</p>
-          <p className="text-sm text-muted-foreground mt-2">
-            {billing.errors instanceof Error
-              ? billing.errors.message
-              : 'Please try refreshing the page'}
-          </p>
-        </div>
-      </div>
-    );
-  }
 
   // Show skeletons while loading
   if (!billing?.loaded || !billing?.loadBilling) {

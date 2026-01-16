@@ -1,6 +1,6 @@
-const { pgTable, text, timestamp, boolean } = require('drizzle-orm/pg-core');
+import { pgTable, text, timestamp, boolean } from 'drizzle-orm/pg-core';
 
-const users = pgTable('users', {
+export const users = pgTable('users', {
   id: text('id').primaryKey(),
   email: text('email').notNull().unique(),
   emailVerified: boolean('email_verified').notNull().default(false),
@@ -14,7 +14,7 @@ const users = pgTable('users', {
     .defaultNow(),
 });
 
-const sessions = pgTable('sessions', {
+export const sessions = pgTable('sessions', {
   id: text('id').primaryKey(),
   expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
   token: text('token').notNull().unique(),
@@ -27,7 +27,7 @@ const sessions = pgTable('sessions', {
     .references(() => users.id, { onDelete: 'cascade' }),
 });
 
-const accounts = pgTable('accounts', {
+export const accounts = pgTable('accounts', {
   id: text('id').primaryKey(),
   accountId: text('account_id').notNull(),
   providerId: text('provider_id').notNull(),
@@ -49,7 +49,7 @@ const accounts = pgTable('accounts', {
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull(),
 });
 
-const verifications = pgTable('verifications', {
+export const verifications = pgTable('verifications', {
   id: text('id').primaryKey(),
   identifier: text('identifier').notNull(),
   value: text('value').notNull(),
@@ -59,19 +59,11 @@ const verifications = pgTable('verifications', {
 });
 
 // Export the schema for BetterAuth
-const betterAuthSchema = {
+export const betterAuthSchema = {
   users,
   sessions,
   accounts,
   verifications,
-};
-
-module.exports = {
-  users,
-  sessions,
-  accounts,
-  verifications,
-  betterAuthSchema,
 };
 
 

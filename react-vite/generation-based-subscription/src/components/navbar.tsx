@@ -23,8 +23,8 @@ export function Navbar() {
   const billing = useBilling();
   const [isCancelling, setIsCancelling] = useState(false);
   const [isUncancelling, setIsUncancelling] = useState(false);
-  const [cancelError, setCancelError] = useState(null);
-  const [uncancelError, setUncancelError] = useState(null);
+  const [cancelError, setCancelError] = useState<string | null>(null);
+  const [uncancelError, setUncancelError] = useState<string | null>(null);
   if (!billing.loaded || !billing.loadBilling) {
     return null;
   }
@@ -163,8 +163,10 @@ export function Navbar() {
             {accountName}
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
+        <DropdownMenuContent align="end" className="min-w-[300px] !overflow-visible">
           <DropdownMenuLabel>Account Actions</DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem onSelect={() => navigate('/pricing')}>Pricing</DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem onSelect={handleSignOut}>Log out</DropdownMenuItem>
           {!currentSubscription?.isFreePlan && (
@@ -173,7 +175,7 @@ export function Navbar() {
                 <>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <span className="w-full">
+                      <span className="w-full block">
                         <DropdownMenuItem
                           onSelect={handleCancelSubscription}
                           disabled={Boolean(
@@ -182,13 +184,14 @@ export function Navbar() {
                             !currentSubscription || 
                             !billing.cancelSubscription
                           )}
-                          className="text-destructive focus:text-destructive"
+                          className="text-destructive focus:text-destructive w-full"
                         >
                           {isCancelling ? 'Cancelling...' : 'Cancel Subscription'}
                         </DropdownMenuItem>
                       </span>
                     </TooltipTrigger>
-                    <TooltipContent className="max-w-xs max-h-32 overflow-y-auto">
+                    <TooltipContent 
+  className="w-[420px] max-w-[95vw] whitespace-normal break-words text-sm !z-[9999] pointer-events-none">
                       <p>
                         Your subscription will remain active until the end of the current billing period
                       </p>
@@ -220,7 +223,7 @@ export function Navbar() {
                       </span>
                     </TooltipTrigger>
                     {cancellationDate && (
-                      <TooltipContent>
+                      <TooltipContent className="w-[420px] max-w-[95vw] whitespace-normal break-words text-sm !z-[9999] pointer-events-none">
                         <p>
                           Subscription is scheduled for cancellation on{' '}
                           {cancellationDate}

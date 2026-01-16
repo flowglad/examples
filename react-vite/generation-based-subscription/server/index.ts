@@ -1,25 +1,26 @@
-const express = require('express');
-const cors = require('cors');
-const dotenv = require('dotenv');
-const { FlowgladServer, requestHandler } = require('@flowglad/server');
-const { toNodeHandler, fromNodeHeaders } = require('better-auth/node');
-const { auth } = require('./lib/auth');
-const { db } = require('./db/client');
-const { users } = require('./db/schema');
-const { eq } = require('drizzle-orm');
+import express, { type Request, type Response, type NextFunction } from 'express';
+import cors from 'cors';
+import dotenv from 'dotenv';
+import { FlowgladServer, requestHandler } from '@flowglad/server';
+import { toNodeHandler, fromNodeHeaders } from 'better-auth/node';
+import { auth } from './lib/auth.js';
+import { db } from './db/client.js';
+import { users } from './db/schema.js';
+import { eq } from 'drizzle-orm';
 
 // Load environment variables
-dotenv.config();
+// Prefer .env.local for local development (consistent with other examples)
+dotenv.config({ path: '.env.local' });
 
 // Check if FLOWGLAD_SECRET_KEY is set
 if (!process.env.FLOWGLAD_SECRET_KEY) {
-  console.error('ERROR: FLOWGLAD_SECRET_KEY is not set in .env file');
+  console.error('ERROR: FLOWGLAD_SECRET_KEY is not set in .env.local file');
   process.exit(1);
 }
 
 // Check if BETTER_AUTH_SECRET is set
 if (!process.env.BETTER_AUTH_SECRET) {
-  console.error('ERROR: BETTER_AUTH_SECRET is not set in .env file');
+  console.error('ERROR: BETTER_AUTH_SECRET is not set in .env.local file');
   process.exit(1);
 }
 
@@ -45,12 +46,25 @@ app.all('/api/auth/*', toNodeHandler(auth));
 app.use(express.json());
 
 // Test route to verify server is working
-app.get('/api/test', (req, res) => {
+app.get('/api/test', (_req: Request, res: Response) => {
   res.json({ message: 'Server is running', timestamp: new Date().toISOString() });
 });
 
+// Extend Express Request type to include user
+declare global {
+  namespace Express {
+    interface Request {
+      user?: {
+        id: string;
+        email: string;
+        name: string | null;
+      } | null;
+    }
+  }
+}
+
 // Middleware to extract user info from Better Auth session
-const extractUserFromSession = async (req, res, next) => {
+const extractUserFromSession = async (req: Request, _res: Response, next: NextFunction) => {
   try {
     // Skip auth extraction for auth routes
     if (req.path.startsWith('/api/auth')) {
@@ -75,7 +89,7 @@ const extractUserFromSession = async (req, res, next) => {
     
     next();
   } catch (error) {
-    console.error('Error extracting user from session:', error.message);
+    console.error('Error extracting user from session:', error instanceof Error ? error.message : String(error));
     req.user = null;
     next();
   }
@@ -87,7 +101,7 @@ app.use(extractUserFromSession);
  * Factory that creates a FlowgladServer for a specific customer
  * customerExternalId is the Better Auth user ID
  */
-const flowglad = (customerExternalId) => {
+const flowglad = (customerExternalId: string) => {
   return new FlowgladServer({
     customerExternalId,
     getCustomerDetails: async (externalId) => {
@@ -126,7 +140,7 @@ const flowglad = (customerExternalId) => {
 };
 
 // Health check endpoint
-app.get('/api/health', (req, res) => {
+app.get('/api/health', (req: Request, res: Response) => {
   res.json({ 
     status: 'ok', 
     authenticated: !!req.user,
@@ -137,20 +151,20 @@ app.get('/api/health', (req, res) => {
 // Create Flowglad request handler
 const flowgladHandler = requestHandler({
   flowglad: (customerExternalId) => flowglad(customerExternalId),
-  getCustomerExternalId: async (req) => {
-    // Use the Flowglad plugin's getExternalId endpoint
-    // This handles the customerType configuration automatically
+  getCustomerExternalId: async (req: Request) => {
+    // Get session from Better Auth and extract user ID
     // Use fromNodeHeaders to convert Express headers to Better Auth format
     try {
-      const { externalId } = await auth.api.getExternalId({
+      const session = await auth.api.getSession({
         headers: fromNodeHeaders(req.headers),
       });
 
-      if (!externalId) {
+      const userId = session?.user?.id;
+      if (!userId) {
         throw new Error('Unable to determine customer external ID');
       }
 
-      return externalId;
+      return userId;
     } catch (error) {
       console.error('[Flowglad] Error getting external ID:', error);
       throw error;
@@ -160,7 +174,7 @@ const flowgladHandler = requestHandler({
 
 // Handle all Flowglad API requests
 // This catch-all route handles all paths under /api/flowglad
-app.all('/api/flowglad/*', async (req, res) => {
+app.all('/api/flowglad/*', async (req: Request, res: Response) => {
   try {
     // Extract the path after /api/flowglad/
     const url = new URL(req.originalUrl, `http://${req.headers.host}`);
@@ -170,11 +184,30 @@ app.all('/api/flowglad/*', async (req, res) => {
       .filter((segment) => segment !== '');
 
     // Call the Flowglad handler
+    // Convert Express query params to simple string record
+    const queryParams: Record<string, string> | undefined = req.method === 'GET' && req.query
+      ? Object.fromEntries(
+          Object.entries(req.query).map(([key, value]): [string, string] => {
+            let stringValue: string;
+            if (typeof value === 'string') {
+              stringValue = value;
+            } else if (Array.isArray(value)) {
+              stringValue = (value[0] as string) ?? '';
+            } else if (value !== undefined && value !== null) {
+              stringValue = String(value);
+            } else {
+              stringValue = '';
+            }
+            return [key, stringValue];
+          })
+        ) as Record<string, string>
+      : undefined;
+
     const result = await flowgladHandler(
       {
         path,
-        method: req.method,
-        query: req.method === 'GET' ? req.query : undefined,
+        method: req.method as any, // requestHandler accepts standard HTTP methods
+        query: queryParams,
         body: req.method !== 'GET' ? req.body : undefined,
       },
       req
@@ -197,13 +230,15 @@ app.all('/api/flowglad/*', async (req, res) => {
  * POST /api/usage-events
  * Create a usage event for the current customer
  */
-app.post('/api/usage-events', async (req, res) => {
+app.post('/api/usage-events', async (req: Request, res: Response) => {
   try {
-    // Use the Flowglad plugin's getExternalId endpoint
+    // Get session from Better Auth and extract user ID
     // Use fromNodeHeaders to convert Express headers to Better Auth format
-    const { externalId } = await auth.api.getExternalId({
+    const session = await auth.api.getSession({
       headers: fromNodeHeaders(req.headers),
     });
+    
+    const externalId = session?.user?.id;
 
     if (!externalId) {
       return res.status(401).json({ error: 'User not authenticated' });
@@ -264,19 +299,19 @@ app.post('/api/usage-events', async (req, res) => {
   }
 });
 
-function findUsagePriceByMeterSlug(usageMeterSlug, pricingModel) {
+function findUsagePriceByMeterSlug(usageMeterSlug: string, pricingModel: any) {
   if (!pricingModel?.products || !pricingModel?.usageMeters) return null;
 
   const meterIdBySlug = new Map(
-    pricingModel.usageMeters.map(meter => [meter.slug, meter.id])
+    pricingModel.usageMeters.map((meter: any) => [meter.slug, meter.id])
   );
 
   const usageMeterId = meterIdBySlug.get(usageMeterSlug);
   if (!usageMeterId) return null;
 
   const usagePrice = pricingModel.products
-    .flatMap(product => product.prices ?? [])
-    .find(price => price.type === 'usage' && price.usageMeterId === usageMeterId);
+    .flatMap((product: any) => product.prices ?? [])
+    .find((price: any) => price.type === 'usage' && price.usageMeterId === usageMeterId);
 
   return usagePrice ?? null;
 }

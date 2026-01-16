@@ -1,5 +1,4 @@
 import { useEffect, useState, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { authClient } from '../lib/auth-client';
 import { useBilling } from '@flowglad/react';
 import { computeUsageTotal } from '../lib/billing-helpers';
@@ -31,7 +30,6 @@ const mockVideoGif = [
 ];
 
 export function HomePage() {
-  const navigate = useNavigate();
   const { data: session, isPending: isUserPending } = authClient.useSession();
   const billing = useBilling();
   
@@ -43,17 +41,17 @@ export function HomePage() {
   const [isGeneratingHDVideo, setIsGeneratingHDVideo] = useState(false);
   const [isGeneratingRelaxImage, setIsGeneratingRelaxImage] = useState(false);
   const [isGeneratingRelaxSDVideo, setIsGeneratingRelaxSDVideo] = useState(false);
-  const [generateError, setGenerateError] = useState(null);
-  const [hdVideoError, setHdVideoError] = useState(null);
-  const [topUpError, setTopUpError] = useState(null);
-  const [isLoadingTopUp, setIsLoadingTopUp] = useState(false);
-  const [displayedContent, setDisplayedContent] = useState(null);
+  const [generateError, setGenerateError] = useState<string | null>(null);
+  const [hdVideoError, setHdVideoError] = useState<string | null>(null);
+  const [topUpError, setTopUpError] = useState<string | null>(null);
+  const [isLoadingFastTopUp, setIsLoadingFastTopUp] = useState(false);
+  const [isLoadingHDTopUp, setIsLoadingHDTopUp] = useState(false);
+  const [displayedContent, setDisplayedContent] = useState<string | null>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [currentVideoGifIndex, setCurrentVideoGifIndex] = useState(0);
-  const previousUserIdRef = useRef(undefined);
+  const previousUserIdRef = useRef<string | undefined>(undefined);
   const [isReloadingAfterCheckout, setIsReloadingAfterCheckout] = useState(false);
   const [hasReloadedAfterCheckout, setHasReloadedAfterCheckout] = useState(false);
-  const [isRedirecting, setIsRedirecting] = useState(false);
   // Manual usage adjustments when reload is not available
   const [manualUsageAdjustments, setManualUsageAdjustments] = useState({ fast_generations: 0, hd_video_minutes: 0 });
   
@@ -103,27 +101,6 @@ export function HomePage() {
   }, [session?.user?.id, billing.loaded, billing.reload]);
 
 
-  // Check if user is on free plan and redirect to pricing page
-  useEffect(() => {
-    if (isUserPending || !billing.loaded) {
-      return;
-    }
-
-    const hasNonFreePlan =
-      currentSubscriptions.length > 0 &&
-      currentSubscriptions.some((sub) => !sub.isFreePlan);
-
-    if (!hasNonFreePlan) {
-      setIsRedirecting(true);
-      navigate('/pricing');
-    }
-  }, [isUserPending, billing.loaded, currentSubscriptions, navigate]);
-  
-  // Show skeleton while redirecting
-  if (isRedirecting) {
-    return <DashboardSkeleton />;
-  }
-
   if (isUserPending || !billing.loaded) {
     return <DashboardSkeleton />;
   }
@@ -145,7 +122,7 @@ export function HomePage() {
   const planName = currentSubscription?.name || 'Unknown Plan';
 
   // Helper functions to access usage balance and feature access if functions aren't available
-  const getUsageBalance = (usageMeterSlug) => {
+  const getUsageBalance = (usageMeterSlug: string) => {
     // Fallback: manually access from subscription data
     if (currentSubscription?.experimental?.usageMeterBalances) {
       const balance = currentSubscription.experimental.usageMeterBalances.find(
@@ -156,7 +133,7 @@ export function HomePage() {
     return null;
   };
 
-  const getFeatureAccess = (featureSlug) => {
+  const getFeatureAccess = (featureSlug: string) => {
     // Fallback: manually check from subscription feature items
     if (currentSubscription?.experimental?.featureItems) {
       return currentSubscription.experimental.featureItems.some(
@@ -402,25 +379,14 @@ export function HomePage() {
       return;
     }
 
-    // Get price using SDK or fallback (same pattern as pricing page)
-    const getPrice = (slug) => {
-      if (billing.getPrice) return billing.getPrice(slug);
-      const pricingModel = billing.pricingModel || billing.catalog;
-      if (!pricingModel?.products) return null;
-      for (const product of pricingModel.products) {
-        const price = product.prices?.find((p) => p.slug === slug);
-        if (price) return price;
-      }
-      return null;
-    };
-
-    const priceObj = getPrice('fast_generation_top_up');
+    // Get price using SDK
+    const priceObj = billing.getPrice('fast_generation_top_up');
     if (!priceObj) {
       setTopUpError('Price not found. Please contact support.');
       return;
     }
 
-    setIsLoadingTopUp(true);
+    setIsLoadingFastTopUp(true);
     try {
       // Use createCheckoutSession exactly like pricing card
       if (!billing.createCheckoutSession) {
@@ -440,7 +406,7 @@ export function HomePage() {
           : 'Failed to start checkout. Please try again.'
       );
     } finally {
-      setIsLoadingTopUp(false);
+      setIsLoadingFastTopUp(false);
     }
   };
 
@@ -453,25 +419,14 @@ export function HomePage() {
       return;
     }
 
-    // Get price using SDK or fallback (same pattern as pricing page)
-    const getPrice = (slug) => {
-      if (billing.getPrice) return billing.getPrice(slug);
-      const pricingModel = billing.pricingModel || billing.catalog;
-      if (!pricingModel?.products) return null;
-      for (const product of pricingModel.products) {
-        const price = product.prices?.find((p) => p.slug === slug);
-        if (price) return price;
-      }
-      return null;
-    };
-
-    const priceObj = getPrice('hd_video_minute_top_up');
+    // Get price using SDK
+    const priceObj = billing.getPrice('hd_video_minute_top_up');
     if (!priceObj) {
       setTopUpError('Price not found. Please contact support.');
       return;
     }
 
-    setIsLoadingTopUp(true);
+    setIsLoadingHDTopUp(true);
     try {
       // Use createCheckoutSession exactly like pricing card
       if (!billing.createCheckoutSession) {
@@ -491,7 +446,7 @@ export function HomePage() {
           : 'Failed to start checkout. Please try again.'
       );
     } finally {
-      setIsLoadingTopUp(false);
+      setIsLoadingHDTopUp(false);
     }
   };
 
@@ -692,10 +647,10 @@ export function HomePage() {
                               !billing.loaded ||
                               !billing.loadBilling ||
                               billing.errors !== null ||
-                              isLoadingTopUp
+                              isLoadingFastTopUp
                             }
                           >
-                            {isLoadingTopUp ? 'Loading...' : 'Buy Fast Generations ($4.00 for 80)'}
+                            {isLoadingFastTopUp ? 'Loading...' : 'Buy Fast Generations ($4.00 for 80)'}
                           </Button>
                         </span>
                       </TooltipTrigger>
@@ -723,10 +678,10 @@ export function HomePage() {
                               !billing.loaded ||
                               !billing.loadBilling ||
                               billing.errors !== null ||
-                              isLoadingTopUp
+                              isLoadingHDTopUp
                             }
                           >
-                            {isLoadingTopUp ? 'Loading...' : 'Buy HD Video Minutes ($10.00 for 10 min)'}
+                            {isLoadingHDTopUp ? 'Loading...' : 'Buy HD Video Minutes ($10.00 for 10 min)'}
                           </Button>
                         </span>
                       </TooltipTrigger>

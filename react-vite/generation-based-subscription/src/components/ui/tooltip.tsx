@@ -1,9 +1,20 @@
 import * as React from 'react';
 import { cn } from '../../lib/utils';
 
-const TooltipContext = React.createContext({});
+interface TooltipContextValue {
+  delayDuration?: number;
+  open?: boolean;
+  setOpen?: (open: boolean) => void;
+}
 
-function TooltipProvider({ children, delayDuration = 200 }) {
+const TooltipContext = React.createContext<TooltipContextValue>({});
+
+interface TooltipProviderProps {
+  children: React.ReactNode;
+  delayDuration?: number;
+}
+
+function TooltipProvider({ children, delayDuration = 200 }: TooltipProviderProps) {
   return (
     <TooltipContext.Provider value={{ delayDuration }}>
       {children}
@@ -11,7 +22,11 @@ function TooltipProvider({ children, delayDuration = 200 }) {
   );
 }
 
-function Tooltip({ children }) {
+interface TooltipProps {
+  children: React.ReactNode;
+}
+
+function Tooltip({ children }: TooltipProps) {
   const [open, setOpen] = React.useState(false);
   const existingContext = React.useContext(TooltipContext);
   
@@ -24,7 +39,13 @@ function Tooltip({ children }) {
   );
 }
 
-const TooltipTrigger = React.forwardRef(({ asChild, children, ...props }, ref) => {
+interface TooltipTriggerProps extends React.HTMLAttributes<HTMLSpanElement> {
+  asChild?: boolean;
+  children: React.ReactNode;
+}
+
+const TooltipTrigger = React.forwardRef<HTMLSpanElement, TooltipTriggerProps>(
+  ({ asChild, children, ...props }, ref) => {
   const { setOpen } = React.useContext(TooltipContext);
   
   const handleMouseEnter = () => setOpen?.(true);
@@ -37,7 +58,7 @@ const TooltipTrigger = React.forwardRef(({ asChild, children, ...props }, ref) =
       ...props,
       onMouseEnter: handleMouseEnter,
       onMouseLeave: handleMouseLeave,
-    });
+    } as Partial<React.HTMLAttributes<HTMLElement>>);
   }
   
   return (
@@ -53,7 +74,12 @@ const TooltipTrigger = React.forwardRef(({ asChild, children, ...props }, ref) =
 });
 TooltipTrigger.displayName = 'TooltipTrigger';
 
-const TooltipContent = React.forwardRef(({ className, children, ...props }, ref) => {
+interface TooltipContentProps extends React.HTMLAttributes<HTMLDivElement> {
+  children: React.ReactNode;
+}
+
+const TooltipContent = React.forwardRef<HTMLDivElement, TooltipContentProps>(
+  ({ className, children, ...props }, ref) => {
   const { open } = React.useContext(TooltipContext);
   
   if (!open) return null;

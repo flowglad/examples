@@ -1,15 +1,24 @@
 import * as React from 'react';
 import { cn } from '../../lib/utils';
 
-const DropdownMenuContext = React.createContext({});
+interface DropdownMenuContextValue {
+  open: boolean;
+  setOpen: (open: boolean) => void;
+}
 
-function DropdownMenu({ children }) {
+const DropdownMenuContext = React.createContext<DropdownMenuContextValue | null>(null);
+
+interface DropdownMenuProps {
+  children: React.ReactNode;
+}
+
+function DropdownMenu({ children }: DropdownMenuProps) {
   const [open, setOpen] = React.useState(false);
-  const menuRef = React.useRef(null);
+  const menuRef = React.useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (menuRef.current && !menuRef.current.contains(event.target)) {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && event.target instanceof Node && !menuRef.current.contains(event.target)) {
         setOpen(false);
       }
     };
@@ -27,15 +36,23 @@ function DropdownMenu({ children }) {
   );
 }
 
-const DropdownMenuTrigger = React.forwardRef(({ asChild, children, ...props }, ref) => {
-  const { open, setOpen } = React.useContext(DropdownMenuContext);
+interface DropdownMenuTriggerProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  asChild?: boolean;
+  children: React.ReactNode;
+}
+
+const DropdownMenuTrigger = React.forwardRef<HTMLButtonElement, DropdownMenuTriggerProps>(
+  ({ asChild, children, ...props }, ref) => {
+    const context = React.useContext(DropdownMenuContext);
+    if (!context) throw new Error('DropdownMenuTrigger must be used within DropdownMenu');
+    const { open, setOpen } = context;
 
   const handleClick = () => setOpen(!open);
 
   if (asChild && React.isValidElement(children)) {
     // Clone element without passing ref to avoid ref access during render
     // The child component should handle its own ref if needed
-    return React.cloneElement(children, {
+    return React.cloneElement(children as React.ReactElement<any>, {
       ...props,
       onClick: handleClick,
       'aria-expanded': open,
@@ -50,9 +67,16 @@ const DropdownMenuTrigger = React.forwardRef(({ asChild, children, ...props }, r
 });
 DropdownMenuTrigger.displayName = 'DropdownMenuTrigger';
 
-const DropdownMenuContent = React.forwardRef(
+interface DropdownMenuContentProps extends React.HTMLAttributes<HTMLDivElement> {
+  align?: 'start' | 'end';
+  children: React.ReactNode;
+}
+
+const DropdownMenuContent = React.forwardRef<HTMLDivElement, DropdownMenuContentProps>(
   ({ className, align = 'end', children, ...props }, ref) => {
-    const { open } = React.useContext(DropdownMenuContext);
+    const context = React.useContext(DropdownMenuContext);
+    if (!context) throw new Error('DropdownMenuContent must be used within DropdownMenu');
+    const { open } = context;
 
     if (!open) return null;
 
@@ -75,9 +99,18 @@ const DropdownMenuContent = React.forwardRef(
 );
 DropdownMenuContent.displayName = 'DropdownMenuContent';
 
-const DropdownMenuItem = React.forwardRef(
+interface DropdownMenuItemProps extends React.HTMLAttributes<HTMLDivElement> {
+  onSelect?: () => void;
+  disabled?: boolean;
+  variant?: 'default' | 'destructive';
+  children: React.ReactNode;
+}
+
+const DropdownMenuItem = React.forwardRef<HTMLDivElement, DropdownMenuItemProps>(
   ({ className, onSelect, disabled, variant, children, ...props }, ref) => {
-    const { setOpen } = React.useContext(DropdownMenuContext);
+    const context = React.useContext(DropdownMenuContext);
+    if (!context) throw new Error('DropdownMenuItem must be used within DropdownMenu');
+    const { setOpen } = context;
 
     const handleClick = () => {
       if (!disabled && onSelect) {
@@ -106,7 +139,8 @@ const DropdownMenuItem = React.forwardRef(
 );
 DropdownMenuItem.displayName = 'DropdownMenuItem';
 
-const DropdownMenuLabel = React.forwardRef(({ className, ...props }, ref) => (
+const DropdownMenuLabel = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...props }, ref) => (
   <div
     ref={ref}
     className={cn('px-2 py-1.5 text-sm font-semibold', className)}
@@ -115,7 +149,8 @@ const DropdownMenuLabel = React.forwardRef(({ className, ...props }, ref) => (
 ));
 DropdownMenuLabel.displayName = 'DropdownMenuLabel';
 
-const DropdownMenuSeparator = React.forwardRef(({ className, ...props }, ref) => (
+const DropdownMenuSeparator = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...props }, ref) => (
   <div
     ref={ref}
     className={cn('-mx-1 my-1 h-px bg-muted', className)}
