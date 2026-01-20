@@ -173,54 +173,55 @@ export function Navbar() {
             <>
               {!isCancelled ? (
                 <>
-                  <Tooltip>
+                  <Tooltip className="w-full">
                     <TooltipTrigger asChild>
-                      <span className="w-full block">
-                        <DropdownMenuItem
-                          onSelect={handleCancelSubscription}
-                          disabled={Boolean(
-                            isCancelling || 
-                            isUncancelling || 
-                            !currentSubscription || 
-                            !billing.cancelSubscription
-                          )}
-                          className="text-destructive focus:text-destructive w-full"
-                        >
-                          {isCancelling ? 'Cancelling...' : 'Cancel Subscription'}
-                        </DropdownMenuItem>
-                      </span>
+                      <DropdownMenuItem
+                        onSelect={handleCancelSubscription}
+                        disabled={Boolean(
+                          isCancelling ||
+                          isUncancelling ||
+                          !currentSubscription ||
+                          !billing.cancelSubscription,
+                        )}
+                        className="text-destructive focus:text-destructive w-full"
+                      >
+                        {isCancelling ? "Cancelling..." : "Cancel Subscription"}
+                      </DropdownMenuItem>
                     </TooltipTrigger>
-                    <TooltipContent 
-  className="w-[420px] max-w-[95vw] whitespace-normal break-words text-sm !z-[9999] pointer-events-none">
+                    <TooltipContent className="w-[420px] max-w-[95vw] whitespace-normal break-words text-sm !z-[9999] pointer-events-none">
                       <p>
-                        Your subscription will remain active until the end of the current billing period
+                        Your subscription will remain active until the end of
+                        the current billing period
                       </p>
                     </TooltipContent>
                   </Tooltip>
                   {cancelError && (
-                    <DropdownMenuItem disabled className="text-destructive text-xs">
+                    <DropdownMenuItem
+                      disabled
+                      className="text-destructive text-xs"
+                    >
                       {cancelError}
                     </DropdownMenuItem>
                   )}
                 </>
               ) : (
                 <>
-                  <Tooltip>
+                  <Tooltip className="w-full">
                     <TooltipTrigger asChild>
-                      <span className="w-full">
-                        <DropdownMenuItem
-                          onSelect={handleUncancelSubscription}
-                          disabled={Boolean(
-                            isUncancelling || 
-                            isCancelling || 
-                            !currentSubscription || 
-                            !billing.uncancelSubscription
-                          )}
-                          className="text-green-600 focus:text-green-600"
-                        >
-                          {isUncancelling ? 'Uncancelling...' : 'Keep My Subscription'}
-                        </DropdownMenuItem>
-                      </span>
+                      <DropdownMenuItem
+                        onSelect={handleUncancelSubscription}
+                        disabled={Boolean(
+                          isUncancelling ||
+                          isCancelling ||
+                          !currentSubscription ||
+                          !billing.uncancelSubscription,
+                        )}
+                        className="text-green-600 focus:text-green-600 w-full"
+                      >
+                        {isUncancelling
+                          ? "Uncancelling..."
+                          : "Keep My Subscription"}
+                      </DropdownMenuItem>
                     </TooltipTrigger>
                     {cancellationDate && (
                       <TooltipContent className="w-[420px] max-w-[95vw] whitespace-normal break-words text-sm !z-[9999] pointer-events-none">
@@ -245,5 +246,3 @@ export function Navbar() {
     </nav>
   );
 }
-
-

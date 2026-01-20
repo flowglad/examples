@@ -24,17 +24,16 @@ function TooltipProvider({ children, delayDuration = 200 }: TooltipProviderProps
 
 interface TooltipProps {
   children: React.ReactNode;
+  className?: string;
 }
 
-function Tooltip({ children }: TooltipProps) {
+function Tooltip({ children, className }: TooltipProps) {
   const [open, setOpen] = React.useState(false);
   const existingContext = React.useContext(TooltipContext);
   
   return (
     <TooltipContext.Provider value={{ ...existingContext, open, setOpen }}>
-      <div className="relative inline-block">
-        {children}
-      </div>
+      <div className={cn("relative inline-block", className)}>{children}</div>
     </TooltipContext.Provider>
   );
 }
@@ -100,5 +99,3 @@ const TooltipContent = React.forwardRef<HTMLDivElement, TooltipContentProps>(
 TooltipContent.displayName = 'TooltipContent';
 
 export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider };
-
-
