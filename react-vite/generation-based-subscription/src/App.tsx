@@ -43,7 +43,7 @@ function App() {
               element={
                 <ProtectedRoute>
                   <FlowgladProviderWrapper>
-                      <Navbar />
+                    <Navbar />
                     <HomePage />
                   </FlowgladProviderWrapper>
                 </ProtectedRoute>

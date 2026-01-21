@@ -6,6 +6,7 @@ import { Button } from '../components/ui/button';
 
 export function SignInPage() {
   const navigate = useNavigate();
+  const { data: session } = authClient.useSession();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -15,15 +16,20 @@ export function SignInPage() {
     e.preventDefault();
     setLoading(true);
     setError(null);
-    await authClient.signIn.email(
-      { email, password, callbackURL: '/' },
-      {
-        onError: (ctx) => setError(ctx.error.message),
-        onSuccess: () => navigate('/'),
-        onRequest: () => {},
-      }
-    );
-    setLoading(false);
+    try {
+      await authClient.signIn.email(
+        { email, password, callbackURL: '/' },
+        {
+          onError: (ctx) => setError(ctx.error.message),
+        },
+      );
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  if (session) {
+    navigate('/');
   }
 
   return (

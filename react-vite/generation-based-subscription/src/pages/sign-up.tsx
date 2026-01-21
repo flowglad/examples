@@ -5,6 +5,7 @@ import { Button } from '../components/ui/button';
 
 export function SignUpPage() {
   const navigate = useNavigate();
+  const { data: session } = authClient.useSession();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -15,18 +16,20 @@ export function SignUpPage() {
     e.preventDefault();
     setLoading(true);
     setError(null);
-    try{
+    try {
       await authClient.signUp.email(
         { name, email, password, callbackURL: '/' },
         {
           onError: (ctx) => setError(ctx.error.message),
-          onSuccess: () => navigate('/'),
-          onRequest: () => {},
-        }
+        },
       );
-    } finally{
+    } finally {
       setLoading(false);
     }
+  }
+
+  if (session) {
+    navigate('/');
   }
 
   return (
