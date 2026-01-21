@@ -1,6 +1,6 @@
 # Flowglad Seat-Based Billing Example
 
-A Linear-style issue tracker demo showcasing seat-based billing with Flowglad. This example demonstrates how to implement per-user pricing with multiple tiers, monthly/yearly billing toggle, and team seat management.
+A Linear-style issue tracker demo showcasing seat-based billing with Flowglad. This example demonstrates how to implement per-user pricing with multiple tiers, monthly/yearly billing toggle, and seat management.
 
 ## Tech Stack
 
@@ -18,7 +18,7 @@ A Linear-style issue tracker demo showcasing seat-based billing with Flowglad. T
 - **4-Tier Pricing** - Free, Basic ($10/user), Business ($16/user), Enterprise (custom)
 - **Monthly/Yearly Toggle** - Switch between billing periods with savings display
 - **Seat Management** - Add/remove team members, adjust seat count
-- **Resource-Based Billing** - Seats and teams tracked as Flowglad resources
+- **Resource-Based Billing** - Seats tracked as Flowglad resources
 - **Dual Billing Mode** - Supports both user-based and organization-based billing
 - **Authentication** - Email/password with BetterAuth
 
@@ -26,9 +26,9 @@ A Linear-style issue tracker demo showcasing seat-based billing with Flowglad. T
 
 | Plan | Price | Features |
 |------|-------|----------|
-| **Free** | $0 | 2 teams, 250 issues, Slack/GitHub, AI agents |
-| **Basic** | $10/user/mo | 5 teams, unlimited issues, admin roles |
-| **Business** | $16/user/mo | Unlimited teams, Product Intelligence, Linear Insights |
+| **Free** | $0 | 250 issues, Slack/GitHub, AI agents, API & webhooks |
+| **Basic** | $10/user/mo | Unlimited issues, file uploads, admin roles |
+| **Business** | $16/user/mo | Product Intelligence, Linear Insights, SLAs |
 | **Enterprise** | Custom | SAML SSO, SCIM, advanced security, dedicated support |
 
 ## How It Works
@@ -142,7 +142,6 @@ src/
 
 ### Resources
 - **Seats** - Per-user allocation for paid plans
-- **Teams** - Team limits (2 for Free, 5 for Basic, unlimited for Business+)
 
 ### Dual Billing Mode
 This example supports both user-based and organization-based billing:

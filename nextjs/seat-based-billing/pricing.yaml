@@ -2,20 +2,6 @@ isDefault: true
 name: "Seat-Based Subscription"
 features:
   - type: "resource"
-    slug: "free_teams"
-    name: "Free Plan Teams"
-    description: "Team allocation for Free plan subscribers"
-    amount: 2
-    active: true
-    resourceSlug: "teams"
-  - type: "resource"
-    slug: "basic_teams"
-    name: "Basic Plan Teams"
-    description: "Team allocation for Basic plan subscribers"
-    amount: 5
-    active: true
-    resourceSlug: "teams"
-  - type: "resource"
     slug: "basic_seats"
     name: "Basic Plan Seats"
     description: "Seat allocation for Basic plan subscribers"
@@ -97,16 +83,6 @@ features:
     description: "Set and track SLAs for issues"
     active: true
   - type: "toggle"
-    slug: "unlimited_teams"
-    name: "Unlimited Teams"
-    description: "Create unlimited teams"
-    active: true
-  - type: "toggle"
-    slug: "private_teams"
-    name: "Private Teams & Guests"
-    description: "Create private teams and invite guests"
-    active: true
-  - type: "toggle"
     slug: "product_intelligence"
     name: "Product Intelligence"
     description: "AI-powered product insights"
@@ -184,7 +160,7 @@ features:
 products:
   - product:
       name: "Basic"
-      description: "$10/user/month. All Free features + 5 teams, unlimited issues, unlimited file uploads, and admin roles."
+      description: "$10/user/month. All Free features + unlimited issues, unlimited file uploads, and admin roles."
       active: true
       singularQuantityLabel: "user"
       pluralQuantityLabel: "users"
@@ -203,7 +179,6 @@ products:
       usageMeterId: null
     features:
       - "basic_seats"
-      - "basic_teams"
       - "unlimited_members"
       - "slack_github"
       - "ai_agents"
@@ -217,7 +192,7 @@ products:
       - "admin_roles"
   - product:
       name: "Basic"
-      description: "$120/user/year. All Free features + 5 teams, unlimited issues, unlimited file uploads, and admin roles."
+      description: "$120/user/year. All Free features + unlimited issues, unlimited file uploads, and admin roles."
       active: true
       singularQuantityLabel: "user"
       pluralQuantityLabel: "users"
@@ -236,7 +211,6 @@ products:
       usageMeterId: null
     features:
       - "basic_seats"
-      - "basic_teams"
       - "unlimited_members"
       - "slack_github"
       - "ai_agents"
@@ -250,7 +224,7 @@ products:
       - "admin_roles"
   - product:
       name: "Business"
-      description: "$16/user/month. All Basic features + unlimited teams, private teams, Product Intelligence, Linear Insights, Linear Asks, and support integrations."
+      description: "$16/user/month. All Basic features + Product Intelligence, Linear Insights, Linear Asks, and support integrations."
       active: true
       singularQuantityLabel: "user"
       pluralQuantityLabel: "users"
@@ -281,8 +255,6 @@ products:
       - "unlimited_file_uploads"
       - "admin_roles"
       - "issue_slas"
-      - "unlimited_teams"
-      - "private_teams"
       - "product_intelligence"
       - "linear_insights"
       - "linear_asks"
@@ -291,7 +263,7 @@ products:
       - "triage_routing"
   - product:
       name: "Business"
-      description: "$192/user/year. All Basic features + unlimited teams, private teams, Product Intelligence, Linear Insights, Linear Asks, and support integrations."
+      description: "$192/user/year. All Basic features + Product Intelligence, Linear Insights, Linear Asks, and support integrations."
       active: true
       singularQuantityLabel: "user"
       pluralQuantityLabel: "users"
@@ -322,8 +294,6 @@ products:
       - "unlimited_file_uploads"
       - "admin_roles"
       - "issue_slas"
-      - "unlimited_teams"
-      - "private_teams"
       - "product_intelligence"
       - "linear_insights"
       - "linear_asks"
@@ -363,8 +333,6 @@ products:
       - "unlimited_file_uploads"
       - "admin_roles"
       - "issue_slas"
-      - "unlimited_teams"
-      - "private_teams"
       - "product_intelligence"
       - "linear_insights"
       - "linear_asks"
@@ -382,7 +350,7 @@ products:
       - "account_manager"
   - product:
       name: "Free"
-      description: "Free for everyone. Unlimited members, 2 teams, 250 issues, Slack/GitHub integration, and AI agents."
+      description: "Free for everyone. Unlimited members, 250 issues, Slack/GitHub integration, and AI agents."
       active: true
       default: true
       slug: "free_tier"
@@ -398,7 +366,6 @@ products:
       slug: "free_plan"
       usageMeterId: null
     features:
-      - "free_teams"
       - "unlimited_members"
       - "slack_github"
       - "ai_agents"
@@ -409,9 +376,6 @@ products:
       - "issue_sync"
 usageMeters: []
 resources:
-  - slug: "teams"
-    name: "Teams"
-    active: true
   - slug: "seats"
     name: "Seats"
     active: true

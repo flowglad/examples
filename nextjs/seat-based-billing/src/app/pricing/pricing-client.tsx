@@ -26,28 +26,28 @@ import { cn } from '@/lib/utils'
 const FEATURE_HIGHLIGHTS: Record<string, string[]> = {
   Free: [
     'Unlimited members',
-    '2 teams',
     '250 issues',
     'Slack & GitHub integration',
     'AI agents & MCP access',
     'API & webhooks',
+    'Import & export',
   ],
   Basic: [
     'Everything in Free',
-    '5 teams',
     'Unlimited issues',
     'Unlimited file uploads',
     'Admin roles',
+    'Customer requests',
+    'Issue sync',
   ],
   Business: [
     'Everything in Basic',
-    'Unlimited teams',
-    'Private teams & guests',
     'Product Intelligence',
     'Linear Insights',
     'Linear Asks',
     'Support integrations',
     'Issue SLAs',
+    'Triage routing',
   ],
   Enterprise: [
     'Everything in Business',
