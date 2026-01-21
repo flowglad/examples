@@ -201,7 +201,6 @@ The Express backend handles Flowglad API calls with `@flowglad/server` and authe
 - `GET /api/flowglad/billing` - Get customer billing data
 - `POST /api/flowglad/checkout-sessions` - Create checkout sessions
 - `POST /api/flowglad/subscriptions/:id/cancel` - Cancel subscription
-- `POST /api/usage-events` - Create usage events
 
 User authentication is handled via Better Auth session cookies. The Express backend verifies sessions using Better Auth's session validation.
 

@@ -32,6 +32,7 @@ const mockVideoGif = [
 export function HomePage() {
   const { data: session, isPending: isUserPending } = authClient.useSession();
   const billing = useBilling();
+  const { createUsageEvent } = billing;
   
   // Extract current subscriptions using Flowglad's current flag
   const subscriptions = Array.isArray(billing?.subscriptions) ? billing.subscriptions : [];
@@ -208,11 +209,6 @@ export function HomePage() {
       ? Math.min((hdVideoMinutesRemaining / hdVideoMinutesTotal) * 100, 100)
       : 0;
 
-  // Build request headers for API calls
-  const getRequestHeaders = () => ({
-    'Content-Type': 'application/json',
-  });
-
   const handleGenerateFastImage = async () => {
     if (!hasFastGenerationsAccess || fastGenerationsRemaining === 0) {
       return;
@@ -222,23 +218,22 @@ export function HomePage() {
     setGenerateError(null);
 
     try {
+      if (!createUsageEvent) {
+        throw new Error('Usage tracking is not available');
+      }
+
       const transactionId = `fast_image_${Date.now()}_${Math.random().toString(36).substring(7)}`;
       const amount = Math.floor(Math.random() * 3) + 3;
 
-      const response = await fetch('/api/usage-events', {
-        method: 'POST',
-        headers: getRequestHeaders(),
-        credentials: 'include', // Include cookies for Better Auth session
-        body: JSON.stringify({
-          usageMeterSlug: 'fast_generations',
-          amount,
-          transactionId,
-        }),
+      // Record usage event directly from the client
+      const result = await createUsageEvent({
+        usageMeterSlug: 'fast_generations',
+        amount,
+        transactionId,
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to create usage event');
+      if ('error' in result) {
+        throw new Error(result.error.code || 'Failed to create usage event');
       }
 
       const nextIndex = (currentImageIndex + 1) % mockImages.length;
@@ -287,23 +282,22 @@ export function HomePage() {
     setHdVideoError(null);
 
     try {
+      if (!createUsageEvent) {
+        throw new Error('Usage tracking is not available');
+      }
+
       const transactionId = `hd_video_${Date.now()}_${Math.random().toString(36).substring(7)}`;
       const amount = Math.floor(Math.random() * 3) + 1;
 
-      const response = await fetch('/api/usage-events', {
-        method: 'POST',
-        headers: getRequestHeaders(),
-        credentials: 'include', // Include cookies for Better Auth session
-        body: JSON.stringify({
-          usageMeterSlug: 'hd_video_minutes',
-          amount,
-          transactionId,
-        }),
+      // Record usage event directly from the client
+      const result = await createUsageEvent({
+        usageMeterSlug: 'hd_video_minutes',
+        amount,
+        transactionId,
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to create usage event');
+      if ('error' in result) {
+        throw new Error(result.error.code || 'Failed to create usage event');
       }
 
       const nextIndex = (currentVideoGifIndex + 1) % mockVideoGif.length;

@@ -29,7 +29,7 @@ export function Navbar() {
     return null;
   }
 
-  if (billing.errors) {
+  if (billing.errors != null) {
     return null;
   }
 
