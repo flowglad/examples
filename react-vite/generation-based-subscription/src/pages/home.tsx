@@ -133,39 +133,13 @@ export function HomePage() {
   const currentSubscription = currentSubscriptions[0];
   const planName = currentSubscription?.name || 'Unknown Plan';
 
-  // Helper functions to access usage balance and feature access if functions aren't available
-  const getUsageBalance = (usageMeterSlug: string) => {
-    // Fallback: manually access from subscription data
-    if (currentSubscription?.experimental?.usageMeterBalances) {
-      const balance = currentSubscription.experimental.usageMeterBalances.find(
-        (meter) => meter.slug === usageMeterSlug
-      );
-      return balance ? { availableBalance: balance.availableBalance } : null;
-    }
-    return null;
-  };
-
-  const getFeatureAccess = (featureSlug: string) => {
-    // Fallback: manually check from subscription feature items
-    if (currentSubscription?.experimental?.featureItems) {
-      return currentSubscription.experimental.featureItems.some(
-        (item) => item.slug === featureSlug
-      );
-    }
-    return false;
-  };
-
-  // Use billing functions if available, otherwise use fallback helpers
-  const checkUsageBalance = billing.checkUsageBalance || getUsageBalance;
-  const checkFeatureAccess = billing.checkFeatureAccess || getFeatureAccess;
-
-  // Only show skeleton if we don't have a subscription to work with
-  if (!currentSubscription && (!billing.checkUsageBalance || !billing.checkFeatureAccess)) {
+  // Only show skeleton if we don't have a subscription or billing API methods aren't available
+  if (!currentSubscription || !billing.checkUsageBalance || !billing.checkFeatureAccess) {
     return <DashboardSkeleton />;
   }
 
-  const fastGenerationsBalance = checkUsageBalance('fast_generations');
-  const hdVideoMinutesBalance = checkUsageBalance('hd_video_minutes');
+  const fastGenerationsBalance = billing.checkUsageBalance('fast_generations');
+  const hdVideoMinutesBalance = billing.checkUsageBalance('hd_video_minutes');
 
   // Apply manual adjustments if reload is not available
   const adjustedFastGenerationsBalance = fastGenerationsBalance 
@@ -178,11 +152,11 @@ export function HomePage() {
   const hasFastGenerationsAccess = adjustedFastGenerationsBalance != null;
   const hasHDVideoMinutesAccess = adjustedHdVideoMinutesBalance != null;
 
-  const hasRelaxMode = !!checkFeatureAccess('unlimited_relaxed_images');
-  const hasUnlimitedRelaxedSDVideo = !!checkFeatureAccess(
+  const hasRelaxMode = !!billing.checkFeatureAccess('unlimited_relaxed_images');
+  const hasUnlimitedRelaxedSDVideo = !!billing.checkFeatureAccess(
     'unlimited_relaxed_sd_video'
   );
-  const hasOptionalTopUps = !!checkFeatureAccess(
+  const hasOptionalTopUps = !!billing.checkFeatureAccess(
     'optional_credit_top_ups'
   );
 

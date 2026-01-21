@@ -70,7 +70,7 @@ Fill in the required values in `.env.local`:
   - Get your secret key from: [https://flowglad.com](https://flowglad.com)
 
 ### Server Configuration
-```
+```env
 SERVER_PORT=3001
 VITE_APP_URL=http://localhost:5173
 ```
