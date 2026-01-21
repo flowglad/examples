@@ -196,14 +196,12 @@ export function HomePage() {
         throw new Error('Usage tracking is not available');
       }
 
-      const transactionId = `fast_image_${Date.now()}_${Math.random().toString(36).substring(7)}`;
       const amount = Math.floor(Math.random() * 3) + 3;
 
       // Record usage event directly from the client
       const result = await createUsageEvent({
         usageMeterSlug: 'fast_generations',
         amount,
-        transactionId,
       });
 
       if ('error' in result) {
@@ -260,14 +258,12 @@ export function HomePage() {
         throw new Error('Usage tracking is not available');
       }
 
-      const transactionId = `hd_video_${Date.now()}_${Math.random().toString(36).substring(7)}`;
       const amount = Math.floor(Math.random() * 3) + 1;
 
       // Record usage event directly from the client
       const result = await createUsageEvent({
         usageMeterSlug: 'hd_video_minutes',
         amount,
-        transactionId,
       });
 
       if ('error' in result) {
