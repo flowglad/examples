@@ -1,0 +1,417 @@
+isDefault: true
+name: "Seat-Based Subscription"
+features:
+  - type: "resource"
+    slug: "free_teams"
+    name: "Free Plan Teams"
+    description: "Team allocation for Free plan subscribers"
+    amount: 2
+    active: true
+    resourceSlug: "teams"
+  - type: "resource"
+    slug: "basic_teams"
+    name: "Basic Plan Teams"
+    description: "Team allocation for Basic plan subscribers"
+    amount: 5
+    active: true
+    resourceSlug: "teams"
+  - type: "resource"
+    slug: "basic_seats"
+    name: "Basic Plan Seats"
+    description: "Seat allocation for Basic plan subscribers"
+    amount: 1
+    active: true
+    resourceSlug: "seats"
+  - type: "resource"
+    slug: "business_seats"
+    name: "Business Plan Seats"
+    description: "Seat allocation for Business plan subscribers"
+    amount: 1
+    active: true
+    resourceSlug: "seats"
+  - type: "resource"
+    slug: "enterprise_seats"
+    name: "Enterprise Plan Seats"
+    description: "Seat allocation for Enterprise plan subscribers"
+    amount: 1
+    active: true
+    resourceSlug: "seats"
+  - type: "toggle"
+    slug: "unlimited_members"
+    name: "Unlimited Members"
+    description: "Invite unlimited members to your workspace"
+    active: true
+  - type: "toggle"
+    slug: "slack_github"
+    name: "Slack & GitHub Integration"
+    description: "Connect with Slack and GitHub"
+    active: true
+  - type: "toggle"
+    slug: "ai_agents"
+    name: "AI Agents"
+    description: "Linear for Agents and MCP access"
+    active: true
+  - type: "toggle"
+    slug: "api_webhooks"
+    name: "API & Webhook Access"
+    description: "Full API and webhook integration"
+    active: true
+  - type: "toggle"
+    slug: "import_export"
+    name: "Import & Export"
+    description: "Import from other tools and export your data"
+    active: true
+  - type: "toggle"
+    slug: "triage"
+    name: "Triage"
+    description: "Organize and prioritize issues"
+    active: true
+  - type: "toggle"
+    slug: "customer_requests"
+    name: "Customer Requests"
+    description: "Manage customer feedback and requests"
+    active: true
+  - type: "toggle"
+    slug: "issue_sync"
+    name: "Issue Sync"
+    description: "Synchronize issues across teams"
+    active: true
+  - type: "toggle"
+    slug: "unlimited_issues"
+    name: "Unlimited Issues"
+    description: "Create unlimited issues"
+    active: true
+  - type: "toggle"
+    slug: "unlimited_file_uploads"
+    name: "Unlimited File Uploads"
+    description: "Upload unlimited files"
+    active: true
+  - type: "toggle"
+    slug: "admin_roles"
+    name: "Admin Roles"
+    description: "Assign admin roles for team management"
+    active: true
+  - type: "toggle"
+    slug: "issue_slas"
+    name: "Issue SLAs"
+    description: "Set and track SLAs for issues"
+    active: true
+  - type: "toggle"
+    slug: "unlimited_teams"
+    name: "Unlimited Teams"
+    description: "Create unlimited teams"
+    active: true
+  - type: "toggle"
+    slug: "private_teams"
+    name: "Private Teams & Guests"
+    description: "Create private teams and invite guests"
+    active: true
+  - type: "toggle"
+    slug: "product_intelligence"
+    name: "Product Intelligence"
+    description: "AI-powered product insights"
+    active: true
+  - type: "toggle"
+    slug: "linear_insights"
+    name: "Linear Insights"
+    description: "Advanced analytics and reporting"
+    active: true
+  - type: "toggle"
+    slug: "linear_asks"
+    name: "Linear Asks"
+    description: "Slack and email intake channels"
+    active: true
+  - type: "toggle"
+    slug: "support_integrations"
+    name: "Support Integrations"
+    description: "Zendesk and Intercom integrations"
+    active: true
+  - type: "toggle"
+    slug: "triage_responsibility"
+    name: "Triage Responsibility"
+    description: "Assign triage responsibilities"
+    active: true
+  - type: "toggle"
+    slug: "triage_routing"
+    name: "Triage Routing"
+    description: "Auto-route issues to the right teams"
+    active: true
+  - type: "toggle"
+    slug: "sub_initiatives"
+    name: "Sub-initiatives"
+    description: "Create sub-initiatives for better organization"
+    active: true
+  - type: "toggle"
+    slug: "advanced_linear_asks"
+    name: "Advanced Linear Asks"
+    description: "Multiple Slack workspaces and per-channel configurations"
+    active: true
+  - type: "toggle"
+    slug: "dashboards"
+    name: "Dashboards"
+    description: "Create custom dashboards"
+    active: true
+  - type: "toggle"
+    slug: "saml_sso"
+    name: "SAML SSO"
+    description: "Single sign-on with SAML"
+    active: true
+  - type: "toggle"
+    slug: "scim_provisioning"
+    name: "SCIM Provisioning"
+    description: "Automated user provisioning with SCIM"
+    active: true
+  - type: "toggle"
+    slug: "advanced_security"
+    name: "Advanced Security"
+    description: "IP restrictions, audit logs, and third-party app management"
+    active: true
+  - type: "toggle"
+    slug: "migration_support"
+    name: "Migration & Onboarding Support"
+    description: "Dedicated migration and onboarding assistance"
+    active: true
+  - type: "toggle"
+    slug: "priority_support"
+    name: "Priority Support"
+    description: "Priority customer support"
+    active: true
+  - type: "toggle"
+    slug: "account_manager"
+    name: "Account Manager"
+    description: "Dedicated account manager"
+    active: true
+products:
+  - product:
+      name: "Basic"
+      description: "$10/user/month. All Free features + 5 teams, unlimited issues, unlimited file uploads, and admin roles."
+      active: true
+      singularQuantityLabel: "user"
+      pluralQuantityLabel: "users"
+      default: false
+      slug: "basic_monthly"
+    price:
+      intervalUnit: "month"
+      name: "Basic Plan (Monthly)"
+      intervalCount: 1
+      type: "subscription"
+      isDefault: true
+      unitPrice: 1000
+      usageEventsPerUnit: null
+      active: true
+      slug: "basic_monthly"
+      usageMeterId: null
+    features:
+      - "basic_seats"
+      - "basic_teams"
+      - "unlimited_members"
+      - "slack_github"
+      - "ai_agents"
+      - "api_webhooks"
+      - "import_export"
+      - "triage"
+      - "customer_requests"
+      - "issue_sync"
+      - "unlimited_issues"
+      - "unlimited_file_uploads"
+      - "admin_roles"
+  - product:
+      name: "Basic"
+      description: "$120/user/year. All Free features + 5 teams, unlimited issues, unlimited file uploads, and admin roles."
+      active: true
+      singularQuantityLabel: "user"
+      pluralQuantityLabel: "users"
+      default: false
+      slug: "basic_yearly"
+    price:
+      intervalUnit: "year"
+      name: "Basic Plan (Yearly)"
+      intervalCount: 1
+      type: "subscription"
+      isDefault: true
+      unitPrice: 12000
+      usageEventsPerUnit: null
+      active: true
+      slug: "basic_yearly"
+      usageMeterId: null
+    features:
+      - "basic_seats"
+      - "basic_teams"
+      - "unlimited_members"
+      - "slack_github"
+      - "ai_agents"
+      - "api_webhooks"
+      - "import_export"
+      - "triage"
+      - "customer_requests"
+      - "issue_sync"
+      - "unlimited_issues"
+      - "unlimited_file_uploads"
+      - "admin_roles"
+  - product:
+      name: "Business"
+      description: "$16/user/month. All Basic features + unlimited teams, private teams, Product Intelligence, Linear Insights, Linear Asks, and support integrations."
+      active: true
+      singularQuantityLabel: "user"
+      pluralQuantityLabel: "users"
+      default: false
+      slug: "business_monthly"
+    price:
+      intervalUnit: "month"
+      name: "Business Plan (Monthly)"
+      intervalCount: 1
+      type: "subscription"
+      isDefault: true
+      unitPrice: 1600
+      usageEventsPerUnit: null
+      active: true
+      slug: "business_monthly"
+      usageMeterId: null
+    features:
+      - "business_seats"
+      - "unlimited_members"
+      - "slack_github"
+      - "ai_agents"
+      - "api_webhooks"
+      - "import_export"
+      - "triage"
+      - "customer_requests"
+      - "issue_sync"
+      - "unlimited_issues"
+      - "unlimited_file_uploads"
+      - "admin_roles"
+      - "issue_slas"
+      - "unlimited_teams"
+      - "private_teams"
+      - "product_intelligence"
+      - "linear_insights"
+      - "linear_asks"
+      - "support_integrations"
+      - "triage_responsibility"
+      - "triage_routing"
+  - product:
+      name: "Business"
+      description: "$192/user/year. All Basic features + unlimited teams, private teams, Product Intelligence, Linear Insights, Linear Asks, and support integrations."
+      active: true
+      singularQuantityLabel: "user"
+      pluralQuantityLabel: "users"
+      default: false
+      slug: "business_yearly"
+    price:
+      intervalUnit: "year"
+      name: "Business Plan (Yearly)"
+      intervalCount: 1
+      type: "subscription"
+      isDefault: true
+      unitPrice: 19200
+      usageEventsPerUnit: null
+      active: true
+      slug: "business_yearly"
+      usageMeterId: null
+    features:
+      - "business_seats"
+      - "unlimited_members"
+      - "slack_github"
+      - "ai_agents"
+      - "api_webhooks"
+      - "import_export"
+      - "triage"
+      - "customer_requests"
+      - "issue_sync"
+      - "unlimited_issues"
+      - "unlimited_file_uploads"
+      - "admin_roles"
+      - "issue_slas"
+      - "unlimited_teams"
+      - "private_teams"
+      - "product_intelligence"
+      - "linear_insights"
+      - "linear_asks"
+      - "support_integrations"
+      - "triage_responsibility"
+      - "triage_routing"
+  - product:
+      name: "Enterprise"
+      description: "Custom pricing. All Business features + sub-initiatives, advanced Linear Asks, dashboards, SAML/SCIM, advanced security, and dedicated support."
+      active: true
+      singularQuantityLabel: "user"
+      pluralQuantityLabel: "users"
+      default: false
+      slug: "enterprise"
+    price:
+      intervalUnit: "year"
+      name: "Enterprise Plan (Yearly)"
+      intervalCount: 1
+      type: "subscription"
+      isDefault: true
+      unitPrice: 24000
+      usageEventsPerUnit: null
+      active: true
+      slug: "enterprise_yearly"
+      usageMeterId: null
+    features:
+      - "enterprise_seats"
+      - "unlimited_members"
+      - "slack_github"
+      - "ai_agents"
+      - "api_webhooks"
+      - "import_export"
+      - "triage"
+      - "customer_requests"
+      - "issue_sync"
+      - "unlimited_issues"
+      - "unlimited_file_uploads"
+      - "admin_roles"
+      - "issue_slas"
+      - "unlimited_teams"
+      - "private_teams"
+      - "product_intelligence"
+      - "linear_insights"
+      - "linear_asks"
+      - "support_integrations"
+      - "triage_responsibility"
+      - "triage_routing"
+      - "sub_initiatives"
+      - "advanced_linear_asks"
+      - "dashboards"
+      - "saml_sso"
+      - "scim_provisioning"
+      - "advanced_security"
+      - "migration_support"
+      - "priority_support"
+      - "account_manager"
+  - product:
+      name: "Free"
+      description: "Free for everyone. Unlimited members, 2 teams, 250 issues, Slack/GitHub integration, and AI agents."
+      active: true
+      default: true
+      slug: "free_tier"
+    price:
+      intervalUnit: "month"
+      name: "Free Plan"
+      intervalCount: 1
+      type: "subscription"
+      isDefault: true
+      unitPrice: 0
+      usageEventsPerUnit: null
+      active: true
+      slug: "free_plan"
+      usageMeterId: null
+    features:
+      - "free_teams"
+      - "unlimited_members"
+      - "slack_github"
+      - "ai_agents"
+      - "api_webhooks"
+      - "import_export"
+      - "triage"
+      - "customer_requests"
+      - "issue_sync"
+usageMeters: []
+resources:
+  - slug: "teams"
+    name: "Teams"
+    active: true
+  - slug: "seats"
+    name: "Seats"
+    active: true
