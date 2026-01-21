@@ -6,12 +6,11 @@ import {
   useResource,
 } from '@flowglad/nextjs'
 import {
-  ArrowRight,
   CheckCircle2,
   Circle,
-  Clock,
   CreditCard,
   Loader2,
+  Plus,
   Settings,
   Trash2,
   UserPlus,
@@ -34,65 +33,11 @@ import { Input } from '@/components/ui/input'
 import { Progress } from '@/components/ui/progress'
 import { authClient } from '@/lib/auth-client'
 
-// Sample issues for the dashboard (mimics Linear's issue list)
-const SAMPLE_ISSUES = [
-  {
-    id: 'ISS-1',
-    title: 'Implement user authentication flow',
-    status: 'done',
-    priority: 'high',
-  },
-  {
-    id: 'ISS-2',
-    title: 'Add dark mode support',
-    status: 'in_progress',
-    priority: 'medium',
-  },
-  {
-    id: 'ISS-3',
-    title: 'Fix pagination on dashboard',
-    status: 'in_progress',
-    priority: 'high',
-  },
-  {
-    id: 'ISS-4',
-    title: 'Update API documentation',
-    status: 'todo',
-    priority: 'low',
-  },
-  {
-    id: 'ISS-5',
-    title: 'Refactor billing module',
-    status: 'todo',
-    priority: 'medium',
-  },
-]
-
-function IssueStatusIcon({ status }: { status: string }) {
-  switch (status) {
-    case 'done':
-      return <CheckCircle2 className="h-4 w-4 text-green-500" />
-    case 'in_progress':
-      return <Clock className="h-4 w-4 text-yellow-500" />
-    default:
-      return <Circle className="h-4 w-4 text-muted-foreground" />
-  }
-}
-
-function PriorityBadge({ priority }: { priority: string }) {
-  const variants: Record<string, string> = {
-    high: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
-    medium:
-      'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400',
-    low: 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400',
-  }
-  return (
-    <span
-      className={`text-xs px-2 py-0.5 rounded-full font-medium ${variants[priority] ?? variants.low}`}
-    >
-      {priority}
-    </span>
-  )
+interface Issue {
+  id: string
+  title: string
+  done: boolean
+  createdAt: Date
 }
 
 export function HomeClient() {
@@ -115,6 +60,10 @@ export function HomeClient() {
   const [isReleasingId, setIsReleasingId] = useState<string | null>(null)
   const [isAdjustingSeats, setIsAdjustingSeats] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  // Issue state
+  const [issues, setIssues] = useState<Issue[]>([])
+  const [newIssueTitle, setNewIssueTitle] = useState('')
 
   const previousUserIdRef = useRef<string | undefined>(undefined)
 
@@ -171,6 +120,33 @@ export function HomeClient() {
   const currentSubscription = billing.currentSubscriptions?.[0]
   const planName = currentSubscription?.name || 'Unknown Plan'
 
+  // Issue handlers
+  const handleCreateIssue = () => {
+    if (!newIssueTitle.trim()) return
+
+    const newIssue: Issue = {
+      id: `ISS-${Date.now()}`,
+      title: newIssueTitle.trim(),
+      done: false,
+      createdAt: new Date(),
+    }
+    setIssues([newIssue, ...issues])
+    setNewIssueTitle('')
+  }
+
+  const handleToggleIssue = (id: string) => {
+    setIssues(
+      issues.map((issue) =>
+        issue.id === id ? { ...issue, done: !issue.done } : issue
+      )
+    )
+  }
+
+  const handleDeleteIssue = (id: string) => {
+    setIssues(issues.filter((issue) => issue.id !== id))
+  }
+
+  // Seat handlers
   const handleClaimSeat = async () => {
     if (!inviteEmail.trim()) return
 
@@ -266,9 +242,12 @@ export function HomeClient() {
   const available = seatUsage?.available ?? 0
   const progressPercent = capacity > 0 ? (claimed / capacity) * 100 : 0
 
+  const openIssues = issues.filter((i) => !i.done).length
+  const completedIssues = issues.filter((i) => i.done).length
+
   return (
     <div className="min-h-screen bg-background">
-      <div className="mx-auto max-w-7xl px-4 py-8">
+      <div className="mx-auto max-w-5xl px-4 py-8">
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between">
@@ -296,84 +275,80 @@ export function HomeClient() {
         <div className="grid gap-6 lg:grid-cols-3">
           {/* Left Column - Issues */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Quick Stats */}
-            <div className="grid gap-4 sm:grid-cols-3">
-              <Card>
-                <CardContent className="pt-6">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
-                      <Circle className="h-5 w-5 text-blue-600" />
-                    </div>
-                    <div>
-                      <p className="text-2xl font-bold">12</p>
-                      <p className="text-xs text-muted-foreground">
-                        Open Issues
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="pt-6">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-yellow-100 dark:bg-yellow-900/30 rounded-lg">
-                      <Clock className="h-5 w-5 text-yellow-600" />
-                    </div>
-                    <div>
-                      <p className="text-2xl font-bold">5</p>
-                      <p className="text-xs text-muted-foreground">
-                        In Progress
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="pt-6">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
-                      <CheckCircle2 className="h-5 w-5 text-green-600" />
-                    </div>
-                    <div>
-                      <p className="text-2xl font-bold">48</p>
-                      <p className="text-xs text-muted-foreground">
-                        Completed
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Recent Issues */}
+            {/* Issues Card */}
             <Card>
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-lg">Recent Issues</CardTitle>
-                  <Button variant="ghost" size="sm" className="text-primary">
-                    View all
-                    <ArrowRight className="h-4 w-4 ml-1" />
-                  </Button>
+                  <div>
+                    <CardTitle className="text-lg">Issues</CardTitle>
+                    <CardDescription>
+                      {openIssues} open, {completedIssues} completed
+                    </CardDescription>
+                  </div>
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="space-y-1">
-                  {SAMPLE_ISSUES.map((issue) => (
-                    <div
-                      key={issue.id}
-                      className="flex items-center justify-between py-3 px-3 rounded-lg hover:bg-muted/50 transition-colors cursor-pointer"
-                    >
-                      <div className="flex items-center gap-3">
-                        <IssueStatusIcon status={issue.status} />
-                        <span className="text-xs text-muted-foreground font-mono">
-                          {issue.id}
-                        </span>
-                        <span className="text-sm">{issue.title}</span>
-                      </div>
-                      <PriorityBadge priority={issue.priority} />
-                    </div>
-                  ))}
+                {/* Create Issue */}
+                <div className="flex gap-2 mb-4">
+                  <Input
+                    placeholder="What needs to be done?"
+                    value={newIssueTitle}
+                    onChange={(e) => setNewIssueTitle(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') handleCreateIssue()
+                    }}
+                    className="text-sm"
+                  />
+                  <Button
+                    onClick={handleCreateIssue}
+                    disabled={!newIssueTitle.trim()}
+                    size="sm"
+                  >
+                    <Plus className="h-4 w-4" />
+                  </Button>
                 </div>
+
+                {/* Issue List */}
+                {issues.length === 0 ? (
+                  <p className="text-sm text-muted-foreground text-center py-8">
+                    No issues yet. Create one above to get started.
+                  </p>
+                ) : (
+                  <div className="space-y-1">
+                    {issues.map((issue) => (
+                      <div
+                        key={issue.id}
+                        className="flex items-center justify-between py-2.5 px-3 rounded-lg hover:bg-muted/50 transition-colors group"
+                      >
+                        <div className="flex items-center gap-3 flex-1 min-w-0">
+                          <button
+                            onClick={() => handleToggleIssue(issue.id)}
+                            className="shrink-0"
+                          >
+                            {issue.done ? (
+                              <CheckCircle2 className="h-5 w-5 text-green-500" />
+                            ) : (
+                              <Circle className="h-5 w-5 text-muted-foreground hover:text-primary" />
+                            )}
+                          </button>
+                          <span
+                            className={`text-sm truncate ${issue.done ? 'line-through text-muted-foreground' : ''}`}
+                          >
+                            {issue.title}
+                          </span>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleDeleteIssue(issue.id)}
+                          className="opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <Trash2 className="h-4 w-4 text-muted-foreground hover:text-destructive" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>
