@@ -1,19 +1,25 @@
-import { createFileRoute } from '@tanstack/react-router'
 import { requestHandler } from '@flowglad/server'
 import type { HTTPMethod } from '@flowglad/shared'
+import { createFileRoute } from '@tanstack/react-router'
 import { flowglad, getSessionFromRequest } from '@/lib/flowglad'
 
 // Handle Flowglad API requests
-async function handleFlowgladRequest(request: Request): Promise<Response> {
+async function handleFlowgladRequest(
+  request: Request
+): Promise<Response> {
   // Auth check
   const session = await getSessionFromRequest()
   if (!session?.user) {
-    return Response.json({ error: 'User not authenticated' }, { status: 401 })
+    return Response.json(
+      { error: 'User not authenticated' },
+      { status: 401 }
+    )
   }
 
   // Create the handler with the request in closure so getCustomerDetails can access it
   const flowgladHandler = requestHandler({
-    flowglad: (customerExternalId: string) => flowglad(customerExternalId),
+    flowglad: (customerExternalId: string) =>
+      flowglad(customerExternalId),
     getCustomerExternalId: async () => session.user.id,
   })
 
@@ -37,7 +43,7 @@ async function handleFlowgladRequest(request: Request): Promise<Response> {
             ? await request.json().catch(() => ({}))
             : undefined,
       },
-      request,
+      request
     )
 
     return Response.json(
@@ -47,15 +53,18 @@ async function handleFlowgladRequest(request: Request): Promise<Response> {
       },
       {
         status: result.status,
-      },
+      }
     )
   } catch (error) {
     console.error('Flowglad API error:', error)
     return Response.json(
       {
-        error: error instanceof Error ? error.message : 'Internal server error',
+        error:
+          error instanceof Error
+            ? error.message
+            : 'Internal server error',
       },
-      { status: 500 },
+      { status: 500 }
     )
   }
 }

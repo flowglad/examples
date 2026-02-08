@@ -1,4 +1,4 @@
-import { PricingCardsGrid } from '@/components/pricing-cards-grid';
+import { PricingCardsGrid } from '@/components/pricing-cards-grid'
 
 export default function PricingPage() {
   return (
@@ -17,5 +17,5 @@ export default function PricingPage() {
         </div>
       </main>
     </div>
-  );
+  )
 }

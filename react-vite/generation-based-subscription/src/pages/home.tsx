@@ -1,16 +1,21 @@
-import { useEffect, useState, useRef } from 'react';
-import { authClient } from '../lib/auth-client';
-import { useBilling } from '@flowglad/react';
-import { computeUsageTotal } from '../lib/billing-helpers';
-import { DashboardSkeleton } from '../components/dashboard-skeleton';
-import { Progress } from '../components/ui/progress';
-import { Button } from '../components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
+import { useBilling } from '@flowglad/react'
+import { useEffect, useRef, useState } from 'react'
+import { DashboardSkeleton } from '../components/dashboard-skeleton'
+import { Button } from '../components/ui/button'
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from '../components/ui/card'
+import { Progress } from '../components/ui/progress'
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from '../components/ui/tooltip';
+} from '../components/ui/tooltip'
+import { authClient } from '../lib/auth-client'
+import { computeUsageTotal } from '../lib/billing-helpers'
 
 // Mock images to cycle through
 const mockImages = [
@@ -20,106 +25,152 @@ const mockImages = [
   'https://images.unsplash.com/photo-1472214103451-9374bd1c798e?w=800&h=450&fit=crop',
   'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=800&h=450&fit=crop',
   'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&h=450&fit=crop',
-];
+]
 
 // Mock GIFs for video generation
 const mockVideoGif = [
   'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExd252Y2NwNG5vdmQxMXl6cWxsMWNpYzV0ZnU3a3UwbGhtcHFkZTNoMCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/a6OnFHzHgCU1O/giphy.gif',
   'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNnNyOXhnNXp3cTJnaWw1OGZodXducHlzeThvbTBwdDc4cGw5OWFuZyZlcD12MV9naWZzX3NlYXJjaCZjdD1n/WI4A2fVnRBiYE/giphy.gif',
   'https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3OWN6emx1M2JpM3lkczB4Y2Y2M3U5ejgyNzNmbnJnM2ZqMDlvb3B4ciZlcD12MV9naWZzX3RyZW5kaW5nJmN0PWc/pa37AAGzKXoek/giphy.gif',
-];
+]
 
 export function HomePage() {
-  const { data: session, isPending: isUserPending } = authClient.useSession();
-  const billing = useBilling();
-  const { createUsageEvent } = billing;
-  
+  const { data: session, isPending: isUserPending } =
+    authClient.useSession()
+  const billing = useBilling()
+  const { createUsageEvent } = billing
+
   // Extract current subscriptions using Flowglad's current flag
-  const subscriptions = Array.isArray(billing?.subscriptions) ? billing.subscriptions : [];
-  const currentSubscriptions = subscriptions.filter((s) => s?.current === true);
-  
-  const [isGeneratingFastImage, setIsGeneratingFastImage] = useState(false);
-  const [isGeneratingHDVideo, setIsGeneratingHDVideo] = useState(false);
-  const [isGeneratingRelaxImage, setIsGeneratingRelaxImage] = useState(false);
-  const [isGeneratingRelaxSDVideo, setIsGeneratingRelaxSDVideo] = useState(false);
-  const [generateError, setGenerateError] = useState<string | null>(null);
-  const [hdVideoError, setHdVideoError] = useState<string | null>(null);
-  const [topUpError, setTopUpError] = useState<string | null>(null);
-  const [isLoadingFastTopUp, setIsLoadingFastTopUp] = useState(false);
-  const [isLoadingHDTopUp, setIsLoadingHDTopUp] = useState(false);
-  const [displayedContent, setDisplayedContent] = useState<string | null>(null);
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [currentVideoGifIndex, setCurrentVideoGifIndex] = useState(0);
-  const previousUserIdRef = useRef<string | undefined>(undefined);
-  const [isReloadingAfterCheckout, setIsReloadingAfterCheckout] = useState(false);
-  const [hasReloadedAfterCheckout, setHasReloadedAfterCheckout] = useState(false);
+  const subscriptions = Array.isArray(billing?.subscriptions)
+    ? billing.subscriptions
+    : []
+  const currentSubscriptions = subscriptions.filter(
+    (s) => s?.current === true
+  )
+
+  const [isGeneratingFastImage, setIsGeneratingFastImage] =
+    useState(false)
+  const [isGeneratingHDVideo, setIsGeneratingHDVideo] =
+    useState(false)
+  const [isGeneratingRelaxImage, setIsGeneratingRelaxImage] =
+    useState(false)
+  const [isGeneratingRelaxSDVideo, setIsGeneratingRelaxSDVideo] =
+    useState(false)
+  const [generateError, setGenerateError] = useState<string | null>(
+    null
+  )
+  const [hdVideoError, setHdVideoError] = useState<string | null>(
+    null
+  )
+  const [topUpError, setTopUpError] = useState<string | null>(null)
+  const [isLoadingFastTopUp, setIsLoadingFastTopUp] = useState(false)
+  const [isLoadingHDTopUp, setIsLoadingHDTopUp] = useState(false)
+  const [displayedContent, setDisplayedContent] = useState<
+    string | null
+  >(null)
+  const [currentImageIndex, setCurrentImageIndex] = useState(0)
+  const [currentVideoGifIndex, setCurrentVideoGifIndex] = useState(0)
+  const previousUserIdRef = useRef<string | undefined>(undefined)
+  const [isReloadingAfterCheckout, setIsReloadingAfterCheckout] =
+    useState(false)
+  const [hasReloadedAfterCheckout, setHasReloadedAfterCheckout] =
+    useState(false)
   // Manual usage adjustments when reload is not available
-  const [manualUsageAdjustments, setManualUsageAdjustments] = useState({ fast_generations: 0, hd_video_minutes: 0 });
-  
+  const [manualUsageAdjustments, setManualUsageAdjustments] =
+    useState({ fast_generations: 0, hd_video_minutes: 0 })
+
   // Reload billing data when returning from checkout (check URL params)
   useEffect(() => {
     const reloadAfterCheckout = async () => {
-      const urlParams = new URLSearchParams(window.location.search);
-      const shouldReload = urlParams.has('checkout') || urlParams.has('session_id') || urlParams.has('success');
-      
+      const urlParams = new URLSearchParams(window.location.search)
+      const shouldReload =
+        urlParams.has('checkout') ||
+        urlParams.has('session_id') ||
+        urlParams.has('success')
+
       if (shouldReload && !hasReloadedAfterCheckout) {
         // User returned from checkout, reload billing data
-        if (typeof billing.reload === 'function' && billing.loaded && !isReloadingAfterCheckout) {
-          setIsReloadingAfterCheckout(true);
+        if (
+          typeof billing.reload === 'function' &&
+          billing.loaded &&
+          !isReloadingAfterCheckout
+        ) {
+          setIsReloadingAfterCheckout(true)
           try {
-            await billing.reload();
-            setHasReloadedAfterCheckout(true);
+            await billing.reload()
+            setHasReloadedAfterCheckout(true)
             // Clear manual usage adjustments after successful reload to prevent double-counting
-            setManualUsageAdjustments({ fast_generations: 0, hd_video_minutes: 0 });
+            setManualUsageAdjustments({
+              fast_generations: 0,
+              hd_video_minutes: 0,
+            })
           } catch {
             // Log but don't disrupt UX on reload failure
-            console.error('Error reloading billing data after checkout');
+            console.error(
+              'Error reloading billing data after checkout'
+            )
           } finally {
-            setIsReloadingAfterCheckout(false);
+            setIsReloadingAfterCheckout(false)
             // Clean up URL params after reload completes
-            window.history.replaceState({}, '', window.location.pathname);
+            window.history.replaceState(
+              {},
+              '',
+              window.location.pathname
+            )
           }
         }
       }
-    };
-    
-    reloadAfterCheckout();
+    }
+
+    reloadAfterCheckout()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [billing.reload, billing.loaded, billing.purchases, isReloadingAfterCheckout, hasReloadedAfterCheckout, currentSubscriptions.length]);
+  }, [
+    billing.reload,
+    billing.loaded,
+    billing.purchases,
+    isReloadingAfterCheckout,
+    hasReloadedAfterCheckout,
+    currentSubscriptions.length,
+  ])
 
   // Refetch billing data when user ID changes
   useEffect(() => {
-    const currentUserId = session?.user?.id;
+    const currentUserId = session?.user?.id
     if (
       currentUserId &&
       currentUserId !== previousUserIdRef.current &&
       billing.loaded &&
       typeof billing.reload === 'function'
     ) {
-      previousUserIdRef.current = currentUserId;
-      billing.reload()
+      previousUserIdRef.current = currentUserId
+      billing
+        .reload()
         .then(() => {
           // Clear manual usage adjustments after successful reload to prevent double-counting
-          setManualUsageAdjustments({ fast_generations: 0, hd_video_minutes: 0 });
+          setManualUsageAdjustments({
+            fast_generations: 0,
+            hd_video_minutes: 0,
+          })
         })
         .catch(() => {
-         // Log but don't disrupt UX on reload failure
-         console.error('Error reloading billing data after user change');
-        });
+          // Log but don't disrupt UX on reload failure
+          console.error(
+            'Error reloading billing data after user change'
+          )
+        })
     } else if (currentUserId) {
-      previousUserIdRef.current = currentUserId;
+      previousUserIdRef.current = currentUserId
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [session?.user?.id, billing.loaded, billing.reload]);
-
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session?.user?.id, billing.loaded, billing.reload])
 
   if (isUserPending || !billing.loaded) {
-    return <DashboardSkeleton />;
+    return <DashboardSkeleton />
   }
 
   // Use catalog as fallback since pricingModel might be undefined
-  const pricingModel = billing.pricingModel || billing.catalog;
-  
+  const pricingModel = billing.pricingModel || billing.catalog
+
   // Only show skeleton if billing explicitly failed or if we don't have a pricing model
   // Allow loadBilling to be truthy (not just strictly true) to be more lenient
   if (
@@ -127,109 +178,143 @@ export function HomePage() {
     billing.errors !== null ||
     !pricingModel
   ) {
-    return <DashboardSkeleton />;
+    return <DashboardSkeleton />
   }
 
-  const currentSubscription = currentSubscriptions[0];
-  const planName = currentSubscription?.name || 'Unknown Plan';
+  const currentSubscription = currentSubscriptions[0]
+  const planName = currentSubscription?.name || 'Unknown Plan'
 
   // Only show skeleton if we don't have a subscription or billing API methods aren't available
-  if (!currentSubscription || !billing.checkUsageBalance || !billing.checkFeatureAccess) {
-    return <DashboardSkeleton />;
+  if (
+    !currentSubscription ||
+    !billing.checkUsageBalance ||
+    !billing.checkFeatureAccess
+  ) {
+    return <DashboardSkeleton />
   }
 
-  const fastGenerationsBalance = billing.checkUsageBalance('fast_generations');
-  const hdVideoMinutesBalance = billing.checkUsageBalance('hd_video_minutes');
+  const fastGenerationsBalance = billing.checkUsageBalance(
+    'fast_generations'
+  )
+  const hdVideoMinutesBalance = billing.checkUsageBalance(
+    'hd_video_minutes'
+  )
 
   // Apply manual adjustments if reload is not available
-  const adjustedFastGenerationsBalance = fastGenerationsBalance 
-    ? { availableBalance: Math.max(0, fastGenerationsBalance.availableBalance - manualUsageAdjustments.fast_generations) }
-    : null;
+  const adjustedFastGenerationsBalance = fastGenerationsBalance
+    ? {
+        availableBalance: Math.max(
+          0,
+          fastGenerationsBalance.availableBalance -
+            manualUsageAdjustments.fast_generations
+        ),
+      }
+    : null
   const adjustedHdVideoMinutesBalance = hdVideoMinutesBalance
-    ? { availableBalance: Math.max(0, hdVideoMinutesBalance.availableBalance - manualUsageAdjustments.hd_video_minutes) }
-    : null;
+    ? {
+        availableBalance: Math.max(
+          0,
+          hdVideoMinutesBalance.availableBalance -
+            manualUsageAdjustments.hd_video_minutes
+        ),
+      }
+    : null
 
-  const hasFastGenerationsAccess = adjustedFastGenerationsBalance != null;
-  const hasHDVideoMinutesAccess = adjustedHdVideoMinutesBalance != null;
+  const hasFastGenerationsAccess =
+    adjustedFastGenerationsBalance != null
+  const hasHDVideoMinutesAccess =
+    adjustedHdVideoMinutesBalance != null
 
-  const hasRelaxMode = !!billing.checkFeatureAccess('unlimited_relaxed_images');
+  const hasRelaxMode = !!billing.checkFeatureAccess(
+    'unlimited_relaxed_images'
+  )
   const hasUnlimitedRelaxedSDVideo = !!billing.checkFeatureAccess(
     'unlimited_relaxed_sd_video'
-  );
+  )
   const hasOptionalTopUps = !!billing.checkFeatureAccess(
     'optional_credit_top_ups'
-  );
+  )
 
-  const fastGenerationsRemaining = adjustedFastGenerationsBalance?.availableBalance ?? 0;
+  const fastGenerationsRemaining =
+    adjustedFastGenerationsBalance?.availableBalance ?? 0
 
   const fastGenerationsTotal = computeUsageTotal(
     'fast_generations',
     currentSubscription,
     pricingModel
-  );
+  )
   const fastGenerationsProgress =
     fastGenerationsTotal > 0
-      ? Math.min((fastGenerationsRemaining / fastGenerationsTotal) * 100, 100)
-      : 0;
+      ? Math.min(
+          (fastGenerationsRemaining / fastGenerationsTotal) * 100,
+          100
+        )
+      : 0
 
-  const hdVideoMinutesRemaining = adjustedHdVideoMinutesBalance?.availableBalance ?? 0;
+  const hdVideoMinutesRemaining =
+    adjustedHdVideoMinutesBalance?.availableBalance ?? 0
   const hdVideoMinutesTotal = computeUsageTotal(
     'hd_video_minutes',
     currentSubscription,
     pricingModel
-  );
+  )
   const hdVideoMinutesProgress =
     hdVideoMinutesTotal > 0
-      ? Math.min((hdVideoMinutesRemaining / hdVideoMinutesTotal) * 100, 100)
-      : 0;
+      ? Math.min(
+          (hdVideoMinutesRemaining / hdVideoMinutesTotal) * 100,
+          100
+        )
+      : 0
 
   const handleGenerateFastImage = async () => {
     if (!hasFastGenerationsAccess || fastGenerationsRemaining === 0) {
-      return;
+      return
     }
 
-    setIsGeneratingFastImage(true);
-    setGenerateError(null);
+    setIsGeneratingFastImage(true)
+    setGenerateError(null)
 
     try {
       if (!createUsageEvent) {
-        throw new Error('Usage tracking is not available');
+        throw new Error('Usage tracking is not available')
       }
 
-      const amount = Math.floor(Math.random() * 3) + 3;
+      const amount = Math.floor(Math.random() * 3) + 3
 
       // Record usage event directly from the client
       const result = await createUsageEvent({
         usageMeterSlug: 'fast_generations',
         amount,
-      });
+      })
 
       if ('error' in result) {
-        throw new Error(result.error.code || 'Failed to create usage event');
+        throw new Error(
+          result.error.code || 'Failed to create usage event'
+        )
       }
 
-      const nextIndex = (currentImageIndex + 1) % mockImages.length;
-      setCurrentImageIndex(nextIndex);
-      const nextImage = mockImages[nextIndex];
+      const nextIndex = (currentImageIndex + 1) % mockImages.length
+      setCurrentImageIndex(nextIndex)
+      const nextImage = mockImages[nextIndex]
       if (nextImage) {
-        setDisplayedContent(nextImage);
+        setDisplayedContent(nextImage)
       }
 
       // Apply manual adjustment immediately for instant UI update
-      setManualUsageAdjustments(prev => ({
+      setManualUsageAdjustments((prev) => ({
         ...prev,
-        fast_generations: prev.fast_generations + amount
-      }));
-      
+        fast_generations: prev.fast_generations + amount,
+      }))
+
       // Try to reload billing data - if successful, it will update and override adjustments
       if (billing.reload) {
         try {
-          await billing.reload();
+          await billing.reload()
           // Reset adjustments after reload to sync with server data
-          setManualUsageAdjustments(prev => ({
+          setManualUsageAdjustments((prev) => ({
             ...prev,
-            fast_generations: 0
-          }));
+            fast_generations: 0,
+          }))
         } catch {
           // Keep manual adjustments if reload fails
         }
@@ -239,59 +324,62 @@ export function HomePage() {
         error instanceof Error
           ? error.message
           : 'Failed to generate image. Please try again.'
-      );
+      )
     } finally {
-      setIsGeneratingFastImage(false);
+      setIsGeneratingFastImage(false)
     }
-  };
+  }
 
   const handleGenerateHDVideo = async () => {
     if (!hasHDVideoMinutesAccess || hdVideoMinutesRemaining === 0) {
-      return;
+      return
     }
 
-    setIsGeneratingHDVideo(true);
-    setHdVideoError(null);
+    setIsGeneratingHDVideo(true)
+    setHdVideoError(null)
 
     try {
       if (!createUsageEvent) {
-        throw new Error('Usage tracking is not available');
+        throw new Error('Usage tracking is not available')
       }
 
-      const amount = Math.floor(Math.random() * 3) + 1;
+      const amount = Math.floor(Math.random() * 3) + 1
 
       // Record usage event directly from the client
       const result = await createUsageEvent({
         usageMeterSlug: 'hd_video_minutes',
         amount,
-      });
+      })
 
       if ('error' in result) {
-        throw new Error(result.error.code || 'Failed to create usage event');
+        throw new Error(
+          result.error.code || 'Failed to create usage event'
+        )
       }
 
-      const nextIndex = (currentVideoGifIndex + 1) % mockVideoGif.length;
-      setCurrentVideoGifIndex(nextIndex);
-      const nextGif = mockVideoGif[nextIndex];
+      const nextIndex =
+        (currentVideoGifIndex + 1) % mockVideoGif.length
+      setCurrentVideoGifIndex(nextIndex)
+      const nextGif = mockVideoGif[nextIndex]
       if (nextGif) {
-        setDisplayedContent(nextGif);
+        setDisplayedContent(nextGif)
       }
 
       // Apply manual adjustment immediately for instant UI update
-      setManualUsageAdjustments(prev => ({
+      setManualUsageAdjustments((prev) => ({
         ...prev,
-        hd_video_minutes: prev.hd_video_minutes + amount
-      }));
-      
+        hd_video_minutes: prev.hd_video_minutes + amount,
+      }))
+
       // Try to reload billing data - if successful, it will update and override adjustments
       if (billing.reload) {
         try {
-          await billing.reload();
+          await billing.reload()
           // Reset adjustments after reload to sync with server data
-          setManualUsageAdjustments(prev => ({
+          setManualUsageAdjustments((prev) => ({
             ...prev,
-            hd_video_minutes: 0
-          }));
+            hd_video_minutes: 0,
+          }))
         } catch {
           // Keep manual adjustments if reload fails
         }
@@ -301,71 +389,74 @@ export function HomePage() {
         error instanceof Error
           ? error.message
           : 'Failed to generate HD video. Please try again.'
-      );
+      )
     } finally {
-      setIsGeneratingHDVideo(false);
+      setIsGeneratingHDVideo(false)
     }
-  };
+  }
 
   const handleGenerateRelaxImage = async () => {
     if (!hasRelaxMode) {
-      return;
+      return
     }
 
-    setIsGeneratingRelaxImage(true);
+    setIsGeneratingRelaxImage(true)
 
     try {
-      const nextIndex = (currentImageIndex + 1) % mockImages.length;
-      setCurrentImageIndex(nextIndex);
-      const nextImage = mockImages[nextIndex];
+      const nextIndex = (currentImageIndex + 1) % mockImages.length
+      setCurrentImageIndex(nextIndex)
+      const nextImage = mockImages[nextIndex]
       if (nextImage) {
-        setDisplayedContent(nextImage);
+        setDisplayedContent(nextImage)
       }
     } finally {
-      setIsGeneratingRelaxImage(false);
+      setIsGeneratingRelaxImage(false)
     }
-  };
+  }
 
   const handleGenerateRelaxSDVideo = async () => {
     if (!hasUnlimitedRelaxedSDVideo) {
-      return;
+      return
     }
 
-    setIsGeneratingRelaxSDVideo(true);
+    setIsGeneratingRelaxSDVideo(true)
 
     try {
-      const nextIndex = (currentVideoGifIndex + 1) % mockVideoGif.length;
-      setCurrentVideoGifIndex(nextIndex);
-      const nextGif = mockVideoGif[nextIndex];
+      const nextIndex =
+        (currentVideoGifIndex + 1) % mockVideoGif.length
+      setCurrentVideoGifIndex(nextIndex)
+      const nextGif = mockVideoGif[nextIndex]
       if (nextGif) {
-        setDisplayedContent(nextGif);
+        setDisplayedContent(nextGif)
       }
     } finally {
-      setIsGeneratingRelaxSDVideo(false);
+      setIsGeneratingRelaxSDVideo(false)
     }
-  };
+  }
 
   const handlePurchaseFastGenerationTopUp = async () => {
-    setTopUpError(null);
+    setTopUpError(null)
 
     // Check if billing is ready
     if (!billing.loaded || !billing.loadBilling) {
-      setTopUpError('Billing data not loaded. Please refresh the page.');
-      return;
+      setTopUpError(
+        'Billing data not loaded. Please refresh the page.'
+      )
+      return
     }
 
     // Get price using SDK
-    const priceObj = billing.getPrice('fast_generation_top_up');
+    const priceObj = billing.getPrice('fast_generation_top_up')
     if (!priceObj) {
-      setTopUpError('Price not found. Please contact support.');
-      return;
+      setTopUpError('Price not found. Please contact support.')
+      return
     }
 
-    setIsLoadingFastTopUp(true);
+    setIsLoadingFastTopUp(true)
     try {
       // Use createCheckoutSession exactly like pricing card
       if (!billing.createCheckoutSession) {
-        throw new Error('Checkout not available');
+        throw new Error('Checkout not available')
       }
       await billing.createCheckoutSession({
         priceId: priceObj.id,
@@ -373,39 +464,41 @@ export function HomePage() {
         cancelUrl: window.location.href,
         quantity: 1,
         autoRedirect: true,
-      });
+      })
     } catch (error) {
       setTopUpError(
         error instanceof Error
           ? error.message
           : 'Failed to start checkout. Please try again.'
-      );
+      )
     } finally {
-      setIsLoadingFastTopUp(false);
+      setIsLoadingFastTopUp(false)
     }
-  };
+  }
 
   const handlePurchaseHDVideoTopUp = async () => {
-    setTopUpError(null);
+    setTopUpError(null)
 
     // Check if billing is ready
     if (!billing.loaded || !billing.loadBilling) {
-      setTopUpError('Billing data not loaded. Please refresh the page.');
-      return;
+      setTopUpError(
+        'Billing data not loaded. Please refresh the page.'
+      )
+      return
     }
 
     // Get price using SDK
-    const priceObj = billing.getPrice('hd_video_minute_top_up');
+    const priceObj = billing.getPrice('hd_video_minute_top_up')
     if (!priceObj) {
-      setTopUpError('Price not found. Please contact support.');
-      return;
+      setTopUpError('Price not found. Please contact support.')
+      return
     }
 
-    setIsLoadingHDTopUp(true);
+    setIsLoadingHDTopUp(true)
     try {
       // Use createCheckoutSession exactly like pricing card
       if (!billing.createCheckoutSession) {
-        throw new Error('Checkout not available');
+        throw new Error('Checkout not available')
       }
       await billing.createCheckoutSession({
         priceId: priceObj.id,
@@ -413,17 +506,17 @@ export function HomePage() {
         cancelUrl: window.location.href,
         quantity: 1,
         autoRedirect: true,
-      });
+      })
     } catch (error) {
       setTopUpError(
         error instanceof Error
           ? error.message
           : 'Failed to start checkout. Please try again.'
-      );
+      )
     } finally {
-      setIsLoadingHDTopUp(false);
+      setIsLoadingHDTopUp(false)
     }
-  };
+  }
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background">
@@ -560,7 +653,9 @@ export function HomePage() {
                             onClick={handleGenerateRelaxImage}
                             variant="outline"
                             className="w-full transition-transform hover:-translate-y-px"
-                            disabled={!hasRelaxMode || isGeneratingRelaxImage}
+                            disabled={
+                              !hasRelaxMode || isGeneratingRelaxImage
+                            }
                           >
                             {isGeneratingRelaxImage
                               ? 'Generating...'
@@ -614,7 +709,9 @@ export function HomePage() {
                       <TooltipTrigger asChild>
                         <span className="w-full">
                           <Button
-                            onClick={handlePurchaseFastGenerationTopUp}
+                            onClick={
+                              handlePurchaseFastGenerationTopUp
+                            }
                             variant="secondary"
                             className="w-full transition-transform hover:-translate-y-px"
                             disabled={
@@ -625,7 +722,9 @@ export function HomePage() {
                               isLoadingFastTopUp
                             }
                           >
-                            {isLoadingFastTopUp ? 'Loading...' : 'Buy Fast Generations ($4.00 for 80)'}
+                            {isLoadingFastTopUp
+                              ? 'Loading...'
+                              : 'Buy Fast Generations ($4.00 for 80)'}
                           </Button>
                         </span>
                       </TooltipTrigger>
@@ -633,7 +732,9 @@ export function HomePage() {
                         <TooltipContent>
                           Not available in your plan
                         </TooltipContent>
-                      ) : (!billing.loaded || !billing.loadBilling || billing.errors !== null) ? (
+                      ) : !billing.loaded ||
+                        !billing.loadBilling ||
+                        billing.errors !== null ? (
                         <TooltipContent>
                           Checkout is loading, please wait...
                         </TooltipContent>
@@ -656,7 +757,9 @@ export function HomePage() {
                               isLoadingHDTopUp
                             }
                           >
-                            {isLoadingHDTopUp ? 'Loading...' : 'Buy HD Video Minutes ($10.00 for 10 min)'}
+                            {isLoadingHDTopUp
+                              ? 'Loading...'
+                              : 'Buy HD Video Minutes ($10.00 for 10 min)'}
                           </Button>
                         </span>
                       </TooltipTrigger>
@@ -664,7 +767,9 @@ export function HomePage() {
                         <TooltipContent>
                           Not available in your plan
                         </TooltipContent>
-                      ) : (!billing.loaded || !billing.loadBilling || billing.errors !== null) ? (
+                      ) : !billing.loaded ||
+                        !billing.loadBilling ||
+                        billing.errors !== null ? (
                         <TooltipContent>
                           Checkout is loading, please wait...
                         </TooltipContent>
@@ -704,7 +809,9 @@ export function HomePage() {
                       <Progress
                         key={`fast-${fastGenerationsRemaining}-${fastGenerationsTotal}`}
                         value={
-                          fastGenerationsTotal > 0 ? fastGenerationsProgress : 0
+                          fastGenerationsTotal > 0
+                            ? fastGenerationsProgress
+                            : 0
                         }
                         className="w-full"
                       />
@@ -712,7 +819,8 @@ export function HomePage() {
                   )}
 
                   {/* HD Video Minutes Meter */}
-                  {(hasHDVideoMinutesAccess || hdVideoMinutesRemaining > 0) && (
+                  {(hasHDVideoMinutesAccess ||
+                    hdVideoMinutesRemaining > 0) && (
                     <div className="space-y-2">
                       <div className="flex items-center justify-between">
                         <span className="text-sm font-medium">
@@ -726,7 +834,14 @@ export function HomePage() {
                           minutes
                         </span>
                       </div>
-                      <Progress value={hdVideoMinutesTotal > 0 ? hdVideoMinutesProgress : 0} className="w-full" />
+                      <Progress
+                        value={
+                          hdVideoMinutesTotal > 0
+                            ? hdVideoMinutesProgress
+                            : 0
+                        }
+                        className="w-full"
+                      />
                     </div>
                   )}
                 </div>
@@ -736,6 +851,5 @@ export function HomePage() {
         </div>
       </main>
     </div>
-  );
+  )
 }
-

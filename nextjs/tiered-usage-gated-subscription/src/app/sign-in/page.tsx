@@ -1,22 +1,22 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { authClient } from '@/lib/auth-client';
-import { Button } from '@/components/ui/button';
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { useState } from 'react'
+import { Button } from '@/components/ui/button'
+import { authClient } from '@/lib/auth-client'
 
 export default function SignInPage() {
-  const router = useRouter();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const router = useRouter()
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   async function onSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
+    e.preventDefault()
+    setLoading(true)
+    setError(null)
     await authClient.signIn.email(
       { email, password, callbackURL: '/?view=pricing' },
       {
@@ -24,8 +24,8 @@ export default function SignInPage() {
         onSuccess: () => router.push('/?view=pricing'),
         onRequest: () => {},
       }
-    );
-    setLoading(false);
+    )
+    setLoading(false)
   }
 
   return (
@@ -48,7 +48,9 @@ export default function SignInPage() {
           className="w-full rounded border px-3 py-2"
           required
         />
-        {error ? <p className="text-sm text-red-600">{error}</p> : null}
+        {error ? (
+          <p className="text-sm text-red-600">{error}</p>
+        ) : null}
         <Button type="submit" disabled={loading} className="w-full">
           {loading ? 'Signing in…' : 'Sign in'}
         </Button>
@@ -64,5 +66,5 @@ export default function SignInPage() {
         </p>
       </form>
     </div>
-  );
+  )
 }

@@ -1,5 +1,5 @@
-import { Card, CardContent, CardHeader } from './ui/card';
-import { Skeleton } from './ui/skeleton';
+import { Card, CardContent, CardHeader } from './ui/card'
+import { Skeleton } from './ui/skeleton'
 
 export function DashboardSkeleton() {
   return (
@@ -64,7 +64,5 @@ export function DashboardSkeleton() {
         </div>
       </main>
     </div>
-  );
+  )
 }
-
-

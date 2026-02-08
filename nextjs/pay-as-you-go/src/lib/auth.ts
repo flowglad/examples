@@ -1,12 +1,12 @@
-import { betterAuth } from 'better-auth';
-import { drizzleAdapter } from 'better-auth/adapters/drizzle';
-import { nextCookies } from 'better-auth/next-js';
-import { db } from '@/server/db/client';
-import { betterAuthSchema } from '@/server/db/schema';
+import { betterAuth } from 'better-auth'
+import { drizzleAdapter } from 'better-auth/adapters/drizzle'
+import { nextCookies } from 'better-auth/next-js'
+import { db } from '@/server/db/client'
+import { betterAuthSchema } from '@/server/db/schema'
 
-const betterAuthSecret = process.env.BETTER_AUTH_SECRET;
+const betterAuthSecret = process.env.BETTER_AUTH_SECRET
 if (!betterAuthSecret) {
-  throw new Error('BETTER_AUTH_SECRET is not set');
+  throw new Error('BETTER_AUTH_SECRET is not set')
 }
 
 export const auth = betterAuth({
@@ -22,6 +22,5 @@ export const auth = betterAuth({
     usePlural: true,
     schema: betterAuthSchema,
   }),
-  // @ts-expect-error - better-auth plugin type incompatibility with exactOptionalPropertyTypes
   plugins: [nextCookies()],
-});
+})

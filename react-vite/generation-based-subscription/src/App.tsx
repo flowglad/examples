@@ -1,33 +1,39 @@
-import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
-import { useEffect } from 'react';
-import { authClient } from './lib/auth-client';
-import { FlowgladProviderWrapper } from './components/providers';
-import { TooltipProvider } from './components/ui/tooltip';
-import { Navbar } from './components/navbar';
-import { HomePage } from './pages/home';
-import { PricingPage } from './pages/pricing';
-import { SignInPage } from './pages/sign-in';
-import { SignUpPage } from './pages/sign-up';
+import { useEffect } from 'react'
+import {
+  BrowserRouter,
+  Navigate,
+  Route,
+  Routes,
+  useNavigate,
+} from 'react-router-dom'
+import { Navbar } from './components/navbar'
+import { FlowgladProviderWrapper } from './components/providers'
+import { TooltipProvider } from './components/ui/tooltip'
+import { authClient } from './lib/auth-client'
+import { HomePage } from './pages/home'
+import { PricingPage } from './pages/pricing'
+import { SignInPage } from './pages/sign-in'
+import { SignUpPage } from './pages/sign-up'
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const navigate = useNavigate();
-  const { data: session, isPending } = authClient.useSession();
+  const navigate = useNavigate()
+  const { data: session, isPending } = authClient.useSession()
 
   useEffect(() => {
     if (!isPending && !session?.user) {
-      navigate('/sign-in', { replace: true });
+      navigate('/sign-in', { replace: true })
     }
-  }, [session, isPending, navigate]);
+  }, [session, isPending, navigate])
 
   if (isPending) {
-    return <div>Loading...</div>;
+    return <div>Loading...</div>
   }
 
   if (!session?.user) {
-    return null;
+    return null
   }
 
-  return children;
+  return children
 }
 
 function App() {
@@ -54,7 +60,7 @@ function App() {
               element={
                 <ProtectedRoute>
                   <FlowgladProviderWrapper>
-                      <Navbar />
+                    <Navbar />
                     <PricingPage />
                   </FlowgladProviderWrapper>
                 </ProtectedRoute>
@@ -65,7 +71,7 @@ function App() {
         </div>
       </TooltipProvider>
     </BrowserRouter>
-  );
+  )
 }
 
-export default App;
+export default App

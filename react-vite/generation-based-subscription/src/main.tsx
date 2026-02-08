@@ -1,58 +1,65 @@
-import React, { StrictMode, Component, ReactNode } from 'react';
-import { createRoot } from 'react-dom/client';
-import './index.css';
-import App from './App';
+import React, { Component, ReactNode, StrictMode } from 'react'
+import { createRoot } from 'react-dom/client'
+import './index.css'
+import App from './App'
 
 // Error boundary component
 interface ErrorFallbackProps {
-  error: Error | null;
+  error: Error | null
 }
 
 function ErrorFallback({ error }: ErrorFallbackProps) {
   return (
     <div style={{ padding: '20px', textAlign: 'center' }}>
       <h1>Something went wrong</h1>
-      <p style={{ color: 'red' }}>{error?.message || 'Unknown error'}</p>
-      <button onClick={() => window.location.reload()}>Reload Page</button>
+      <p style={{ color: 'red' }}>
+        {error?.message || 'Unknown error'}
+      </p>
+      <button onClick={() => window.location.reload()}>
+        Reload Page
+      </button>
     </div>
-  );
+  )
 }
 
 // Wrapper to catch errors
 interface ErrorBoundaryProps {
-  children: ReactNode;
+  children: ReactNode
 }
 
 interface ErrorBoundaryState {
-  hasError: boolean;
-  error: Error | null;
+  hasError: boolean
+  error: Error | null
 }
 
-class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
+class ErrorBoundary extends Component<
+  ErrorBoundaryProps,
+  ErrorBoundaryState
+> {
   constructor(props: ErrorBoundaryProps) {
-    super(props);
-    this.state = { hasError: false, error: null };
+    super(props)
+    this.state = { hasError: false, error: null }
   }
 
   static getDerivedStateFromError(error: Error): ErrorBoundaryState {
-    return { hasError: true, error };
+    return { hasError: true, error }
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error('Error caught by boundary:', error, errorInfo);
+    console.error('Error caught by boundary:', error, errorInfo)
   }
 
   render() {
     if (this.state.hasError) {
-      return <ErrorFallback error={this.state.error} />;
+      return <ErrorFallback error={this.state.error} />
     }
-    return this.props.children;
+    return this.props.children
   }
 }
 
-const rootElement = document.getElementById('root');
+const rootElement = document.getElementById('root')
 if (!rootElement) {
-  throw new Error('Root element not found');
+  throw new Error('Root element not found')
 }
 
 createRoot(rootElement).render(
@@ -61,4 +68,4 @@ createRoot(rootElement).render(
       <App />
     </ErrorBoundary>
   </StrictMode>
-);
+)

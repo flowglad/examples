@@ -1,31 +1,39 @@
-import express, { type Request, type Response, type NextFunction } from 'express';
-import cors from 'cors';
-import dotenv from 'dotenv';
-import { FlowgladServer, requestHandler } from '@flowglad/server';
-import { toNodeHandler, fromNodeHeaders } from 'better-auth/node';
-import { auth } from './lib/auth.js';
-import { db } from './db/client.js';
-import { users } from './db/schema.js';
-import { eq } from 'drizzle-orm';
+import { FlowgladServer, requestHandler } from '@flowglad/server'
+import { fromNodeHeaders, toNodeHandler } from 'better-auth/node'
+import cors from 'cors'
+import dotenv from 'dotenv'
+import { eq } from 'drizzle-orm'
+import express, {
+  type NextFunction,
+  type Request,
+  type Response,
+} from 'express'
+import { db } from './db/client.js'
+import { users } from './db/schema.js'
+import { auth } from './lib/auth.js'
 
 // Load environment variables
 // Prefer .env.local for local development (consistent with other examples)
-dotenv.config({ path: '.env.local' });
+dotenv.config({ path: '.env.local' })
 
 // Check if FLOWGLAD_SECRET_KEY is set
 if (!process.env.FLOWGLAD_SECRET_KEY) {
-  console.error('ERROR: FLOWGLAD_SECRET_KEY is not set in .env.local file');
-  process.exit(1);
+  console.error(
+    'ERROR: FLOWGLAD_SECRET_KEY is not set in .env.local file'
+  )
+  process.exit(1)
 }
 
 // Check if BETTER_AUTH_SECRET is set
 if (!process.env.BETTER_AUTH_SECRET) {
-  console.error('ERROR: BETTER_AUTH_SECRET is not set in .env.local file');
-  process.exit(1);
+  console.error(
+    'ERROR: BETTER_AUTH_SECRET is not set in .env.local file'
+  )
+  process.exit(1)
 }
 
-const app = express();
-const PORT = process.env.SERVER_PORT || 3001;
+const app = express()
+const PORT = process.env.SERVER_PORT || 3001
 
 // Configure CORS middleware
 app.use(
@@ -35,67 +43,77 @@ app.use(
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
   })
-);
+)
 
 // Better Auth API routes - must be BEFORE express.json()
 // Use toNodeHandler for proper Express integration
-app.all('/api/auth/*', toNodeHandler(auth));
+app.all('/api/auth/*', toNodeHandler(auth))
 
 // Mount express.json() middleware AFTER Better Auth handler
 // or only apply it to routes that don't interact with Better Auth
-app.use(express.json());
+app.use(express.json())
 
 // Test route to verify server is working
 app.get('/api/test', (_req: Request, res: Response) => {
-  res.json({ message: 'Server is running', timestamp: new Date().toISOString() });
-});
+  res.json({
+    message: 'Server is running',
+    timestamp: new Date().toISOString(),
+  })
+})
 
 // Extend Express Request type to include user
 declare global {
   namespace Express {
     interface Request {
       user?: {
-        id: string;
-        email: string;
-        name: string | null;
-      } | null;
+        id: string
+        email: string
+        name: string | null
+      } | null
     }
   }
 }
 
 // Middleware to extract user info from Better Auth session
-const extractUserFromSession = async (req: Request, _res: Response, next: NextFunction) => {
+const extractUserFromSession = async (
+  req: Request,
+  _res: Response,
+  next: NextFunction
+) => {
   try {
     // Skip auth extraction for auth routes
     if (req.path.startsWith('/api/auth')) {
-      return next();
+      return next()
     }
 
     // Use fromNodeHeaders to convert Express headers to Better Auth format
     const session = await auth.api.getSession({
       headers: fromNodeHeaders(req.headers),
-    });
-    
+    })
+
     if (!session?.user) {
-      req.user = null;
-      return next();
+      req.user = null
+      return next()
     }
 
     req.user = {
       id: session.user.id,
       email: session.user.email,
       name: session.user.name,
-    };
-    
-    next();
-  } catch (error) {
-    console.error('Error extracting user from session:', error instanceof Error ? error.message : String(error));
-    req.user = null;
-    next();
-  }
-};
+    }
 
-app.use(extractUserFromSession);
+    next()
+  } catch (error) {
+    console.error(
+      'Error extracting user from session:',
+      error instanceof Error ? error.message : String(error)
+    )
+    req.user = null
+    next()
+  }
+}
+
+app.use(extractUserFromSession)
 
 /**
  * Factory that creates a FlowgladServer for a specific customer
@@ -113,40 +131,43 @@ const flowglad = (customerExternalId: string) => {
           })
           .from(users)
           .where(eq(users.id, externalId))
-          .limit(1);
-        
+          .limit(1)
+
         if (user && user.email) {
           return {
             email: user.email,
             name: user.name || '',
-          };
+          }
         }
-        
+
         // Fallback if user not found in database
         return {
           email: `user_${externalId}@example.com`,
           name: 'User',
-        };
+        }
       } catch (error) {
-        console.error('[Flowglad] Error fetching user from database:', error);
+        console.error(
+          '[Flowglad] Error fetching user from database:',
+          error
+        )
         // Fallback on error
         return {
           email: `user_${externalId}@example.com`,
           name: 'User',
-        };
+        }
       }
     },
-  });
-};
+  })
+}
 
 // Health check endpoint
 app.get('/api/health', (req: Request, res: Response) => {
-  res.json({ 
-    status: 'ok', 
+  res.json({
+    status: 'ok',
     authenticated: !!req.user,
     userId: req.user?.id || null,
-  });
-});
+  })
+})
 
 // Create Flowglad request handler
 const flowgladHandler = requestHandler({
@@ -157,51 +178,54 @@ const flowgladHandler = requestHandler({
     try {
       const session = await auth.api.getSession({
         headers: fromNodeHeaders(req.headers),
-      });
+      })
 
-      const userId = session?.user?.id;
+      const userId = session?.user?.id
       if (!userId) {
-        throw new Error('Unable to determine customer external ID');
+        throw new Error('Unable to determine customer external ID')
       }
 
-      return userId;
+      return userId
     } catch (error) {
-      console.error('[Flowglad] Error getting external ID:', error);
-      throw error;
+      console.error('[Flowglad] Error getting external ID:', error)
+      throw error
     }
   },
-});
+})
 
 // Handle all Flowglad API requests
 // This catch-all route handles all paths under /api/flowglad
 app.all('/api/flowglad/*', async (req: Request, res: Response) => {
   try {
     // Extract the path after /api/flowglad/
-    const url = new URL(req.originalUrl, `http://${req.headers.host}`);
+    const url = new URL(req.originalUrl, `http://${req.headers.host}`)
     const path = url.pathname
       .replace('/api/flowglad/', '')
       .split('/')
-      .filter((segment) => segment !== '');
+      .filter((segment) => segment !== '')
 
     // Call the Flowglad handler
     // Convert Express query params to simple string record
-    const queryParams: Record<string, string> | undefined = req.method === 'GET' && req.query
-      ? Object.fromEntries(
-          Object.entries(req.query).map(([key, value]): [string, string] => {
-            let stringValue: string;
-            if (typeof value === 'string') {
-              stringValue = value;
-            } else if (Array.isArray(value)) {
-              stringValue = (value[0] as string) ?? '';
-            } else if (value !== undefined && value !== null) {
-              stringValue = String(value);
-            } else {
-              stringValue = '';
-            }
-            return [key, stringValue];
-          })
-        ) as Record<string, string>
-      : undefined;
+    const queryParams: Record<string, string> | undefined =
+      req.method === 'GET' && req.query
+        ? (Object.fromEntries(
+            Object.entries(req.query).map(
+              ([key, value]): [string, string] => {
+                let stringValue: string
+                if (typeof value === 'string') {
+                  stringValue = value
+                } else if (Array.isArray(value)) {
+                  stringValue = (value[0] as string) ?? ''
+                } else if (value !== undefined && value !== null) {
+                  stringValue = String(value)
+                } else {
+                  stringValue = ''
+                }
+                return [key, stringValue]
+              }
+            )
+          ) as Record<string, string>)
+        : undefined
 
     const result = await flowgladHandler(
       {
@@ -211,21 +235,24 @@ app.all('/api/flowglad/*', async (req: Request, res: Response) => {
         body: req.method !== 'GET' ? req.body : undefined,
       },
       req
-    );
+    )
 
     // Send the response
     res.status(result.status).json({
       error: result.error,
       data: result.data,
-    });
+    })
   } catch (error) {
-    console.error('[Flowglad Router] Error:', error);
+    console.error('[Flowglad Router] Error:', error)
     res.status(500).json({
-      error: error instanceof Error ? error.message : 'Internal server error',
-    });
+      error:
+        error instanceof Error
+          ? error.message
+          : 'Internal server error',
+    })
   }
-});
+})
 
 app.listen(PORT, () => {
-  console.log(`Flowglad server running on http://localhost:${PORT}`);
-});
+  console.log(`Flowglad server running on http://localhost:${PORT}`)
+})

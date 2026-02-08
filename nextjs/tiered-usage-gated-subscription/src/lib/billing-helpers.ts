@@ -1,6 +1,8 @@
-import type { BillingWithChecks } from '@flowglad/shared';
-import type { Price } from '@flowglad/types';
-import type { UsageMeter } from '@flowglad/types';
+import type {
+  BillingWithChecks,
+  Price,
+  UsageMeter,
+} from '@flowglad/shared'
 
 type UsageMeterSlug =
   | 'gpt_5_thinking_messages'
@@ -8,7 +10,7 @@ type UsageMeterSlug =
   | 'o4_mini_messages'
   | 'o4_mini_high_messages'
   | 'agent_messages'
-  | 'deep_research_requests';
+  | 'deep_research_requests'
 
 /**
  * Computes the total usage credits for a given usage meter slug from the current subscription's feature items.
@@ -32,39 +34,39 @@ export function computeUsageTotal(
 ): number {
   try {
     // Early returns if we don't have the necessary data
-    if (!currentSubscription || !pricingModel?.usageMeters) return 0;
+    if (!currentSubscription || !pricingModel?.usageMeters) return 0
 
     // Get feature items from subscription (stored in experimental.featureItems)
-    const experimental = currentSubscription.experimental;
-    const featureItems = experimental?.featureItems ?? [];
+    const experimental = currentSubscription.experimental
+    const featureItems = experimental?.featureItems ?? []
 
-    if (featureItems.length === 0) return 0;
+    if (featureItems.length === 0) return 0
 
     // Build a lookup map: usageMeterId -> slug
     // (Feature items reference meters by ID, but we need to match by slug)
-    const usageMeterById: Record<string, string> = {};
+    const usageMeterById: Record<string, string> = {}
     for (const meter of pricingModel.usageMeters) {
-      const meterId = String(meter.id);
-      const meterSlug = String(meter.slug);
-      usageMeterById[meterId] = meterSlug;
+      const meterId = String(meter.id)
+      const meterSlug = String(meter.slug)
+      usageMeterById[meterId] = meterSlug
     }
 
     // Filter to only usage credit grant features that match our slug
-    let total = 0;
+    let total = 0
     for (const item of featureItems) {
       // Only process usage credit grants (not toggle features)
-      if (item.type !== 'usage_credit_grant') continue;
+      if (item.type !== 'usage_credit_grant') continue
 
       // Check if this feature item's meter matches the slug we're looking for
-      const meterSlug = usageMeterById[item.usageMeterId];
+      const meterSlug = usageMeterById[item.usageMeterId]
       if (meterSlug === usageMeterSlug) {
-        total += item.amount;
+        total += item.amount
       }
     }
 
-    return total;
+    return total
   } catch {
-    return 0;
+    return 0
   }
 }
 
@@ -79,20 +81,20 @@ export function findUsageMeterBySlug(
   usageMeterSlug: string,
   pricingModel: BillingWithChecks['pricingModel'] | undefined
 ): { id: string; slug: string } | null {
-  if (!pricingModel?.usageMeters) return null;
+  if (!pricingModel?.usageMeters) return null
 
   const usageMeter = pricingModel.usageMeters.find(
     (meter: UsageMeter) => meter.slug === usageMeterSlug
-  );
+  )
 
   if (!usageMeter) {
-    return null;
+    return null
   }
 
   return {
     id: String(usageMeter.id),
     slug: String(usageMeter.slug),
-  };
+  }
 }
 
 /**
@@ -107,16 +109,17 @@ export function findUsagePriceBySlug(
   pricingModel: BillingWithChecks['pricingModel'] | undefined
 ): Price | null {
   try {
-    if (!pricingModel?.products) return null;
+    if (!pricingModel?.products) return null
 
     const usagePrice = pricingModel.products
       .flatMap((product) => product.prices ?? [])
       .find(
-        (price: Price) => price.type === 'usage' && price.slug === priceSlug
-      );
+        (price: Price) =>
+          price.type === 'usage' && price.slug === priceSlug
+      )
 
-    return usagePrice ?? null;
+    return usagePrice ?? null
   } catch {
-    return null;
+    return null
   }
 }

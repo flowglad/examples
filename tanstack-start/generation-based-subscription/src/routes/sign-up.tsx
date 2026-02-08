@@ -1,8 +1,12 @@
-import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
+import {
+  createFileRoute,
+  Link,
+  useNavigate,
+} from '@tanstack/react-router'
 import { useState } from 'react'
-import { authClient } from '../lib/auth-client'
-import { Button } from '../components/ui/button'
 import { authMiddleware } from '@/middleware/auth'
+import { Button } from '../components/ui/button'
+import { authClient } from '../lib/auth-client'
 
 export const Route = createFileRoute('/sign-up')({
   component: SignUpPage,
@@ -29,14 +33,16 @@ function SignUpPage() {
         onError: (ctx) => setError(ctx.error.message),
         onSuccess: () => navigate({ to: '/' }),
         onRequest: () => {},
-      },
+      }
     )
     setLoading(false)
   }
 
   return (
     <div className="mx-auto max-w-sm px-4 py-12">
-      <h1 className="mb-6 text-xl font-semibold">Create your account</h1>
+      <h1 className="mb-6 text-xl font-semibold">
+        Create your account
+      </h1>
       <form onSubmit={onSubmit} className="space-y-4">
         <input
           value={name}
@@ -60,7 +66,9 @@ function SignUpPage() {
           className="w-full rounded border px-3 py-2"
           required
         />
-        {error ? <p className="text-sm text-red-600">{error}</p> : null}
+        {error ? (
+          <p className="text-sm text-red-600">{error}</p>
+        ) : null}
         <Button type="submit" disabled={loading} className="w-full">
           {loading ? 'Creating…' : 'Create account'}
         </Button>

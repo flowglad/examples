@@ -1,6 +1,10 @@
-import { useState } from 'react';
-import { Check } from 'lucide-react';
-import { useBilling } from '@flowglad/react';
+import { useBilling } from '@flowglad/react'
+import { Check } from 'lucide-react'
+import { useState } from 'react'
+import { isDefaultPlanBySlug } from '../lib/billing-helpers'
+import { cn } from '../lib/utils'
+import { Badge } from './ui/badge'
+import { Button } from './ui/button'
 import {
   Card,
   CardContent,
@@ -8,68 +12,71 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from './ui/card';
-import { Badge } from './ui/badge';
-import { Button } from './ui/button';
-import { cn } from '../lib/utils';
-import { isDefaultPlanBySlug } from '../lib/billing-helpers';
+} from './ui/card'
 
 export interface PricingPlan {
-  name: string;
-  description?: string;
-  displayPrice: string;
-  slug: string;
-  features: string[];
-  isPopular?: boolean;
+  name: string
+  description?: string
+  displayPrice: string
+  slug: string
+  features: string[]
+  isPopular?: boolean
 }
 
 interface PricingCardProps {
-  plan: PricingPlan;
-  isCurrentPlan?: boolean;
-  hideFeatures?: boolean;
+  plan: PricingPlan
+  isCurrentPlan?: boolean
+  hideFeatures?: boolean
 }
 
 /**
  * PricingCard component displays a single pricing plan
  */
-export function PricingCard({ plan, isCurrentPlan = false, hideFeatures = false }: PricingCardProps) {
-  const billing = useBilling();
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  
+export function PricingCard({
+  plan,
+  isCurrentPlan = false,
+  hideFeatures = false,
+}: PricingCardProps) {
+  const billing = useBilling()
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
   // Ensure features is always an array
-  const { features = [] } = plan;
+  const { features = [] } = plan
 
   if (!billing.loaded) {
-    return <div>Loading...</div>;
+    return <div>Loading...</div>
   }
 
   if (billing.errors) {
-    return <div>Error loading billing data</div>;
+    return <div>Error loading billing data</div>
   }
 
   if (!billing.loadBilling) {
-    return <div>Billing not available</div>;
+    return <div>Billing not available</div>
   }
 
-  const priceSlug = plan.slug;
-  const displayPrice = plan.displayPrice;
-  
+  const priceSlug = plan.slug
+  const displayPrice = plan.displayPrice
+
   // Check if this plan is a default plan by checking the pricing model
-  const isDefaultPlan = isDefaultPlanBySlug(billing.pricingModel, priceSlug);
+  const isDefaultPlan = isDefaultPlanBySlug(
+    billing.pricingModel,
+    priceSlug
+  )
 
   const handleCheckout = async () => {
-    setError(null);
+    setError(null)
 
     // Get price object from slug to get the price ID
-    const priceObj = billing.getPrice(priceSlug);
+    const priceObj = billing.getPrice(priceSlug)
     if (!priceObj) {
-      const errorMsg = `Price not found for "${priceSlug}". Please contact support.`;
-      setError(errorMsg);
-      return;
+      const errorMsg = `Price not found for "${priceSlug}". Please contact support.`
+      setError(errorMsg)
+      return
     }
 
-    setIsLoading(true);
+    setIsLoading(true)
     try {
       await billing.createCheckoutSession({
         priceId: priceObj.id,
@@ -77,17 +84,17 @@ export function PricingCard({ plan, isCurrentPlan = false, hideFeatures = false 
         cancelUrl: window.location.href,
         quantity: 1,
         autoRedirect: true,
-      });
+      })
     } catch (error) {
       const errorMsg =
         error instanceof Error
           ? error.message
-          : 'Failed to start checkout. Please try again.';
-      setError(errorMsg);
+          : 'Failed to start checkout. Please try again.'
+      setError(errorMsg)
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  };
+  }
 
   return (
     <Card
@@ -106,7 +113,9 @@ export function PricingCard({ plan, isCurrentPlan = false, hideFeatures = false 
       )}
 
       <CardHeader className="px-3 py-3 md:px-6 md:py-4">
-        <CardTitle className="text-lg md:text-2xl">{plan.name}</CardTitle>
+        <CardTitle className="text-lg md:text-2xl">
+          {plan.name}
+        </CardTitle>
         {plan.description && (
           <CardDescription className="text-xs md:text-base mt-1">
             {plan.description}
@@ -133,9 +142,14 @@ export function PricingCard({ plan, isCurrentPlan = false, hideFeatures = false 
               </li>
             ) : (
               features.map((feature) => (
-                <li key={feature} className="flex items-start gap-1.5 md:gap-2">
+                <li
+                  key={feature}
+                  className="flex items-start gap-1.5 md:gap-2"
+                >
                   <Check className="mt-0.5 h-3 w-3 md:h-4 md:w-4 shrink-0 text-primary" />
-                  <span className="text-xs md:text-sm">{feature}</span>
+                  <span className="text-xs md:text-sm">
+                    {feature}
+                  </span>
                 </li>
               ))
             )}
@@ -165,11 +179,12 @@ export function PricingCard({ plan, isCurrentPlan = false, hideFeatures = false 
                 : 'Get Started'}
           </Button>
           {error && (
-            <p className="text-xs text-destructive text-center">{error}</p>
+            <p className="text-xs text-destructive text-center">
+              {error}
+            </p>
           )}
         </div>
       </CardFooter>
     </Card>
-  );
+  )
 }
-

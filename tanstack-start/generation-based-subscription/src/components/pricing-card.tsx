@@ -1,8 +1,10 @@
-import { useState } from 'react'
-import { Check } from 'lucide-react'
 import { useBilling } from '@flowglad/react'
-import { cn } from '../lib/utils'
+import { Check } from 'lucide-react'
+import { useState } from 'react'
 import { isDefaultPlanBySlug } from '../lib/billing-helpers'
+import { cn } from '../lib/utils'
+import { Badge } from './ui/badge'
+import { Button } from './ui/button'
 import {
   Card,
   CardContent,
@@ -11,8 +13,6 @@ import {
   CardHeader,
   CardTitle,
 } from './ui/card'
-import { Badge } from './ui/badge'
-import { Button } from './ui/button'
 
 export interface PricingPlan {
   name: string
@@ -57,7 +57,10 @@ export function PricingCard({
   const displayPrice = plan.displayPrice
 
   // Check if this plan is a default plan by checking the pricing model
-  const isDefaultPlan = isDefaultPlanBySlug(billing.pricingModel, priceSlug)
+  const isDefaultPlan = isDefaultPlanBySlug(
+    billing.pricingModel,
+    priceSlug
+  )
 
   const handleCheckout = async () => {
     setError(null)
@@ -95,7 +98,7 @@ export function PricingCard({
       className={cn(
         'relative flex h-full flex-col transition-transform hover:-translate-y-px',
         plan.isPopular && 'border-primary shadow-lg',
-        isCurrentPlan && 'border-2 border-primary',
+        isCurrentPlan && 'border-2 border-primary'
       )}
     >
       {plan.isPopular && (
@@ -107,7 +110,9 @@ export function PricingCard({
       )}
 
       <CardHeader className="px-3 py-3 md:px-6 md:py-4">
-        <CardTitle className="text-lg md:text-2xl">{plan.name}</CardTitle>
+        <CardTitle className="text-lg md:text-2xl">
+          {plan.name}
+        </CardTitle>
         {plan.description && (
           <CardDescription className="text-xs md:text-base mt-1">
             {plan.description}
@@ -134,9 +139,14 @@ export function PricingCard({
               </li>
             ) : (
               plan.features.map((feature) => (
-                <li key={feature} className="flex items-start gap-1.5 md:gap-2">
+                <li
+                  key={feature}
+                  className="flex items-start gap-1.5 md:gap-2"
+                >
                   <Check className="mt-0.5 h-3 w-3 md:h-4 md:w-4 shrink-0 text-primary" />
-                  <span className="text-xs md:text-sm">{feature}</span>
+                  <span className="text-xs md:text-sm">
+                    {feature}
+                  </span>
                 </li>
               ))
             )}
@@ -167,7 +177,9 @@ export function PricingCard({
                 : 'Get Started'}
           </Button>
           {error && (
-            <p className="text-xs text-destructive text-center">{error}</p>
+            <p className="text-xs text-destructive text-center">
+              {error}
+            </p>
           )}
         </div>
       </CardFooter>

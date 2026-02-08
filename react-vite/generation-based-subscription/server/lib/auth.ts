@@ -1,16 +1,17 @@
 // Load environment variables first
-import dotenv from 'dotenv';
+import dotenv from 'dotenv'
+
 // Prefer .env.local for local development (consistent with other examples)
-dotenv.config({ path: '.env.local' });
+dotenv.config({ path: '.env.local' })
 
-import { betterAuth } from 'better-auth';
-import { drizzleAdapter } from 'better-auth/adapters/drizzle';
-import { db } from '../db/client.js';
-import { betterAuthSchema } from '../db/schema.js';
+import { betterAuth } from 'better-auth'
+import { drizzleAdapter } from 'better-auth/adapters/drizzle'
+import { db } from '../db/client.js'
+import { betterAuthSchema } from '../db/schema.js'
 
-const betterAuthSecret = process.env.BETTER_AUTH_SECRET;
+const betterAuthSecret = process.env.BETTER_AUTH_SECRET
 if (!betterAuthSecret) {
-  throw new Error('BETTER_AUTH_SECRET is not set');
+  throw new Error('BETTER_AUTH_SECRET is not set')
 }
 
 const auth = betterAuth({
@@ -29,8 +30,9 @@ const auth = betterAuth({
     schema: betterAuthSchema,
   }),
   // Trust proxy for proper cookie handling behind reverse proxy
-  trustedOrigins: [process.env.VITE_APP_URL || 'http://localhost:5173'],
-});
+  trustedOrigins: [
+    process.env.VITE_APP_URL || 'http://localhost:5173',
+  ],
+})
 
-export { auth };
-
+export { auth }

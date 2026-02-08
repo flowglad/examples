@@ -1,18 +1,23 @@
+import { useBilling } from '@flowglad/react'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useEffect, useRef, useState } from 'react'
-import { useBilling } from '@flowglad/react'
-import { authClient } from '../lib/auth-client'
-import { computeUsageTotal } from '../lib/billing-helpers'
+import { authMiddleware } from '@/middleware/auth'
 import { DashboardSkeleton } from '../components/dashboard-skeleton'
-import { Progress } from '../components/ui/progress'
 import { Button } from '../components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from '../components/ui/card'
+import { Progress } from '../components/ui/progress'
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from '../components/ui/tooltip'
-import { authMiddleware } from '@/middleware/auth'
+import { authClient } from '../lib/auth-client'
+import { computeUsageTotal } from '../lib/billing-helpers'
 
 export const Route = createFileRoute('/')({
   component: Dashboard,
@@ -40,17 +45,27 @@ const mockVideoGif = [
 
 function Dashboard() {
   const navigate = useNavigate()
-  const { data: session, isPending: isSessionPending } = authClient.useSession()
+  const { data: session, isPending: isSessionPending } =
+    authClient.useSession()
   const billing = useBilling()
-  const [isGeneratingFastImage, setIsGeneratingFastImage] = useState(false)
-  const [isGeneratingHDVideo, setIsGeneratingHDVideo] = useState(false)
-  const [isGeneratingRelaxImage, setIsGeneratingRelaxImage] = useState(false)
+  const [isGeneratingFastImage, setIsGeneratingFastImage] =
+    useState(false)
+  const [isGeneratingHDVideo, setIsGeneratingHDVideo] =
+    useState(false)
+  const [isGeneratingRelaxImage, setIsGeneratingRelaxImage] =
+    useState(false)
   const [isGeneratingRelaxSDVideo, setIsGeneratingRelaxSDVideo] =
     useState(false)
-  const [generateError, setGenerateError] = useState<string | null>(null)
-  const [hdVideoError, setHdVideoError] = useState<string | null>(null)
+  const [generateError, setGenerateError] = useState<string | null>(
+    null
+  )
+  const [hdVideoError, setHdVideoError] = useState<string | null>(
+    null
+  )
   const [topUpError, setTopUpError] = useState<string | null>(null)
-  const [displayedContent, setDisplayedContent] = useState<string | null>(null)
+  const [displayedContent, setDisplayedContent] = useState<
+    string | null
+  >(null)
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const [currentVideoGifIndex, setCurrentVideoGifIndex] = useState(0)
   const previousUserIdRef = useRef<string | undefined>(undefined)
@@ -97,7 +112,12 @@ function Dashboard() {
     if (!hasNonFreePlan) {
       navigate({ to: '/pricing' })
     }
-  }, [isSessionPending, billing.loaded, billing.currentSubscriptions, navigate])
+  }, [
+    isSessionPending,
+    billing.loaded,
+    billing.currentSubscriptions,
+    navigate,
+  ])
 
   if (isSessionPending || !billing.loaded) {
     return <DashboardSkeleton />
@@ -122,24 +142,31 @@ function Dashboard() {
     return <DashboardSkeleton />
   }
 
-  const fastGenerationsBalance = billing.checkUsageBalance('fast_generations')
-  const hdVideoMinutesBalance = billing.checkUsageBalance('hd_video_minutes')
+  const fastGenerationsBalance = billing.checkUsageBalance(
+    'fast_generations'
+  )
+  const hdVideoMinutesBalance = billing.checkUsageBalance(
+    'hd_video_minutes'
+  )
 
   // Check if user has access to usage meters (has balance object, even if balance is 0)
   const hasFastGenerationsAccess = fastGenerationsBalance != null
   const hasHDVideoMinutesAccess = hdVideoMinutesBalance != null
 
   // Get feature access
-  const hasRelaxMode = !!billing.checkFeatureAccess('unlimited_relaxed_images')
+  const hasRelaxMode = !!billing.checkFeatureAccess(
+    'unlimited_relaxed_images'
+  )
   const hasUnlimitedRelaxedSDVideo = !!billing.checkFeatureAccess(
-    'unlimited_relaxed_sd_video',
+    'unlimited_relaxed_sd_video'
   )
   const hasOptionalTopUps = !!billing.checkFeatureAccess(
-    'optional_credit_top_ups',
+    'optional_credit_top_ups'
   )
 
   // Calculate progress for usage meters - get slug from price using priceId
-  const fastGenerationsRemaining = fastGenerationsBalance?.availableBalance ?? 0
+  const fastGenerationsRemaining =
+    fastGenerationsBalance?.availableBalance ?? 0
 
   // Compute plan totals dynamically from current subscription's feature items
   // This calculates how many usage credits (e.g., "360 fast generations")
@@ -147,22 +174,29 @@ function Dashboard() {
   const fastGenerationsTotal = computeUsageTotal(
     'fast_generations',
     currentSubscription,
-    billing.pricingModel,
+    billing.pricingModel
   )
   const fastGenerationsProgress =
     fastGenerationsTotal > 0
-      ? Math.min((fastGenerationsRemaining / fastGenerationsTotal) * 100, 100)
+      ? Math.min(
+          (fastGenerationsRemaining / fastGenerationsTotal) * 100,
+          100
+        )
       : 0
 
-  const hdVideoMinutesRemaining = hdVideoMinutesBalance?.availableBalance ?? 0
+  const hdVideoMinutesRemaining =
+    hdVideoMinutesBalance?.availableBalance ?? 0
   const hdVideoMinutesTotal = computeUsageTotal(
     'hd_video_minutes',
     currentSubscription,
-    billing.pricingModel,
+    billing.pricingModel
   )
   const hdVideoMinutesProgress =
     hdVideoMinutesTotal > 0
-      ? Math.min((hdVideoMinutesRemaining / hdVideoMinutesTotal) * 100, 100)
+      ? Math.min(
+          (hdVideoMinutesRemaining / hdVideoMinutesTotal) * 100,
+          100
+        )
       : 0
 
   // Action handlers
@@ -187,10 +221,11 @@ function Dashboard() {
       })
 
       if ('error' in result) {
-        const errorMsg = result.error.json?.error ?? result.error.json?.message
+        const errorMsg =
+          result.error.json?.error ?? result.error.json?.message
         throw new Error(
           (typeof errorMsg === 'string' ? errorMsg : null) ||
-            'Failed to create usage event',
+            'Failed to create usage event'
         )
       }
 
@@ -208,7 +243,7 @@ function Dashboard() {
       setGenerateError(
         error instanceof Error
           ? error.message
-          : 'Failed to generate image. Please try again.',
+          : 'Failed to generate image. Please try again.'
       )
     } finally {
       setIsGeneratingFastImage(false)
@@ -233,15 +268,17 @@ function Dashboard() {
       })
 
       if ('error' in result) {
-        const errorMsg = result.error.json?.error ?? result.error.json?.message
+        const errorMsg =
+          result.error.json?.error ?? result.error.json?.message
         throw new Error(
           (typeof errorMsg === 'string' ? errorMsg : null) ||
-            'Failed to create usage event',
+            'Failed to create usage event'
         )
       }
 
       // Cycle through mock video GIFs
-      const nextIndex = (currentVideoGifIndex + 1) % mockVideoGif.length
+      const nextIndex =
+        (currentVideoGifIndex + 1) % mockVideoGif.length
       setCurrentVideoGifIndex(nextIndex)
       const nextGif = mockVideoGif[nextIndex]
       if (nextGif) {
@@ -254,7 +291,7 @@ function Dashboard() {
       setHdVideoError(
         error instanceof Error
           ? error.message
-          : 'Failed to generate HD video. Please try again.',
+          : 'Failed to generate HD video. Please try again.'
       )
     } finally {
       setIsGeneratingHDVideo(false)
@@ -290,7 +327,8 @@ function Dashboard() {
 
     try {
       // Cycle through mock video GIFs
-      const nextIndex = (currentVideoGifIndex + 1) % mockVideoGif.length
+      const nextIndex =
+        (currentVideoGifIndex + 1) % mockVideoGif.length
       setCurrentVideoGifIndex(nextIndex)
       const nextGif = mockVideoGif[nextIndex]
       if (nextGif) {
@@ -326,7 +364,7 @@ function Dashboard() {
       setTopUpError(
         error instanceof Error
           ? error.message
-          : 'Failed to start checkout. Please try again.',
+          : 'Failed to start checkout. Please try again.'
       )
     }
   }
@@ -356,7 +394,7 @@ function Dashboard() {
       setTopUpError(
         error instanceof Error
           ? error.message
-          : 'Failed to start checkout. Please try again.',
+          : 'Failed to start checkout. Please try again.'
       )
     }
   }
@@ -496,7 +534,9 @@ function Dashboard() {
                             onClick={handleGenerateRelaxImage}
                             variant="outline"
                             className="w-full transition-transform hover:-translate-y-px"
-                            disabled={!hasRelaxMode || isGeneratingRelaxImage}
+                            disabled={
+                              !hasRelaxMode || isGeneratingRelaxImage
+                            }
                           >
                             {isGeneratingRelaxImage
                               ? 'Generating...'
@@ -550,7 +590,9 @@ function Dashboard() {
                       <TooltipTrigger asChild>
                         <span className="w-full">
                           <Button
-                            onClick={handlePurchaseFastGenerationTopUp}
+                            onClick={
+                              handlePurchaseFastGenerationTopUp
+                            }
                             variant="secondary"
                             className="w-full transition-transform hover:-translate-y-px"
                             disabled={!hasOptionalTopUps}
@@ -620,7 +662,9 @@ function Dashboard() {
                       </div>
                       <Progress
                         value={
-                          fastGenerationsTotal > 0 ? fastGenerationsProgress : 0
+                          fastGenerationsTotal > 0
+                            ? fastGenerationsProgress
+                            : 0
                         }
                         className="w-full"
                       />
@@ -629,7 +673,8 @@ function Dashboard() {
 
                   {/* HD Video Minutes Meter */}
                   {/* Show if user has access OR if we have a balance (even if total is 0, show remaining) */}
-                  {(hasHDVideoMinutesAccess || hdVideoMinutesRemaining > 0) && (
+                  {(hasHDVideoMinutesAccess ||
+                    hdVideoMinutesRemaining > 0) && (
                     <div className="space-y-2">
                       <div className="flex items-center justify-between">
                         <span className="text-sm font-medium">
@@ -645,7 +690,9 @@ function Dashboard() {
                       </div>
                       <Progress
                         value={
-                          hdVideoMinutesTotal > 0 ? hdVideoMinutesProgress : 0
+                          hdVideoMinutesTotal > 0
+                            ? hdVideoMinutesProgress
+                            : 0
                         }
                         className="w-full"
                       />

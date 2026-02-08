@@ -1,8 +1,12 @@
-import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
+import {
+  createFileRoute,
+  Link,
+  useNavigate,
+} from '@tanstack/react-router'
 import { useState } from 'react'
-import { authClient } from '../lib/auth-client'
-import { Button } from '../components/ui/button'
 import { authMiddleware } from '@/middleware/auth'
+import { Button } from '../components/ui/button'
+import { authClient } from '../lib/auth-client'
 
 export const Route = createFileRoute('/sign-in')({
   component: SignInPage,
@@ -28,7 +32,7 @@ function SignInPage() {
         onError: (ctx) => setError(ctx.error.message),
         onSuccess: () => navigate({ to: '/' }),
         onRequest: () => {},
-      },
+      }
     )
     setLoading(false)
   }
@@ -53,7 +57,9 @@ function SignInPage() {
           className="w-full rounded border px-3 py-2"
           required
         />
-        {error ? <p className="text-sm text-red-600">{error}</p> : null}
+        {error ? (
+          <p className="text-sm text-red-600">{error}</p>
+        ) : null}
         <Button type="submit" disabled={loading} className="w-full">
           {loading ? 'Signing in…' : 'Sign in'}
         </Button>
