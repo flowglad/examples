@@ -1,7 +1,10 @@
-import { useRef, useMemo } from 'react'
+import { useBilling } from '@flowglad/react'
 import Autoplay from 'embla-carousel-autoplay'
-import { PricingCard } from './pricing-card'
+import { useMemo, useRef } from 'react'
+import { useMobile } from '../hooks/use-mobile'
 import type { PricingPlan } from './pricing-card'
+import { PricingCard } from './pricing-card'
+import { Card, CardContent, CardFooter, CardHeader } from './ui/card'
 import {
   Carousel,
   CarouselContent,
@@ -9,15 +12,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from './ui/carousel'
-import { useMobile } from '../hooks/use-mobile'
-import { useBilling } from '@flowglad/react'
 import { Skeleton } from './ui/skeleton'
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-} from './ui/card'
 
 /**
  * PricingCardsGrid component displays all pricing plans in a responsive grid or carousel
@@ -53,7 +48,8 @@ export function PricingCardsGrid() {
 
       // Find active subscription price
       const matchingPrice = product.prices.find(
-        (price) => price.type === 'subscription' && price.active === true
+        (price) =>
+          price.type === 'subscription' && price.active === true
       )
 
       return !!matchingPrice
@@ -110,7 +106,9 @@ export function PricingCardsGrid() {
       const getPriceValue = (priceStr: string) => {
         return parseFloat(priceStr.replace(/[$,]/g, '')) || 0
       }
-      return getPriceValue(a.displayPrice) - getPriceValue(b.displayPrice)
+      return (
+        getPriceValue(a.displayPrice) - getPriceValue(b.displayPrice)
+      )
     })
   }, [billing])
 
@@ -136,7 +134,10 @@ export function PricingCardsGrid() {
     const currentPriceIds = new Set(
       billing.currentSubscriptions
         .map((sub) => sub.priceId)
-        .filter((id): id is string => typeof id === 'string' && id.length > 0)
+        .filter(
+          (id): id is string =>
+            typeof id === 'string' && id.length > 0
+        )
     )
     return currentPriceIds.has(price.id)
   }
@@ -194,7 +195,10 @@ export function PricingCardsGrid() {
                 <CardContent className="flex-1 px-3 md:px-6 pt-0">
                   <ul className="space-y-1.5 md:space-y-3">
                     {[1, 2, 3, 4].map((j) => (
-                      <li key={j} className="flex items-start gap-1.5 md:gap-2">
+                      <li
+                        key={j}
+                        className="flex items-start gap-1.5 md:gap-2"
+                      >
                         <Skeleton className="h-3 w-3 md:h-4 md:w-4 mt-0.5 shrink-0 rounded-full" />
                         <Skeleton className="h-3 md:h-4 flex-1" />
                       </li>
@@ -220,7 +224,10 @@ export function PricingCardsGrid() {
           >
             <CarouselContent className="-ml-1">
               {plans.map((plan) => (
-                <CarouselItem key={plan.name} className="pl-1 basis-1/2">
+                <CarouselItem
+                  key={plan.name}
+                  className="pl-1 basis-1/2"
+                >
                   <div className="p-1 h-full">
                     <PricingCard
                       plan={plan}
@@ -249,5 +256,3 @@ export function PricingCardsGrid() {
     </div>
   )
 }
-
-

@@ -1,23 +1,23 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { authClient } from '@/lib/auth-client';
-import { Button } from '@/components/ui/button';
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { useState } from 'react'
+import { Button } from '@/components/ui/button'
+import { authClient } from '@/lib/auth-client'
 
 export default function SignUpPage() {
-  const router = useRouter();
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const router = useRouter()
+  const [name, setName] = useState('')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   async function onSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
+    e.preventDefault()
+    setLoading(true)
+    setError(null)
     await authClient.signUp.email(
       { name, email, password, callbackURL: '/?view=pricing' },
       {
@@ -25,13 +25,15 @@ export default function SignUpPage() {
         onSuccess: () => router.push('/?view=pricing'),
         onRequest: () => {},
       }
-    );
-    setLoading(false);
+    )
+    setLoading(false)
   }
 
   return (
     <div className="mx-auto max-w-sm px-4 py-12">
-      <h1 className="mb-6 text-xl font-semibold">Create your account</h1>
+      <h1 className="mb-6 text-xl font-semibold">
+        Create your account
+      </h1>
       <form onSubmit={onSubmit} className="space-y-4">
         <input
           value={name}
@@ -55,7 +57,9 @@ export default function SignUpPage() {
           className="w-full rounded border px-3 py-2"
           required
         />
-        {error ? <p className="text-sm text-red-600">{error}</p> : null}
+        {error ? (
+          <p className="text-sm text-red-600">{error}</p>
+        ) : null}
         <Button type="submit" disabled={loading} className="w-full">
           {loading ? 'Creating…' : 'Create account'}
         </Button>
@@ -71,5 +75,5 @@ export default function SignUpPage() {
         </p>
       </form>
     </div>
-  );
+  )
 }

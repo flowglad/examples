@@ -1,8 +1,10 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
-import { Check } from 'lucide-react';
-import { useBilling } from '@flowglad/nextjs';
+import { useBilling } from '@flowglad/nextjs'
+import { Check } from 'lucide-react'
+import { useState } from 'react'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import {
   Card,
   CardContent,
@@ -10,25 +12,23 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
+} from '@/components/ui/card'
+import { cn } from '@/lib/utils'
 
 export interface PricingPlan {
-  name: string;
-  description?: string;
-  displayPrice: string;
-  slug: string;
-  features: string[];
-  isPopular?: boolean;
+  name: string
+  description?: string
+  displayPrice: string
+  slug: string
+  features: string[]
+  isPopular?: boolean
 }
 
 interface PricingCardProps {
-  plan: PricingPlan;
-  isCurrentPlan?: boolean;
-  hideFeatures?: boolean;
-  isPremiumUser?: boolean;
+  plan: PricingPlan
+  isCurrentPlan?: boolean
+  hideFeatures?: boolean
+  isPremiumUser?: boolean
 }
 
 /**
@@ -40,64 +40,65 @@ export function PricingCard({
   hideFeatures = false,
   isPremiumUser = false,
 }: PricingCardProps) {
-  const billing = useBilling();
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const billing = useBilling()
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   if (!billing.loaded) {
-    return <div>Loading...</div>;
+    return <div>Loading...</div>
   }
 
   if (billing.errors) {
-    return <div>Error loading billing data</div>;
+    return <div>Error loading billing data</div>
   }
 
   if (!billing.loadBilling) {
-    return <div>Billing not available</div>;
+    return <div>Billing not available</div>
   }
 
-  const priceSlug = plan.slug;
+  const priceSlug = plan.slug
 
   // Check if this plan is a default plan by checking the pricing model
   const isDefaultPlan = (() => {
-    if (!billing.pricingModel?.products || !priceSlug) return false;
+    if (!billing.pricingModel?.products || !priceSlug) return false
 
     for (const product of billing.pricingModel.products) {
-      const price = product.prices?.find((p) => p.slug === priceSlug);
+      const price = product.prices?.find((p) => p.slug === priceSlug)
       if (price) {
         // Check if the product is default (e.g., Free Plan)
-        return product.default === true;
+        return product.default === true
       }
     }
-    return false;
-  })();
+    return false
+  })()
 
   const handleCheckout = async () => {
-    setError(null);
+    setError(null)
 
     // Check if billing is loaded
     if (!billing.loaded) {
       const errorMsg =
-        'Billing system not loaded yet. Please wait a moment and try again.';
-      setError(errorMsg);
-      return;
+        'Billing system not loaded yet. Please wait a moment and try again.'
+      setError(errorMsg)
+      return
     }
 
     if (!billing.createCheckoutSession || !billing.getPrice) {
-      const errorMsg = 'Billing system not available. Please refresh the page.';
-      setError(errorMsg);
-      return;
+      const errorMsg =
+        'Billing system not available. Please refresh the page.'
+      setError(errorMsg)
+      return
     }
 
     // Get price object from slug to get the price ID
-    const priceObj = billing.getPrice(priceSlug);
+    const priceObj = billing.getPrice(priceSlug)
     if (!priceObj) {
-      const errorMsg = `Price not found for "${priceSlug}". Please contact support.`;
-      setError(errorMsg);
-      return;
+      const errorMsg = `Price not found for "${priceSlug}". Please contact support.`
+      setError(errorMsg)
+      return
     }
 
-    setIsLoading(true);
+    setIsLoading(true)
     try {
       await billing.createCheckoutSession({
         priceId: priceObj.id,
@@ -105,17 +106,17 @@ export function PricingCard({
         cancelUrl: window.location.href,
         quantity: 1,
         autoRedirect: true,
-      });
+      })
     } catch (error) {
       const errorMsg =
         error instanceof Error
           ? error.message
-          : 'Failed to start checkout. Please try again.';
-      setError(errorMsg);
+          : 'Failed to start checkout. Please try again.'
+      setError(errorMsg)
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  };
+  }
 
   return (
     <Card
@@ -135,7 +136,9 @@ export function PricingCard({
       )}
 
       <CardHeader className="px-3 py-3 md:px-6 md:py-4">
-        <CardTitle className="text-lg md:text-2xl">{plan.name}</CardTitle>
+        <CardTitle className="text-lg md:text-2xl">
+          {plan.name}
+        </CardTitle>
         {plan.description && (
           <CardDescription className="text-xs md:text-base mt-1">
             {plan.description}
@@ -162,9 +165,14 @@ export function PricingCard({
               </li>
             ) : (
               plan.features.map((feature) => (
-                <li key={feature} className="flex items-start gap-1.5 md:gap-2">
+                <li
+                  key={feature}
+                  className="flex items-start gap-1.5 md:gap-2"
+                >
                   <Check className="mt-0.5 h-3 w-3 md:h-4 md:w-4 shrink-0 text-primary" />
-                  <span className="text-xs md:text-sm">{feature}</span>
+                  <span className="text-xs md:text-sm">
+                    {feature}
+                  </span>
                 </li>
               ))
             )}
@@ -197,10 +205,12 @@ export function PricingCard({
                   : 'Get Started'}
           </Button>
           {error && (
-            <p className="text-xs text-destructive text-center">{error}</p>
+            <p className="text-xs text-destructive text-center">
+              {error}
+            </p>
           )}
         </div>
       </CardFooter>
     </Card>
-  );
+  )
 }

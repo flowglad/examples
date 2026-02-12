@@ -1,21 +1,26 @@
-'use client';
+'use client'
 
-import { useEffect, useState, useRef } from 'react';
-import { authClient } from '@/lib/auth-client';
-import { useBilling } from '@flowglad/nextjs';
-import { computeUsageTotal } from '@/lib/billing-helpers';
-import { DashboardSkeleton } from '@/components/dashboard-skeleton';
-import { Progress } from '@/components/ui/progress';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useBilling } from '@flowglad/nextjs'
+import { Check, X } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
+import { DashboardSkeleton } from '@/components/dashboard-skeleton'
+import { Button } from '@/components/ui/button'
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
+import { Progress } from '@/components/ui/progress'
+import { Terminal } from '@/components/ui/terminal'
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from '@/components/ui/tooltip';
-import { Check, X } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { Terminal } from '@/components/ui/terminal';
+} from '@/components/ui/tooltip'
+import { authClient } from '@/lib/auth-client'
+import { computeUsageTotal } from '@/lib/billing-helpers'
+import { cn } from '@/lib/utils'
 
 // Fake code lines for terminal display
 const FAKE_CODE_LINES = [
@@ -39,31 +44,36 @@ const FAKE_CODE_LINES = [
   'tsc --noEmit',
   'bun run lint:fix',
   'git commit -m "feat: make internet money"',
-];
+]
 
 export function HomeClient() {
   const { data: session, isPending: isSessionPending } =
-    authClient.useSession();
-  const billing = useBilling();
-  const [isMakingFastRequest, setIsMakingFastRequest] = useState(false);
-  const [requestError, setRequestError] = useState<string | null>(null);
+    authClient.useSession()
+  const billing = useBilling()
+  const [isMakingFastRequest, setIsMakingFastRequest] =
+    useState(false)
+  const [requestError, setRequestError] = useState<string | null>(
+    null
+  )
   const [latestTerminalLine, setLatestTerminalLine] = useState<
     string | undefined
-  >(undefined);
-  const previousUserIdRef = useRef<string | undefined>(undefined);
+  >(undefined)
+  const previousUserIdRef = useRef<string | undefined>(undefined)
 
   // Helper function to add a random code line to terminal
   const addRandomCodeLine = () => {
     const randomLine =
-      FAKE_CODE_LINES[Math.floor(Math.random() * FAKE_CODE_LINES.length)];
+      FAKE_CODE_LINES[
+        Math.floor(Math.random() * FAKE_CODE_LINES.length)
+      ]
     if (randomLine) {
-      setLatestTerminalLine(randomLine);
+      setLatestTerminalLine(randomLine)
     }
-  };
+  }
 
   // Refetch billing data when user ID changes to prevent showing previous user's data
   useEffect(() => {
-    const currentUserId = session?.user?.id;
+    const currentUserId = session?.user?.id
     // Only refetch if user ID actually changed and billing is loaded
     if (
       currentUserId &&
@@ -71,16 +81,16 @@ export function HomeClient() {
       billing.loaded &&
       billing.reload
     ) {
-      previousUserIdRef.current = currentUserId;
-      billing.reload();
+      previousUserIdRef.current = currentUserId
+      billing.reload()
     } else if (currentUserId) {
       // Update ref even if we don't reload (e.g., on initial mount)
-      previousUserIdRef.current = currentUserId;
+      previousUserIdRef.current = currentUserId
     }
-  }, [session?.user?.id, billing]);
+  }, [session?.user?.id, billing])
 
   if (isSessionPending || !billing.loaded) {
-    return <DashboardSkeleton />;
+    return <DashboardSkeleton />
   }
 
   if (
@@ -88,122 +98,135 @@ export function HomeClient() {
     billing.errors !== null ||
     !billing.pricingModel
   ) {
-    return <DashboardSkeleton />;
+    return <DashboardSkeleton />
   }
 
   // Get current subscription plan
   // By default, each customer can only have one active subscription at a time,
   // so accessing the first currentSubscriptions is sufficient.
   // Multiple subscriptions per customer can be enabled in dashboard > settings
-  const currentSubscription = billing.currentSubscriptions?.[0];
-  const planName = currentSubscription?.name;
+  const currentSubscription = billing.currentSubscriptions?.[0]
+  const planName = currentSubscription?.name
 
   if (!billing.checkUsageBalance || !billing.checkFeatureAccess) {
-    return <DashboardSkeleton />;
+    return <DashboardSkeleton />
   }
 
   const fastRequestsBalance = billing.checkUsageBalance(
     'fast_premium_requests'
-  );
+  )
 
   // Check if user has access to usage meters (has balance object, even if balance is 0)
-  const hasFastRequestsAccess = fastRequestsBalance != null;
+  const hasFastRequestsAccess = fastRequestsBalance != null
 
   // Get feature access
-  const hasSlowRequests = billing.checkFeatureAccess('unlimited_slow_requests');
-  const hasCompletions = billing.checkFeatureAccess('unlimited_completions');
-  const hasBackgroundAgents = billing.checkFeatureAccess('background_agents');
-  const hasPriorityAccess = billing.checkFeatureAccess('priority_access');
+  const hasSlowRequests = billing.checkFeatureAccess(
+    'unlimited_slow_requests'
+  )
+  const hasCompletions = billing.checkFeatureAccess(
+    'unlimited_completions'
+  )
+  const hasBackgroundAgents = billing.checkFeatureAccess(
+    'background_agents'
+  )
+  const hasPriorityAccess =
+    billing.checkFeatureAccess('priority_access')
 
   // Calculate progress for usage meters - get slug from price using priceId
-  const fastRequestsRemaining = fastRequestsBalance?.availableBalance ?? 0;
+  const fastRequestsRemaining =
+    fastRequestsBalance?.availableBalance ?? 0
 
   // Compute plan totals dynamically from current subscription's feature items
   // This calculates how many usage credits (e.g., "360 fast premium requests")
   // are included in the current subscription plan
   const fastRequestsTotal = computeUsageTotal(
     'fast_premium_requests',
+    // @ts-expect-error - SDK type version mismatch
     currentSubscription,
     billing.pricingModel
-  );
+  )
   const fastRequestsProgress =
     fastRequestsTotal > 0
       ? Math.max(
           0,
-          Math.min((fastRequestsRemaining / fastRequestsTotal) * 100, 100)
+          Math.min(
+            (fastRequestsRemaining / fastRequestsTotal) * 100,
+            100
+          )
         )
-      : 0;
+      : 0
 
   // Action handlers
   const handleFastRequest = async () => {
     if (!hasFastRequestsAccess) {
-      return;
+      return
     }
 
-    setIsMakingFastRequest(true);
-    setRequestError(null);
+    setIsMakingFastRequest(true)
+    setRequestError(null)
 
     try {
       if (!billing.createUsageEvent) {
-        throw new Error('createUsageEvent is not available');
+        throw new Error('createUsageEvent is not available')
       }
       const result = await billing.createUsageEvent({
         usageMeterSlug: 'fast_premium_requests',
-      });
+      })
 
       if ('error' in result) {
-        const errorMsg = result.error.json?.error ?? result.error.json?.message;
+        const errorMsg =
+          result.error.json?.error ?? result.error.json?.message
         throw new Error(
           (typeof errorMsg === 'string' ? errorMsg : null) ||
             'Failed to create usage event'
-        );
+        )
       }
 
       // Reload billing data to update usage balances
-      await billing.reload();
+      await billing.reload()
 
       // Add random code line to terminal only after successful request
-      addRandomCodeLine();
+      addRandomCodeLine()
     } catch (error) {
       setRequestError(
         error instanceof Error
           ? error.message
           : 'Failed to make fast premium request. Please try again.'
-      );
+      )
     } finally {
-      setIsMakingFastRequest(false);
+      setIsMakingFastRequest(false)
     }
-  };
+  }
 
   const handleSlowRequest = () => {
     if (!hasSlowRequests) {
-      return;
+      return
     }
 
-    addRandomCodeLine();
+    addRandomCodeLine()
     // Slow requests are unlimited, so we don't create usage events
     // In a real implementation, this would trigger a slow AI coding request
-  };
+  }
 
   const handleCompletions = () => {
     if (!hasCompletions) {
-      return;
+      return
     }
 
-    addRandomCodeLine();
+    addRandomCodeLine()
     // Completions are unlimited
     // In a real implementation, this would trigger code completions
-  };
+  }
 
   const handleBackgroundAgents = () => {
     if (!hasBackgroundAgents) {
-      return;
+      return
     }
 
-    addRandomCodeLine();
+    addRandomCodeLine()
     // Background agents are unlimited
     // In a real implementation, this would trigger a background agent task
-  };
+  }
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background">
@@ -211,6 +234,7 @@ export function HomeClient() {
         <div className="w-full space-y-8">
           {/* Terminal Component */}
           <div className="max-w-2xl mx-auto">
+            {/* @ts-expect-error - SDK type version mismatch */}
             <Terminal newLine={latestTerminalLine} />
           </div>
 
@@ -240,7 +264,9 @@ export function HomeClient() {
                       <X className="h-4 w-4" strokeWidth={2.5} />
                     )}
                   </div>
-                  <span className="text-sm font-medium">Priority Access</span>
+                  <span className="text-sm font-medium">
+                    Priority Access
+                  </span>
                 </div>
               </div>
             </CardHeader>
@@ -267,7 +293,8 @@ export function HomeClient() {
                       </Button>
                     </span>
                   </TooltipTrigger>
-                  {(!hasFastRequestsAccess || fastRequestsRemaining === 0) && (
+                  {(!hasFastRequestsAccess ||
+                    fastRequestsRemaining === 0) && (
                     <TooltipContent>
                       {!hasFastRequestsAccess
                         ? 'Not available in your plan'
@@ -292,7 +319,9 @@ export function HomeClient() {
                     </span>
                   </TooltipTrigger>
                   {!hasSlowRequests && (
-                    <TooltipContent>Not available in your plan</TooltipContent>
+                    <TooltipContent>
+                      Not available in your plan
+                    </TooltipContent>
                   )}
                 </Tooltip>
 
@@ -312,7 +341,9 @@ export function HomeClient() {
                     </span>
                   </TooltipTrigger>
                   {!hasCompletions && (
-                    <TooltipContent>Not available in your plan</TooltipContent>
+                    <TooltipContent>
+                      Not available in your plan
+                    </TooltipContent>
                   )}
                 </Tooltip>
 
@@ -332,7 +363,9 @@ export function HomeClient() {
                     </span>
                   </TooltipTrigger>
                   {!hasBackgroundAgents && (
-                    <TooltipContent>Not available in your plan</TooltipContent>
+                    <TooltipContent>
+                      Not available in your plan
+                    </TooltipContent>
                   )}
                 </Tooltip>
 
@@ -351,7 +384,8 @@ export function HomeClient() {
                 <div className="space-y-6">
                   {/* Fast Premium Requests Meter */}
                   {/* Show if user has access OR if we have a balance (even if total is 0, show remaining) */}
-                  {(hasFastRequestsAccess || fastRequestsRemaining > 0) && (
+                  {(hasFastRequestsAccess ||
+                    fastRequestsRemaining > 0) && (
                     <div className="space-y-2">
                       <div className="flex items-center justify-between">
                         <span className="text-sm font-medium">
@@ -366,19 +400,27 @@ export function HomeClient() {
                         </span>
                       </div>
                       <Progress
-                        value={fastRequestsTotal > 0 ? fastRequestsProgress : 0}
+                        value={
+                          fastRequestsTotal > 0
+                            ? fastRequestsProgress
+                            : 0
+                        }
                         className="w-full"
                       />
-                      {fastRequestsRemaining <= 0 && hasFastRequestsAccess && (
-                        <div className="rounded-md bg-muted/50 border border-border p-3 mt-2">
-                          <p className="text-sm text-muted-foreground">
-                            <span className="font-medium">Usage Overages:</span>{' '}
-                            You've used all included requests. Additional fast
-                            premium requests will be charged at the overage rate
-                            based on your plan's usage pricing.
-                          </p>
-                        </div>
-                      )}
+                      {fastRequestsRemaining <= 0 &&
+                        hasFastRequestsAccess && (
+                          <div className="rounded-md bg-muted/50 border border-border p-3 mt-2">
+                            <p className="text-sm text-muted-foreground">
+                              <span className="font-medium">
+                                Usage Overages:
+                              </span>{' '}
+                              You've used all included requests.
+                              Additional fast premium requests will be
+                              charged at the overage rate based on
+                              your plan's usage pricing.
+                            </p>
+                          </div>
+                        )}
                     </div>
                   )}
                 </div>
@@ -388,5 +430,5 @@ export function HomeClient() {
         </div>
       </main>
     </div>
-  );
+  )
 }

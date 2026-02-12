@@ -1,6 +1,6 @@
 import { FlowgladServer } from '@flowglad/nextjs/server'
-import { auth } from '@/lib/auth'
 import { headers } from 'next/headers'
+import { auth } from '@/lib/auth'
 
 export const flowglad = (customerExternalId: string) => {
   return new FlowgladServer({
@@ -8,16 +8,16 @@ export const flowglad = (customerExternalId: string) => {
     getCustomerDetails: async () => {
       const session = await auth.api.getSession({
         headers: await headers(),
-      });
+      })
 
       if (!session?.user) {
-        throw new Error('User not authenticated');
+        throw new Error('User not authenticated')
       }
 
       return {
         email: session.user.email || '',
         name: session.user.name || '',
-      };
+      }
     },
-  });
-};
+  })
+}

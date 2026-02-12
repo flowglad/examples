@@ -1,44 +1,54 @@
-'use client';
-import { useEffect, useState, useRef } from 'react';
-import { authClient } from '@/lib/auth-client';
-import { useBilling } from '@flowglad/nextjs';
-import { DashboardSkeleton } from '@/components/dashboard-skeleton';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+'use client'
+import { useBilling } from '@flowglad/nextjs'
+import { useEffect, useRef, useState } from 'react'
+import { DashboardSkeleton } from '@/components/dashboard-skeleton'
+import { Button } from '@/components/ui/button'
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { ScrollArea } from '@/components/ui/scroll-area'
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from '@/components/ui/tooltip';
-import { Input } from '@/components/ui/input';
-import { cn } from '@/lib/utils';
-import { ScrollArea } from '@/components/ui/scroll-area';
+} from '@/components/ui/tooltip'
+import { authClient } from '@/lib/auth-client'
+import { cn } from '@/lib/utils'
 
 const mockMessages = [
   'Hi! This is a sample message.',
   'Hey there, this is another sample message.',
   'Hello, this is a different sample message.',
-];
+]
 
 export function HomeClient() {
   const { data: session, isPending: isSessionPending } =
-    authClient.useSession();
-  const billing = useBilling();
+    authClient.useSession()
+  const billing = useBilling()
 
-  const [isGenerating, setIsGenerating] = useState<boolean>(false);
-  const [generateError, setGenerateError] = useState<string | null>(null);
-  const [topUpError, setTopUpError] = useState<string | null>(null);
-  const [messageInput, setMessageInput] = useState<string | null>(null);
-  const [currentMessageIndex, setCurrentMessageIndex] = useState<number>(0);
+  const [isGenerating, setIsGenerating] = useState<boolean>(false)
+  const [generateError, setGenerateError] = useState<string | null>(
+    null
+  )
+  const [topUpError, setTopUpError] = useState<string | null>(null)
+  const [messageInput, setMessageInput] = useState<string | null>(
+    null
+  )
+  const [currentMessageIndex, setCurrentMessageIndex] =
+    useState<number>(0)
   const [messages, setMessages] = useState<
     Array<{ type: 'user' | 'assistant'; content: string }>
-  >([]);
-  const previousUserIdRef = useRef<string | undefined>(undefined);
-  const autoScrollDiv = useRef<HTMLDivElement>(null); // ref for auto scrolling chat
+  >([])
+  const previousUserIdRef = useRef<string | undefined>(undefined)
+  const autoScrollDiv = useRef<HTMLDivElement>(null) // ref for auto scrolling chat
 
   // Refetch billing data when user ID changes to prevent showing previous user's data
   useEffect(() => {
-    const currentUserId = session?.user?.id;
+    const currentUserId = session?.user?.id
     // Only refetch if user ID actually changed and billing is loaded
     if (
       currentUserId &&
@@ -46,21 +56,21 @@ export function HomeClient() {
       billing.loaded &&
       billing.reload
     ) {
-      previousUserIdRef.current = currentUserId;
-      billing.reload();
+      previousUserIdRef.current = currentUserId
+      billing.reload()
     } else if (currentUserId) {
       // Update ref even if we don't reload (e.g., on initial mount)
-      previousUserIdRef.current = currentUserId;
+      previousUserIdRef.current = currentUserId
     }
-  }, [session?.user?.id, billing]);
+  }, [session?.user?.id, billing])
 
   // whenever chat history changes, scroll to bottom of chat thread
   useEffect(() => {
-    autoScrollDiv.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+    autoScrollDiv.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [messages])
 
   if (isSessionPending || !billing.loaded) {
-    return <DashboardSkeleton />;
+    return <DashboardSkeleton />
   }
 
   if (
@@ -68,35 +78,36 @@ export function HomeClient() {
     billing.errors !== null ||
     !billing.pricingModel
   ) {
-    return <DashboardSkeleton />;
+    return <DashboardSkeleton />
   }
 
   // Get current subscription plan (free plan since that's the default and only plan)
-  const currentSubscription = billing.currentSubscriptions?.[0];
-  const planName = currentSubscription?.name || 'Unknown Plan';
+  const currentSubscription = billing.currentSubscriptions?.[0]
+  const planName = currentSubscription?.name || 'Unknown Plan'
 
   if (!billing.checkUsageBalance || !billing.checkFeatureAccess) {
-    return <DashboardSkeleton />;
+    return <DashboardSkeleton />
   }
 
   const messageGenerationsBalance =
-    billing.checkUsageBalance('message_credits');
+    billing.checkUsageBalance('message_credits')
 
   // Check if user has access to usage meter (has balance object, even if balance is 0)
-  const hasMessageGenerationsAccess = messageGenerationsBalance != null;
+  const hasMessageGenerationsAccess =
+    messageGenerationsBalance != null
 
   // Number of credits a user has left, if any, using usage meter slug
   const messageGenerationsRemaining =
-    messageGenerationsBalance?.availableBalance ?? 0;
+    messageGenerationsBalance?.availableBalance ?? 0
 
   // Action handlers
   const handleGenerateMessage = async () => {
     if (!messageInput || messageGenerationsRemaining === 0) {
-      return;
+      return
     }
 
-    setIsGenerating(true);
-    setGenerateError(null);
+    setIsGenerating(true)
+    setGenerateError(null)
 
     setMessages((msgs) => [
       ...msgs,
@@ -104,32 +115,34 @@ export function HomeClient() {
         type: 'user',
         content: messageInput || '',
       },
-    ]);
+    ])
 
-    setMessageInput(null);
+    setMessageInput(null)
 
     try {
       if (!billing.createUsageEvent) {
-        throw new Error('createUsageEvent is not available');
+        throw new Error('createUsageEvent is not available')
       }
 
       const result = await billing.createUsageEvent({
         usageMeterSlug: 'message_credits',
         amount: 1,
-      });
+      })
 
       if ('error' in result) {
-        const errorMsg = result.error.json?.error ?? result.error.json?.message;
+        const errorMsg =
+          result.error.json?.error ?? result.error.json?.message
         throw new Error(
           (typeof errorMsg === 'string' ? errorMsg : null) ||
             'Failed to create usage event'
-        );
+        )
       }
 
       // Cycle through mock messages
-      const nextIndex = (currentMessageIndex + 1) % mockMessages.length;
-      setCurrentMessageIndex(nextIndex);
-      const nextMessage = mockMessages[nextIndex];
+      const nextIndex =
+        (currentMessageIndex + 1) % mockMessages.length
+      setCurrentMessageIndex(nextIndex)
+      const nextMessage = mockMessages[nextIndex]
       if (nextMessage) {
         // add user message again and add response to the chat history (avoids double state update problem)
         setMessages((msgs) => [
@@ -138,35 +151,35 @@ export function HomeClient() {
             type: 'assistant',
             content: nextMessage,
           },
-        ]);
+        ])
       }
 
       // Reload billing data to update usage balances
-      await billing.reload();
+      await billing.reload()
     } catch (error) {
       // remove user message from chat history
-      setMessages((msgs) => msgs.slice(0, -1));
+      setMessages((msgs) => msgs.slice(0, -1))
       setGenerateError(
         error instanceof Error
           ? error.message
           : 'Failed to generate message. Please try again.'
-      );
+      )
     } finally {
-      setIsGenerating(false);
+      setIsGenerating(false)
     }
-  };
+  }
 
   const handlePurchaseMessageTopUp = async () => {
     if (!billing.createCheckoutSession || !billing.getPrice) {
-      return;
+      return
     }
 
-    setTopUpError(null);
+    setTopUpError(null)
 
-    const price = billing.getPrice('message_topup');
+    const price = billing.getPrice('message_topup')
     if (!price) {
-      setTopUpError('Price not found. Please contact support.');
-      return;
+      setTopUpError('Price not found. Please contact support.')
+      return
     }
 
     try {
@@ -176,15 +189,15 @@ export function HomeClient() {
         cancelUrl: window.location.href,
         quantity: 1,
         autoRedirect: true,
-      });
+      })
     } catch (error) {
       setTopUpError(
         error instanceof Error
           ? error.message
           : 'Failed to start checkout. Please try again.'
-      );
+      )
     }
-  };
+  }
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background">
@@ -255,7 +268,9 @@ export function HomeClient() {
                     key={i}
                     className={cn(
                       'w-full flex',
-                      m.type === 'assistant' ? 'justify-start ' : 'justify-end'
+                      m.type === 'assistant'
+                        ? 'justify-start '
+                        : 'justify-end'
                     )}
                   >
                     <p
@@ -280,7 +295,9 @@ export function HomeClient() {
                 <div>
                   <div className="flex items-center gap-4">
                     <Input
-                      onChange={(e) => setMessageInput(e.target.value)}
+                      onChange={(e) =>
+                        setMessageInput(e.target.value)
+                      }
                       value={messageInput || ''}
                       placeholder="Type something..."
                       className="flex-[0.75] w-full"
@@ -294,15 +311,20 @@ export function HomeClient() {
                             className="w-full transition-transform hover:-translate-y-px"
                             // size="sm"
                             disabled={
-                              messageGenerationsRemaining === 0 || isGenerating
+                              messageGenerationsRemaining === 0 ||
+                              isGenerating
                             }
                           >
-                            {isGenerating ? 'Generating...' : 'Generate'}
+                            {isGenerating
+                              ? 'Generating...'
+                              : 'Generate'}
                           </Button>
                         </span>
                       </TooltipTrigger>
                       {messageGenerationsRemaining === 0 && (
-                        <TooltipContent>No Credits Remaining</TooltipContent>
+                        <TooltipContent>
+                          No Credits Remaining
+                        </TooltipContent>
                       )}
                     </Tooltip>
                   </div>
@@ -318,5 +340,5 @@ export function HomeClient() {
         </div>
       </main>
     </div>
-  );
+  )
 }

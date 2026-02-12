@@ -1,5 +1,5 @@
 {
-  "name": "generation-based-subscription",
+  "name": "@flowglad-examples/tanstack-start-generation-based-subscription",
   "private": true,
   "type": "module",
   "scripts": {
@@ -7,9 +7,10 @@
     "build": "vite build",
     "preview": "vite preview",
     "test": "vitest run",
-    "lint": "eslint",
-    "format": "prettier",
-    "check": "prettier --write . && eslint --fix",
+    "lint": "bunx @biomejs/biome check .",
+    "format": "bunx @biomejs/biome check --write .",
+    "check": "bunx @biomejs/biome check .",
+    "typecheck": "tsc --noEmit",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
@@ -54,7 +55,6 @@
   },
   "devDependencies": {
     "@tanstack/devtools-vite": "^0.3.11",
-    "@tanstack/eslint-config": "^0.3.0",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/react": "^16.2.0",
     "@types/node": "^22.10.2",
@@ -65,7 +65,6 @@
     "dotenv": "^16.0.0",
     "esbuild": "^0.24.0",
     "jsdom": "^27.0.0",
-    "prettier": "^3.5.3",
     "tsx": "^4.0.0",
     "typescript": "^5.7.2",
     "vite": "^7.1.7",

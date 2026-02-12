@@ -1,8 +1,8 @@
-import { defineConfig } from 'drizzle-kit';
-import dotenv from 'dotenv';
+import dotenv from 'dotenv'
+import { defineConfig } from 'drizzle-kit'
 
 // Prefer .env.local for local development (Next.js convention)
-dotenv.config({ path: '.env.local' });
+dotenv.config({ path: '.env.local' })
 
 export default defineConfig({
   out: './drizzle',
@@ -11,4 +11,4 @@ export default defineConfig({
   dbCredentials: {
     url: process.env.DATABASE_URL ?? '',
   },
-});
+})

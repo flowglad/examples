@@ -1,21 +1,18 @@
+import { FlowgladProvider } from '@flowglad/react'
+import { TooltipProvider } from '@radix-ui/react-tooltip'
+import { TanStackDevtools } from '@tanstack/react-devtools'
+import type { QueryClient } from '@tanstack/react-query'
 import {
+  createRootRouteWithContext,
   HeadContent,
   Outlet,
   Scripts,
-  createRootRouteWithContext,
 } from '@tanstack/react-router'
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
-import { TanStackDevtools } from '@tanstack/react-devtools'
-import { FlowgladProvider } from '@flowglad/react'
-import { TooltipProvider } from '@radix-ui/react-tooltip'
-
 import { Navbar } from '../components/navbar'
 import TanStackQueryDevtools from '../integrations/tanstack-query/devtools'
 import { authClient } from '../lib/auth-client'
-
 import appCss from '../styles.css?url'
-
-import type { QueryClient } from '@tanstack/react-query'
 
 interface MyRouterContext {
   queryClient: QueryClient

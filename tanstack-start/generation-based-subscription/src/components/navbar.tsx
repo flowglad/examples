@@ -1,8 +1,9 @@
-import { useState } from 'react'
-import { useNavigate } from '@tanstack/react-router'
-import { useQueryClient } from '@tanstack/react-query'
-import { authClient } from '../lib/auth-client'
 import { useBilling } from '@flowglad/react'
+import { useQueryClient } from '@tanstack/react-query'
+import { useNavigate } from '@tanstack/react-router'
+import { useState } from 'react'
+import { authClient } from '../lib/auth-client'
+import { Button } from './ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,12 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from './ui/dropdown-menu'
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from './ui/tooltip'
-import { Button } from './ui/button'
+import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip'
 
 export function Navbar() {
   const navigate = useNavigate()
@@ -90,7 +86,8 @@ export function Navbar() {
     return null
   }
 
-  const accountName = session.user.name || session.user.email || 'Account'
+  const accountName =
+    session.user.name || session.user.email || 'Account'
   // By default, each customer can only have one active subscription at a time,
   // so accessing the first currentSubscriptions is sufficient.
   // Multiple subscriptions per customer can be enabled in dashboard > settings
@@ -107,14 +104,13 @@ export function Navbar() {
   // Format cancellation date for display
   // cancelScheduledAt is in milliseconds (Unix timestamp)
   const cancellationDate = currentSubscription?.cancelScheduledAt
-    ? new Date(currentSubscription.cancelScheduledAt).toLocaleDateString(
-        'en-US',
-        {
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric',
-        }
-      )
+    ? new Date(
+        currentSubscription.cancelScheduledAt
+      ).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      })
     : null
 
   return (
@@ -128,7 +124,9 @@ export function Navbar() {
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>Account Actions</DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onSelect={handleSignOut}>Log out</DropdownMenuItem>
+          <DropdownMenuItem onSelect={handleSignOut}>
+            Log out
+          </DropdownMenuItem>
           {!currentSubscription?.isFreePlan && (
             <>
               <Tooltip>
@@ -137,14 +135,20 @@ export function Navbar() {
                     <DropdownMenuItem
                       onSelect={handleCancelSubscription}
                       disabled={Boolean(
-                        isCancelling || !currentSubscription || isCancelled
+                        isCancelling ||
+                          !currentSubscription ||
+                          isCancelled
                       )}
                       variant="destructive"
                       className={
-                        isCancelled ? 'opacity-60 text-destructive/70' : ''
+                        isCancelled
+                          ? 'opacity-60 text-destructive/70'
+                          : ''
                       }
                     >
-                      {isCancelling ? 'Cancelling...' : 'Cancel Subscription'}
+                      {isCancelling
+                        ? 'Cancelling...'
+                        : 'Cancel Subscription'}
                     </DropdownMenuItem>
                   </span>
                 </TooltipTrigger>
@@ -158,7 +162,10 @@ export function Navbar() {
                 )}
               </Tooltip>
               {cancelError && (
-                <DropdownMenuItem disabled className="text-destructive text-xs">
+                <DropdownMenuItem
+                  disabled
+                  className="text-destructive text-xs"
+                >
                   {cancelError}
                 </DropdownMenuItem>
               )}
@@ -169,5 +176,3 @@ export function Navbar() {
     </nav>
   )
 }
-
-

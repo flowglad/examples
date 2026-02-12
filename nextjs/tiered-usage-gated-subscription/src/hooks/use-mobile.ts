@@ -1,6 +1,6 @@
-'use client';
+'use client'
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react'
 
 /**
  * Hook to detect if the screen width is below a certain breakpoint
@@ -8,24 +8,24 @@ import { useEffect, useState } from 'react';
  * @returns boolean indicating if the screen is below the breakpoint
  */
 export function useMobile(breakpoint: number = 768): boolean {
-  const [isMobile, setIsMobile] = useState<boolean>(false);
+  const [isMobile, setIsMobile] = useState<boolean>(false)
 
   useEffect(() => {
     const checkMobile = () => {
-      setIsMobile(window.innerWidth < breakpoint);
-    };
+      setIsMobile(window.innerWidth < breakpoint)
+    }
 
     // Check on mount
-    checkMobile();
+    checkMobile()
 
     // Add event listener
-    window.addEventListener('resize', checkMobile);
+    window.addEventListener('resize', checkMobile)
 
     // Cleanup
     return () => {
-      window.removeEventListener('resize', checkMobile);
-    };
-  }, [breakpoint]);
+      window.removeEventListener('resize', checkMobile)
+    }
+  }, [breakpoint])
 
-  return isMobile;
+  return isMobile
 }

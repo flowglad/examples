@@ -1,4 +1,9 @@
-import type { BillingWithChecks, Price, Product, UsageMeter } from '@flowglad/shared'
+import type {
+  BillingWithChecks,
+  Price,
+  Product,
+  UsageMeter,
+} from '@flowglad/shared'
 
 type UsageMeterSlug = 'fast_generations' | 'hd_video_minutes'
 
@@ -98,11 +103,15 @@ export function findUsagePriceByMeterSlug(
   usageMeterSlug: string,
   pricingModel: BillingWithChecks['pricingModel'] | undefined
 ): Price | null {
-  if (!pricingModel?.products || !pricingModel?.usageMeters) return null
+  if (!pricingModel?.products || !pricingModel?.usageMeters)
+    return null
 
   // Build lookup map: slug -> id
   const meterIdBySlug = new Map(
-    pricingModel.usageMeters.map((meter: UsageMeter) => [meter.slug, meter.id])
+    pricingModel.usageMeters.map((meter: UsageMeter) => [
+      meter.slug,
+      meter.id,
+    ])
   )
 
   const usageMeterId = meterIdBySlug.get(usageMeterSlug)
@@ -134,7 +143,9 @@ export function isDefaultPlanBySlug(
   if (!pricingModel?.products || !priceSlug) return false
 
   for (const product of pricingModel.products) {
-    const price = product.prices?.find((p: Price) => p.slug === priceSlug)
+    const price = product.prices?.find(
+      (p: Price) => p.slug === priceSlug
+    )
     if (price) {
       // Check if the product is default (e.g., Free Plan)
       return product.default === true
@@ -142,5 +153,3 @@ export function isDefaultPlanBySlug(
   }
   return false
 }
-
-

@@ -1,20 +1,25 @@
-'use client';
+'use client'
 
-import { useEffect, useState, useRef } from 'react';
-import { useRouter } from 'next/navigation';
-import Image from 'next/image';
-import { authClient } from '@/lib/auth-client';
-import { useBilling } from '@flowglad/nextjs';
-import { computeUsageTotal } from '@/lib/billing-helpers';
-import { DashboardSkeleton } from '@/components/dashboard-skeleton';
-import { Progress } from '@/components/ui/progress';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useBilling } from '@flowglad/nextjs'
+import Image from 'next/image'
+import { useRouter } from 'next/navigation'
+import { useEffect, useRef, useState } from 'react'
+import { DashboardSkeleton } from '@/components/dashboard-skeleton'
+import { Button } from '@/components/ui/button'
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
+import { Progress } from '@/components/ui/progress'
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from '@/components/ui/tooltip';
+} from '@/components/ui/tooltip'
+import { authClient } from '@/lib/auth-client'
+import { computeUsageTotal } from '@/lib/billing-helpers'
 
 // Mock images to cycle through
 const mockImages = [
@@ -24,36 +29,45 @@ const mockImages = [
   '/images/unsplash-3.jpg',
   '/images/unsplash-4.jpg',
   '/images/unsplash-5.jpg',
-];
+]
 
 // Mock GIFs for video generation
 const mockVideoGif = [
   'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExd252Y2NwNG5vdmQxMXl6cWxsMWNpYzV0ZnU3a3UwbGhtcHFkZTNoMCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/a6OnFHzHgCU1O/giphy.gif',
   'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNnNyOXhnNXp3cTJnaWw1OGZodXducHlzeThvbTBwdDc4cGw5OWFuZyZlcD12MV9naWZzX3NlYXJjaCZjdD1n/WI4A2fVnRBiYE/giphy.gif',
   'https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3OWN6emx1M2JpM3lkczB4Y2Y2M3U5ejgyNzNmbnJnM2ZqMDlvb3B4ciZlcD12MV9naWZzX3RyZW5kaW5nJmN0PWc/pa37AAGzKXoek/giphy.gif',
-];
+]
 
 export function HomeClient() {
-  const router = useRouter();
+  const router = useRouter()
   const { data: session, isPending: isSessionPending } =
-    authClient.useSession();
-  const billing = useBilling();
-  const [isGeneratingFastImage, setIsGeneratingFastImage] = useState(false);
-  const [isGeneratingHDVideo, setIsGeneratingHDVideo] = useState(false);
-  const [isGeneratingRelaxImage, setIsGeneratingRelaxImage] = useState(false);
+    authClient.useSession()
+  const billing = useBilling()
+  const [isGeneratingFastImage, setIsGeneratingFastImage] =
+    useState(false)
+  const [isGeneratingHDVideo, setIsGeneratingHDVideo] =
+    useState(false)
+  const [isGeneratingRelaxImage, setIsGeneratingRelaxImage] =
+    useState(false)
   const [isGeneratingRelaxSDVideo, setIsGeneratingRelaxSDVideo] =
-    useState(false);
-  const [generateError, setGenerateError] = useState<string | null>(null);
-  const [hdVideoError, setHdVideoError] = useState<string | null>(null);
-  const [topUpError, setTopUpError] = useState<string | null>(null);
-  const [displayedContent, setDisplayedContent] = useState<string | null>(null);
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [currentVideoGifIndex, setCurrentVideoGifIndex] = useState(0);
-  const previousUserIdRef = useRef<string | undefined>(undefined);
+    useState(false)
+  const [generateError, setGenerateError] = useState<string | null>(
+    null
+  )
+  const [hdVideoError, setHdVideoError] = useState<string | null>(
+    null
+  )
+  const [topUpError, setTopUpError] = useState<string | null>(null)
+  const [displayedContent, setDisplayedContent] = useState<
+    string | null
+  >(null)
+  const [currentImageIndex, setCurrentImageIndex] = useState(0)
+  const [currentVideoGifIndex, setCurrentVideoGifIndex] = useState(0)
+  const previousUserIdRef = useRef<string | undefined>(undefined)
 
   // Refetch billing data when user ID changes to prevent showing previous user's data
   useEffect(() => {
-    const currentUserId = session?.user?.id;
+    const currentUserId = session?.user?.id
     // Only refetch if user ID actually changed and billing is loaded
     if (
       currentUserId &&
@@ -61,18 +75,18 @@ export function HomeClient() {
       billing.loaded &&
       billing.reload
     ) {
-      previousUserIdRef.current = currentUserId;
-      billing.reload();
+      previousUserIdRef.current = currentUserId
+      billing.reload()
     } else if (currentUserId) {
       // Update ref even if we don't reload (e.g., on initial mount)
-      previousUserIdRef.current = currentUserId;
+      previousUserIdRef.current = currentUserId
     }
-  }, [session?.user?.id, billing]);
+  }, [session?.user?.id, billing])
 
   // Check if user is on free plan and redirect to pricing page
   useEffect(() => {
     if (isSessionPending || !billing.loaded) {
-      return;
+      return
     }
 
     // Check if user has at least one non-free plan subscription
@@ -80,16 +94,21 @@ export function HomeClient() {
     const hasNonFreePlan =
       billing.currentSubscriptions &&
       billing.currentSubscriptions.length > 0 &&
-      billing.currentSubscriptions.some((sub) => !sub.isFreePlan);
+      billing.currentSubscriptions.some((sub) => !sub.isFreePlan)
 
     // If user is on free plan (no non-free plan found), redirect to pricing
     if (!hasNonFreePlan) {
-      router.push('/pricing');
+      router.push('/pricing')
     }
-  }, [isSessionPending, billing.loaded, billing.currentSubscriptions, router]);
+  }, [
+    isSessionPending,
+    billing.loaded,
+    billing.currentSubscriptions,
+    router,
+  ])
 
   if (isSessionPending || !billing.loaded) {
-    return <DashboardSkeleton />;
+    return <DashboardSkeleton />
   }
 
   if (
@@ -97,212 +116,231 @@ export function HomeClient() {
     billing.errors !== null ||
     !billing.pricingModel
   ) {
-    return <DashboardSkeleton />;
+    return <DashboardSkeleton />
   }
 
   // Get current subscription plan
   // By default, each customer can only have one active subscription at a time,
   // so accessing the first currentSubscriptions is sufficient.
   // Multiple subscriptions per customer can be enabled in dashboard > settings
-  const currentSubscription = billing.currentSubscriptions?.[0];
-  const planName = currentSubscription?.name || 'Unknown Plan';
+  const currentSubscription = billing.currentSubscriptions?.[0]
+  const planName = currentSubscription?.name || 'Unknown Plan'
 
   if (!billing.checkUsageBalance || !billing.checkFeatureAccess) {
-    return <DashboardSkeleton />;
+    return <DashboardSkeleton />
   }
 
-  const fastGenerationsBalance = billing.checkUsageBalance('fast_generations');
-  const hdVideoMinutesBalance = billing.checkUsageBalance('hd_video_minutes');
+  const fastGenerationsBalance = billing.checkUsageBalance(
+    'fast_generations'
+  )
+  const hdVideoMinutesBalance = billing.checkUsageBalance(
+    'hd_video_minutes'
+  )
 
   // Check if user has access to usage meters (has balance object, even if balance is 0)
-  const hasFastGenerationsAccess = fastGenerationsBalance != null;
-  const hasHDVideoMinutesAccess = hdVideoMinutesBalance != null;
+  const hasFastGenerationsAccess = fastGenerationsBalance != null
+  const hasHDVideoMinutesAccess = hdVideoMinutesBalance != null
 
   // Get feature access
-  const hasRelaxMode = !!billing.checkFeatureAccess('unlimited_relaxed_images');
+  const hasRelaxMode = !!billing.checkFeatureAccess(
+    'unlimited_relaxed_images'
+  )
   const hasUnlimitedRelaxedSDVideo = !!billing.checkFeatureAccess(
     'unlimited_relaxed_sd_video'
-  );
+  )
   const hasOptionalTopUps = !!billing.checkFeatureAccess(
     'optional_credit_top_ups'
-  );
+  )
 
   // Calculate progress for usage meters - get slug from price using priceId
   const fastGenerationsRemaining =
-    fastGenerationsBalance?.availableBalance ?? 0;
+    fastGenerationsBalance?.availableBalance ?? 0
 
   // Compute plan totals dynamically from current subscription's feature items
   // This calculates how many usage credits (e.g., "360 fast generations")
   // are included in the current subscription plan
   const fastGenerationsTotal = computeUsageTotal(
     'fast_generations',
+    // @ts-expect-error - SDK type version mismatch
     currentSubscription,
     billing.pricingModel
-  );
+  )
   const fastGenerationsProgress =
     fastGenerationsTotal > 0
-      ? Math.min((fastGenerationsRemaining / fastGenerationsTotal) * 100, 100)
-      : 0;
+      ? Math.min(
+          (fastGenerationsRemaining / fastGenerationsTotal) * 100,
+          100
+        )
+      : 0
 
-  const hdVideoMinutesRemaining = hdVideoMinutesBalance?.availableBalance ?? 0;
+  const hdVideoMinutesRemaining =
+    hdVideoMinutesBalance?.availableBalance ?? 0
   const hdVideoMinutesTotal = computeUsageTotal(
     'hd_video_minutes',
+    // @ts-expect-error - SDK type version mismatch
     currentSubscription,
     billing.pricingModel
-  );
+  )
   const hdVideoMinutesProgress =
     hdVideoMinutesTotal > 0
-      ? Math.min((hdVideoMinutesRemaining / hdVideoMinutesTotal) * 100, 100)
-      : 0;
+      ? Math.min(
+          (hdVideoMinutesRemaining / hdVideoMinutesTotal) * 100,
+          100
+        )
+      : 0
 
   // Action handlers
   const handleGenerateFastImage = async () => {
     if (!hasFastGenerationsAccess || fastGenerationsRemaining === 0) {
-      return;
+      return
     }
 
-    setIsGeneratingFastImage(true);
-    setGenerateError(null);
+    setIsGeneratingFastImage(true)
+    setGenerateError(null)
 
     try {
       if (!billing.createUsageEvent) {
-        throw new Error('createUsageEvent is not available');
+        throw new Error('createUsageEvent is not available')
       }
 
       // Random amount between 3-5
-      const amount = Math.floor(Math.random() * 3) + 3;
+      const amount = Math.floor(Math.random() * 3) + 3
 
       const result = await billing.createUsageEvent({
         usageMeterSlug: 'fast_generations',
         amount,
-      });
+      })
 
       if ('error' in result) {
-        const errorMsg = result.error.json?.error ?? result.error.json?.message;
+        const errorMsg =
+          result.error.json?.error ?? result.error.json?.message
         throw new Error(
           (typeof errorMsg === 'string' ? errorMsg : null) ||
             'Failed to create usage event'
-        );
+        )
       }
 
       // Cycle through mock images
-      const nextIndex = (currentImageIndex + 1) % mockImages.length;
-      setCurrentImageIndex(nextIndex);
-      const nextImage = mockImages[nextIndex];
+      const nextIndex = (currentImageIndex + 1) % mockImages.length
+      setCurrentImageIndex(nextIndex)
+      const nextImage = mockImages[nextIndex]
       if (nextImage) {
-        setDisplayedContent(nextImage);
+        setDisplayedContent(nextImage)
       }
 
       // Reload billing data to update usage balances
-      await billing.reload();
+      await billing.reload()
     } catch (error) {
       setGenerateError(
         error instanceof Error
           ? error.message
           : 'Failed to generate image. Please try again.'
-      );
+      )
     } finally {
-      setIsGeneratingFastImage(false);
+      setIsGeneratingFastImage(false)
     }
-  };
+  }
 
   const handleGenerateHDVideo = async () => {
     if (!hasHDVideoMinutesAccess || hdVideoMinutesRemaining === 0) {
-      return;
+      return
     }
 
-    setIsGeneratingHDVideo(true);
-    setHdVideoError(null);
+    setIsGeneratingHDVideo(true)
+    setHdVideoError(null)
 
     try {
       // Random amount between 1-3 minutes
-      const amount = Math.floor(Math.random() * 3) + 1;
+      const amount = Math.floor(Math.random() * 3) + 1
 
       const result = await billing.createUsageEvent({
         usageMeterSlug: 'hd_video_minutes',
         amount,
-      });
+      })
 
       if ('error' in result) {
-        const errorMsg = result.error.json?.error ?? result.error.json?.message;
+        const errorMsg =
+          result.error.json?.error ?? result.error.json?.message
         throw new Error(
           (typeof errorMsg === 'string' ? errorMsg : null) ||
             'Failed to create usage event'
-        );
+        )
       }
 
       // Cycle through mock video GIFs
-      const nextIndex = (currentVideoGifIndex + 1) % mockVideoGif.length;
-      setCurrentVideoGifIndex(nextIndex);
-      const nextGif = mockVideoGif[nextIndex];
+      const nextIndex =
+        (currentVideoGifIndex + 1) % mockVideoGif.length
+      setCurrentVideoGifIndex(nextIndex)
+      const nextGif = mockVideoGif[nextIndex]
       if (nextGif) {
-        setDisplayedContent(nextGif);
+        setDisplayedContent(nextGif)
       }
 
       // Reload billing data to update usage balances
-      await billing.reload();
+      await billing.reload()
     } catch (error) {
       setHdVideoError(
         error instanceof Error
           ? error.message
           : 'Failed to generate HD video. Please try again.'
-      );
+      )
     } finally {
-      setIsGeneratingHDVideo(false);
+      setIsGeneratingHDVideo(false)
     }
-  };
+  }
 
   const handleGenerateRelaxImage = async () => {
     if (!hasRelaxMode) {
-      return;
+      return
     }
 
-    setIsGeneratingRelaxImage(true);
+    setIsGeneratingRelaxImage(true)
 
     try {
       // Cycle through mock images for relax mode
-      const nextIndex = (currentImageIndex + 1) % mockImages.length;
-      setCurrentImageIndex(nextIndex);
-      const nextImage = mockImages[nextIndex];
+      const nextIndex = (currentImageIndex + 1) % mockImages.length
+      setCurrentImageIndex(nextIndex)
+      const nextImage = mockImages[nextIndex]
       if (nextImage) {
-        setDisplayedContent(nextImage);
+        setDisplayedContent(nextImage)
       }
     } finally {
-      setIsGeneratingRelaxImage(false);
+      setIsGeneratingRelaxImage(false)
     }
-  };
+  }
 
   const handleGenerateRelaxSDVideo = async () => {
     if (!hasUnlimitedRelaxedSDVideo) {
-      return;
+      return
     }
 
-    setIsGeneratingRelaxSDVideo(true);
+    setIsGeneratingRelaxSDVideo(true)
 
     try {
       // Cycle through mock video GIFs
-      const nextIndex = (currentVideoGifIndex + 1) % mockVideoGif.length;
-      setCurrentVideoGifIndex(nextIndex);
-      const nextGif = mockVideoGif[nextIndex];
+      const nextIndex =
+        (currentVideoGifIndex + 1) % mockVideoGif.length
+      setCurrentVideoGifIndex(nextIndex)
+      const nextGif = mockVideoGif[nextIndex]
       if (nextGif) {
-        setDisplayedContent(nextGif);
+        setDisplayedContent(nextGif)
       }
     } finally {
-      setIsGeneratingRelaxSDVideo(false);
+      setIsGeneratingRelaxSDVideo(false)
     }
-  };
+  }
 
   const handlePurchaseFastGenerationTopUp = async () => {
     if (!billing.createCheckoutSession || !billing.getPrice) {
-      return;
+      return
     }
 
-    setTopUpError(null);
+    setTopUpError(null)
 
-    const price = billing.getPrice('fast_generation_top_up');
+    const price = billing.getPrice('fast_generation_top_up')
     if (!price) {
-      setTopUpError('Price not found. Please contact support.');
-      return;
+      setTopUpError('Price not found. Please contact support.')
+      return
     }
 
     try {
@@ -312,27 +350,27 @@ export function HomeClient() {
         cancelUrl: window.location.href,
         quantity: 1,
         autoRedirect: true,
-      });
+      })
     } catch (error) {
       setTopUpError(
         error instanceof Error
           ? error.message
           : 'Failed to start checkout. Please try again.'
-      );
+      )
     }
-  };
+  }
 
   const handlePurchaseHDVideoTopUp = async () => {
     if (!billing.createCheckoutSession || !billing.getPrice) {
-      return;
+      return
     }
 
-    setTopUpError(null);
+    setTopUpError(null)
 
-    const price = billing.getPrice('hd_video_minute_top_up');
+    const price = billing.getPrice('hd_video_minute_top_up')
     if (!price) {
-      setTopUpError('Price not found. Please contact support.');
-      return;
+      setTopUpError('Price not found. Please contact support.')
+      return
     }
 
     try {
@@ -342,15 +380,15 @@ export function HomeClient() {
         cancelUrl: window.location.href,
         quantity: 1,
         autoRedirect: true,
-      });
+      })
     } catch (error) {
       setTopUpError(
         error instanceof Error
           ? error.message
           : 'Failed to start checkout. Please try again.'
-      );
+      )
     }
-  };
+  }
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background">
@@ -488,7 +526,9 @@ export function HomeClient() {
                             onClick={handleGenerateRelaxImage}
                             variant="outline"
                             className="w-full transition-transform hover:-translate-y-px"
-                            disabled={!hasRelaxMode || isGeneratingRelaxImage}
+                            disabled={
+                              !hasRelaxMode || isGeneratingRelaxImage
+                            }
                           >
                             {isGeneratingRelaxImage
                               ? 'Generating...'
@@ -542,7 +582,9 @@ export function HomeClient() {
                       <TooltipTrigger asChild>
                         <span className="w-full">
                           <Button
-                            onClick={handlePurchaseFastGenerationTopUp}
+                            onClick={
+                              handlePurchaseFastGenerationTopUp
+                            }
                             variant="secondary"
                             className="w-full transition-transform hover:-translate-y-px"
                             disabled={!hasOptionalTopUps}
@@ -612,7 +654,9 @@ export function HomeClient() {
                       </div>
                       <Progress
                         value={
-                          fastGenerationsTotal > 0 ? fastGenerationsProgress : 0
+                          fastGenerationsTotal > 0
+                            ? fastGenerationsProgress
+                            : 0
                         }
                         className="w-full"
                       />
@@ -621,7 +665,8 @@ export function HomeClient() {
 
                   {/* HD Video Minutes Meter */}
                   {/* Show if user has access OR if we have a balance (even if total is 0, show remaining) */}
-                  {(hasHDVideoMinutesAccess || hdVideoMinutesRemaining > 0) && (
+                  {(hasHDVideoMinutesAccess ||
+                    hdVideoMinutesRemaining > 0) && (
                     <div className="space-y-2">
                       <div className="flex items-center justify-between">
                         <span className="text-sm font-medium">
@@ -637,7 +682,9 @@ export function HomeClient() {
                       </div>
                       <Progress
                         value={
-                          hdVideoMinutesTotal > 0 ? hdVideoMinutesProgress : 0
+                          hdVideoMinutesTotal > 0
+                            ? hdVideoMinutesProgress
+                            : 0
                         }
                         className="w-full"
                       />
@@ -650,5 +697,5 @@ export function HomeClient() {
         </div>
       </main>
     </div>
-  );
+  )
 }

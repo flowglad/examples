@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { PricingCardsGrid } from '../components/pricing-cards-grid'
 import { authMiddleware } from '@/middleware/auth'
+import { PricingCardsGrid } from '../components/pricing-cards-grid'
 
 export const Route = createFileRoute('/pricing')({
   component: PricingPage,
@@ -28,5 +28,3 @@ function PricingPage() {
     </div>
   )
 }
-
-

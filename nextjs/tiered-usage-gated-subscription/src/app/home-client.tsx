@@ -1,43 +1,53 @@
-'use client';
+'use client'
 
-import { useEffect, useState, useRef } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { authClient } from '@/lib/auth-client';
-import { useBilling } from '@flowglad/nextjs';
-import { computeUsageTotal } from '@/lib/billing-helpers';
-import { DashboardSkeleton } from '@/components/dashboard-skeleton';
-import { Progress } from '@/components/ui/progress';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useBilling } from '@flowglad/nextjs'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { useEffect, useRef, useState } from 'react'
+import { DashboardSkeleton } from '@/components/dashboard-skeleton'
+import { PricingCardsGrid } from '@/components/pricing-cards-grid'
+import { Button } from '@/components/ui/button'
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
+import { Progress } from '@/components/ui/progress'
+import { Switch } from '@/components/ui/switch'
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from '@/components/ui/tooltip';
-import { Switch } from '@/components/ui/switch';
-import { PricingCardsGrid } from '@/components/pricing-cards-grid';
+} from '@/components/ui/tooltip'
+import { authClient } from '@/lib/auth-client'
+import { computeUsageTotal } from '@/lib/billing-helpers'
 
 export function HomeClient() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
+  const router = useRouter()
+  const searchParams = useSearchParams()
   const { data: session, isPending: isSessionPending } =
-    authClient.useSession();
-  const billing = useBilling();
-  const [isSendingGPT5Thinking, setIsSendingGPT5Thinking] = useState(false);
-  const [isSendingO3, setIsSendingO3] = useState(false);
-  const [isSendingO4Mini, setIsSendingO4Mini] = useState(false);
-  const [isSendingO4MiniHigh, setIsSendingO4MiniHigh] = useState(false);
-  const [isUsingAgentMode, setIsUsingAgentMode] = useState(false);
-  const [isUsingDeepResearch, setIsUsingDeepResearch] = useState(false);
-  const [messageError, setMessageError] = useState<string | null>(null);
+    authClient.useSession()
+  const billing = useBilling()
+  const [isSendingGPT5Thinking, setIsSendingGPT5Thinking] =
+    useState(false)
+  const [isSendingO3, setIsSendingO3] = useState(false)
+  const [isSendingO4Mini, setIsSendingO4Mini] = useState(false)
+  const [isSendingO4MiniHigh, setIsSendingO4MiniHigh] =
+    useState(false)
+  const [isUsingAgentMode, setIsUsingAgentMode] = useState(false)
+  const [isUsingDeepResearch, setIsUsingDeepResearch] =
+    useState(false)
+  const [messageError, setMessageError] = useState<string | null>(
+    null
+  )
   const [chatMessages, setChatMessages] = useState<
     Array<{ role: string; content: string; model?: string }>
-  >([]);
-  const previousUserIdRef = useRef<string | undefined>(undefined);
+  >([])
+  const previousUserIdRef = useRef<string | undefined>(undefined)
 
   // Refetch billing data when user ID changes to prevent showing previous user's data
   useEffect(() => {
-    const currentUserId = session?.user?.id;
+    const currentUserId = session?.user?.id
     // Only refetch if user ID actually changed and billing is loaded
     if (
       currentUserId &&
@@ -45,33 +55,33 @@ export function HomeClient() {
       billing.loaded &&
       billing.reload
     ) {
-      previousUserIdRef.current = currentUserId;
-      billing.reload();
+      previousUserIdRef.current = currentUserId
+      billing.reload()
     } else if (currentUserId) {
       // Update ref even if we don't reload (e.g., on initial mount)
-      previousUserIdRef.current = currentUserId;
+      previousUserIdRef.current = currentUserId
     }
-  }, [session?.user?.id, billing]);
+  }, [session?.user?.id, billing])
 
   // View state: 'dashboard' or 'upgrade'
-  const [currentView, setCurrentView] = useState<'dashboard' | 'upgrade'>(
-    'dashboard'
-  );
+  const [currentView, setCurrentView] = useState<
+    'dashboard' | 'upgrade'
+  >('dashboard')
 
   // Update view when URL param changes
   useEffect(() => {
     if (searchParams) {
-      const viewParam = searchParams.get('view');
+      const viewParam = searchParams.get('view')
       if (viewParam === 'pricing') {
-        setCurrentView('upgrade');
+        setCurrentView('upgrade')
       } else {
-        setCurrentView('dashboard');
+        setCurrentView('dashboard')
       }
     }
-  }, [searchParams]);
+  }, [searchParams])
 
   if (isSessionPending || !billing.loaded) {
-    return <DashboardSkeleton />;
+    return <DashboardSkeleton />
   }
 
   if (
@@ -80,122 +90,139 @@ export function HomeClient() {
     !billing.loaded ||
     !billing.pricingModel
   ) {
-    return <DashboardSkeleton />;
+    return <DashboardSkeleton />
   }
 
   // Get current subscription plan
   // By default, each customer can only have one active subscription at a time,
   // so accessing the first currentSubscriptions is sufficient.
   // Multiple subscriptions per customer can be enabled in dashboard > settings
-  const currentSubscription = billing.currentSubscriptions?.[0];
-  const planName = currentSubscription?.name || 'Unknown Plan';
+  const currentSubscription = billing.currentSubscriptions?.[0]
+  const planName = currentSubscription?.name || 'Unknown Plan'
 
   if (!billing.checkUsageBalance || !billing.checkFeatureAccess) {
-    return <DashboardSkeleton />;
+    return <DashboardSkeleton />
   }
 
   // Usage meter balances
   const gpt5ThinkingBalance = billing.checkUsageBalance(
     'gpt_5_thinking_messages'
-  );
-  const o3Balance = billing.checkUsageBalance('o3_messages');
-  const o4MiniBalance = billing.checkUsageBalance('o4_mini_messages');
-  const o4MiniHighBalance = billing.checkUsageBalance('o4_mini_high_messages');
-  const agentMessagesBalance = billing.checkUsageBalance('agent_messages');
+  )
+  const o3Balance = billing.checkUsageBalance('o3_messages')
+  const o4MiniBalance = billing.checkUsageBalance('o4_mini_messages')
+  const o4MiniHighBalance = billing.checkUsageBalance(
+    'o4_mini_high_messages'
+  )
+  const agentMessagesBalance =
+    billing.checkUsageBalance('agent_messages')
   const deepResearchBalance = billing.checkUsageBalance(
     'deep_research_requests'
-  );
+  )
 
   // Check if user has access to usage meters
   // Having a usage meter balance (even if 0) means you have access to that meter
-  const hasGPT5ThinkingAccess = gpt5ThinkingBalance != null;
-  const hasO3Access = o3Balance != null;
-  const hasO4MiniAccess = o4MiniBalance != null;
-  const hasO4MiniHighAccess = o4MiniHighBalance != null;
-  const hasAgentModeAccess = agentMessagesBalance != null;
-  const hasDeepResearchAccess = deepResearchBalance != null;
+  const hasGPT5ThinkingAccess = gpt5ThinkingBalance != null
+  const hasO3Access = o3Balance != null
+  const hasO4MiniAccess = o4MiniBalance != null
+  const hasO4MiniHighAccess = o4MiniHighBalance != null
+  const hasAgentModeAccess = agentMessagesBalance != null
+  const hasDeepResearchAccess = deepResearchBalance != null
 
   // Check toggle features for model access
   // If toggle exists without usage meter = unlimited access
   // If toggle exists with usage meter = limited access (check credits)
-  const hasGPT5Fast = billing.checkFeatureAccess('gpt_5_fast');
-  const hasGPT5Thinking = billing.checkFeatureAccess('gpt_5_thinking');
-  const hasO3AccessFeature = billing.checkFeatureAccess('o3_access');
-  const hasO4MiniAccessFeature = billing.checkFeatureAccess('o4_mini_access');
+  const hasGPT5Fast = billing.checkFeatureAccess('gpt_5_fast')
+  const hasGPT5Thinking = billing.checkFeatureAccess('gpt_5_thinking')
+  const hasO3AccessFeature = billing.checkFeatureAccess('o3_access')
+  const hasO4MiniAccessFeature =
+    billing.checkFeatureAccess('o4_mini_access')
   const hasO4MiniHighAccessFeature = billing.checkFeatureAccess(
     'o4_mini_high_access'
-  );
-  const hasAgentMode = billing.checkFeatureAccess('agent_mode');
-  const hasDeepResearch = billing.checkFeatureAccess('deep_research');
+  )
+  const hasAgentMode = billing.checkFeatureAccess('agent_mode')
+  const hasDeepResearch = billing.checkFeatureAccess('deep_research')
 
   // Determine if models are unlimited (toggle exists but no usage meter) or limited (has usage meter)
-  const isGPT5ThinkingUnlimited = hasGPT5Thinking && !hasGPT5ThinkingAccess;
-  const isO3Unlimited = hasO3AccessFeature && !hasO3Access;
-  const isO4MiniUnlimited = hasO4MiniAccessFeature && !hasO4MiniAccess;
+  const isGPT5ThinkingUnlimited =
+    hasGPT5Thinking && !hasGPT5ThinkingAccess
+  const isO3Unlimited = hasO3AccessFeature && !hasO3Access
+  const isO4MiniUnlimited = hasO4MiniAccessFeature && !hasO4MiniAccess
   const isO4MiniHighUnlimited =
-    hasO4MiniHighAccessFeature && !hasO4MiniHighAccess;
-  const isAgentModeUnlimited = hasAgentMode && !hasAgentModeAccess;
-  const isDeepResearchUnlimited = hasDeepResearch && !hasDeepResearchAccess;
+    hasO4MiniHighAccessFeature && !hasO4MiniHighAccess
+  const isAgentModeUnlimited = hasAgentMode && !hasAgentModeAccess
+  const isDeepResearchUnlimited =
+    hasDeepResearch && !hasDeepResearchAccess
 
   // Calculate usage meter balances and totals
-  const gpt5ThinkingRemaining = gpt5ThinkingBalance?.availableBalance ?? 0;
+  const gpt5ThinkingRemaining =
+    gpt5ThinkingBalance?.availableBalance ?? 0
   const gpt5ThinkingTotal = computeUsageTotal(
     'gpt_5_thinking_messages',
+    // @ts-expect-error - SDK type version mismatch
     currentSubscription,
     billing.pricingModel
-  );
+  )
   const gpt5ThinkingProgress =
     gpt5ThinkingTotal > 0
       ? (gpt5ThinkingRemaining / gpt5ThinkingTotal) * 100
-      : 0;
+      : 0
 
-  const o3Remaining = o3Balance?.availableBalance ?? 0;
+  const o3Remaining = o3Balance?.availableBalance ?? 0
   const o3Total = computeUsageTotal(
     'o3_messages',
+    // @ts-expect-error - SDK type version mismatch
     currentSubscription,
     billing.pricingModel
-  );
-  const o3Progress = o3Total > 0 ? (o3Remaining / o3Total) * 100 : 0;
+  )
+  const o3Progress = o3Total > 0 ? (o3Remaining / o3Total) * 100 : 0
 
-  const o4MiniRemaining = o4MiniBalance?.availableBalance ?? 0;
+  const o4MiniRemaining = o4MiniBalance?.availableBalance ?? 0
   const o4MiniTotal = computeUsageTotal(
     'o4_mini_messages',
+    // @ts-expect-error - SDK type version mismatch
     currentSubscription,
     billing.pricingModel
-  );
+  )
   const o4MiniProgress =
-    o4MiniTotal > 0 ? (o4MiniRemaining / o4MiniTotal) * 100 : 0;
+    o4MiniTotal > 0 ? (o4MiniRemaining / o4MiniTotal) * 100 : 0
 
-  const o4MiniHighRemaining = o4MiniHighBalance?.availableBalance ?? 0;
+  const o4MiniHighRemaining = o4MiniHighBalance?.availableBalance ?? 0
   const o4MiniHighTotal = computeUsageTotal(
     'o4_mini_high_messages',
+    // @ts-expect-error - SDK type version mismatch
     currentSubscription,
     billing.pricingModel
-  );
+  )
   const o4MiniHighProgress =
-    o4MiniHighTotal > 0 ? (o4MiniHighRemaining / o4MiniHighTotal) * 100 : 0;
+    o4MiniHighTotal > 0
+      ? (o4MiniHighRemaining / o4MiniHighTotal) * 100
+      : 0
 
-  const agentMessagesRemaining = agentMessagesBalance?.availableBalance ?? 0;
+  const agentMessagesRemaining =
+    agentMessagesBalance?.availableBalance ?? 0
   const agentMessagesTotal = computeUsageTotal(
     'agent_messages',
+    // @ts-expect-error - SDK type version mismatch
     currentSubscription,
     billing.pricingModel
-  );
+  )
   const agentMessagesProgress =
     agentMessagesTotal > 0
       ? (agentMessagesRemaining / agentMessagesTotal) * 100
-      : 0;
+      : 0
 
-  const deepResearchRemaining = deepResearchBalance?.availableBalance ?? 0;
+  const deepResearchRemaining =
+    deepResearchBalance?.availableBalance ?? 0
   const deepResearchTotal = computeUsageTotal(
     'deep_research_requests',
+    // @ts-expect-error - SDK type version mismatch
     currentSubscription,
     billing.pricingModel
-  );
+  )
   const deepResearchProgress =
     deepResearchTotal > 0
       ? (deepResearchRemaining / deepResearchTotal) * 100
-      : 0;
+      : 0
 
   // Generic handler function for usage events
   const handleUsageEvent = async ({
@@ -215,55 +242,55 @@ export function HomeClient() {
     errorMessage = 'Failed to send message. Please try again.',
     alwaysCreateUsageEvent = false,
   }: {
-    priceSlug: string;
-    usageMeterSlug: string;
-    hasFeatureAccess: boolean;
-    hasUsageMeterAccess: boolean;
-    isUnlimited: boolean;
-    remaining: number;
-    setIsLoading: (loading: boolean) => void;
-    setMessageError: (error: string | null) => void;
-    billing: ReturnType<typeof useBilling>;
-    transactionIdPrefix: string;
-    userMessage: string;
-    assistantMessage: string;
-    modelName: string;
-    errorMessage?: string;
-    alwaysCreateUsageEvent?: boolean;
+    priceSlug: string
+    usageMeterSlug: string
+    hasFeatureAccess: boolean
+    hasUsageMeterAccess: boolean
+    isUnlimited: boolean
+    remaining: number
+    setIsLoading: (loading: boolean) => void
+    setMessageError: (error: string | null) => void
+    billing: ReturnType<typeof useBilling>
+    transactionIdPrefix: string
+    userMessage: string
+    assistantMessage: string
+    modelName: string
+    errorMessage?: string
+    alwaysCreateUsageEvent?: boolean
   }) => {
     // Check feature access
-    if (!hasFeatureAccess) return;
+    if (!hasFeatureAccess) return
 
     // Check if limited and has no access or no credits
     if (!isUnlimited && (!hasUsageMeterAccess || remaining === 0)) {
-      return;
+      return
     }
 
-    setIsLoading(true);
-    setMessageError(null);
+    setIsLoading(true)
+    setMessageError(null)
 
     try {
       // Create usage event if always required OR if model is limited (has usage meter)
       if (alwaysCreateUsageEvent || !isUnlimited) {
         if (!billing.createUsageEvent) {
-          throw new Error('createUsageEvent is not available');
+          throw new Error('createUsageEvent is not available')
         }
 
         const result = await billing.createUsageEvent({
           usageMeterSlug,
-        });
+        })
 
         if ('error' in result) {
           const errorMsg =
-            result.error.json?.error ?? result.error.json?.message;
+            result.error.json?.error ?? result.error.json?.message
           throw new Error(
             (typeof errorMsg === 'string' ? errorMsg : null) ||
               'Failed to create usage event'
-          );
+          )
         }
 
         if (billing.reload) {
-          await billing.reload();
+          await billing.reload()
         }
       }
 
@@ -276,13 +303,15 @@ export function HomeClient() {
           content: assistantMessage,
           model: modelName,
         },
-      ]);
+      ])
     } catch (error) {
-      setMessageError(error instanceof Error ? error.message : errorMessage);
+      setMessageError(
+        error instanceof Error ? error.message : errorMessage
+      )
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  };
+  }
 
   // Action handlers for sending messages to different models
   const handleSendGPT5Thinking = async () => {
@@ -302,8 +331,8 @@ export function HomeClient() {
         "Hello! I'm GPT-5 Thinking, ready to help with complex reasoning tasks.",
       modelName: 'GPT-5 Thinking',
       alwaysCreateUsageEvent: true,
-    });
-  };
+    })
+  }
 
   const handleSendO3 = async () => {
     await handleUsageEvent({
@@ -321,8 +350,8 @@ export function HomeClient() {
       assistantMessage:
         "Hello! I'm o3, a reasoning model designed for complex problem-solving.",
       modelName: 'o3',
-    });
-  };
+    })
+  }
 
   const handleSendO4Mini = async () => {
     await handleUsageEvent({
@@ -339,8 +368,8 @@ export function HomeClient() {
       userMessage: 'Hello, o4-mini!',
       assistantMessage: "Hello! I'm o4-mini, a fast reasoning model.",
       modelName: 'o4-mini',
-    });
-  };
+    })
+  }
 
   const handleSendO4MiniHigh = async () => {
     await handleUsageEvent({
@@ -355,10 +384,11 @@ export function HomeClient() {
       billing,
       transactionIdPrefix: 'o4_mini_high',
       userMessage: 'Hello, o4-mini-high!',
-      assistantMessage: "Hello! I'm o4-mini-high, an advanced reasoning model.",
+      assistantMessage:
+        "Hello! I'm o4-mini-high, an advanced reasoning model.",
       modelName: 'o4-mini-high',
-    });
-  };
+    })
+  }
 
   const handleUseAgentMode = async () => {
     await handleUsageEvent({
@@ -378,8 +408,8 @@ export function HomeClient() {
       modelName: 'Agent Mode',
       errorMessage: 'Failed to start agent mode. Please try again.',
       alwaysCreateUsageEvent: true,
-    });
-  };
+    })
+  }
 
   const handleUseDeepResearch = async () => {
     await handleUsageEvent({
@@ -397,10 +427,11 @@ export function HomeClient() {
       assistantMessage:
         'Deep research initiated! Gathering comprehensive information from multiple sources...',
       modelName: 'Deep Research',
-      errorMessage: 'Failed to start deep research. Please try again.',
+      errorMessage:
+        'Failed to start deep research. Please try again.',
       alwaysCreateUsageEvent: true,
-    });
-  };
+    })
+  }
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background">
@@ -412,13 +443,13 @@ export function HomeClient() {
             <Switch
               checked={currentView === 'upgrade'}
               onCheckedChange={(checked) => {
-                const newView = checked ? 'upgrade' : 'dashboard';
-                setCurrentView(newView);
+                const newView = checked ? 'upgrade' : 'dashboard'
+                setCurrentView(newView)
                 // Update URL without page reload
                 if (checked) {
-                  router.push('/?view=pricing', { scroll: false });
+                  router.push('/?view=pricing', { scroll: false })
                 } else {
-                  router.push('/', { scroll: false });
+                  router.push('/', { scroll: false })
                 }
               }}
             />
@@ -465,8 +496,8 @@ export function HomeClient() {
                     {chatMessages.length === 0 ? (
                       <div className="flex items-center justify-center h-full">
                         <p className="text-muted-foreground">
-                          Send a message to one of the AI models to start
-                          chatting!
+                          Send a message to one of the AI models to
+                          start chatting!
                         </p>
                       </div>
                     ) : (
@@ -555,17 +586,21 @@ export function HomeClient() {
                                 disabled={
                                   !hasO3AccessFeature ||
                                   (!isO3Unlimited &&
-                                    (!hasO3Access || o3Remaining === 0)) ||
+                                    (!hasO3Access ||
+                                      o3Remaining === 0)) ||
                                   isSendingO3
                                 }
                               >
-                                {isSendingO3 ? 'Sending...' : 'o3 Model'}
+                                {isSendingO3
+                                  ? 'Sending...'
+                                  : 'o3 Model'}
                               </Button>
                             </span>
                           </TooltipTrigger>
                           {(!hasO3AccessFeature ||
                             (!isO3Unlimited &&
-                              (!hasO3Access || o3Remaining === 0))) && (
+                              (!hasO3Access ||
+                                o3Remaining === 0))) && (
                             <TooltipContent>
                               {!hasO3AccessFeature
                                 ? 'Not available in your plan'
@@ -592,13 +627,16 @@ export function HomeClient() {
                                   isSendingO4Mini
                                 }
                               >
-                                {isSendingO4Mini ? 'Sending...' : 'o4-mini'}
+                                {isSendingO4Mini
+                                  ? 'Sending...'
+                                  : 'o4-mini'}
                               </Button>
                             </span>
                           </TooltipTrigger>
                           {(!hasO4MiniAccessFeature ||
                             (!isO4MiniUnlimited &&
-                              (!hasO4MiniAccess || o4MiniRemaining === 0))) && (
+                              (!hasO4MiniAccess ||
+                                o4MiniRemaining === 0))) && (
                             <TooltipContent>
                               {!hasO4MiniAccessFeature
                                 ? 'Not available in your plan'
@@ -665,7 +703,8 @@ export function HomeClient() {
                                   !hasAgentMode ||
                                   (!isAgentModeUnlimited &&
                                     (!hasAgentModeAccess ||
-                                      agentMessagesRemaining === 0)) ||
+                                      agentMessagesRemaining ===
+                                        0)) ||
                                   isUsingAgentMode
                                 }
                               >
@@ -740,7 +779,8 @@ export function HomeClient() {
                     </h3>
                     <div className="space-y-4">
                       {/* GPT-5 Thinking Messages */}
-                      {(hasGPT5ThinkingAccess || gpt5ThinkingRemaining > 0) && (
+                      {(hasGPT5ThinkingAccess ||
+                        gpt5ThinkingRemaining > 0) && (
                         <div className="space-y-2">
                           <div className="flex items-center justify-between">
                             <span className="text-sm font-medium">
@@ -756,7 +796,9 @@ export function HomeClient() {
                           </div>
                           <Progress
                             value={
-                              gpt5ThinkingTotal > 0 ? gpt5ThinkingProgress : 0
+                              gpt5ThinkingTotal > 0
+                                ? gpt5ThinkingProgress
+                                : 0
                             }
                             className="w-full"
                           />
@@ -772,7 +814,8 @@ export function HomeClient() {
                             </span>
                             <span className="text-sm text-muted-foreground">
                               {o3Remaining}
-                              {o3Total > 0 ? `/${o3Total}` : ''} messages
+                              {o3Total > 0 ? `/${o3Total}` : ''}{' '}
+                              messages
                             </span>
                           </div>
                           <Progress
@@ -791,19 +834,24 @@ export function HomeClient() {
                             </span>
                             <span className="text-sm text-muted-foreground">
                               {o4MiniRemaining}
-                              {o4MiniTotal > 0 ? `/${o4MiniTotal}` : ''}{' '}
+                              {o4MiniTotal > 0
+                                ? `/${o4MiniTotal}`
+                                : ''}{' '}
                               messages
                             </span>
                           </div>
                           <Progress
-                            value={o4MiniTotal > 0 ? o4MiniProgress : 0}
+                            value={
+                              o4MiniTotal > 0 ? o4MiniProgress : 0
+                            }
                             className="w-full"
                           />
                         </div>
                       )}
 
                       {/* o4-mini-high Messages */}
-                      {(hasO4MiniHighAccess || o4MiniHighRemaining > 0) && (
+                      {(hasO4MiniHighAccess ||
+                        o4MiniHighRemaining > 0) && (
                         <div className="space-y-2">
                           <div className="flex items-center justify-between">
                             <span className="text-sm font-medium">
@@ -818,14 +866,19 @@ export function HomeClient() {
                             </span>
                           </div>
                           <Progress
-                            value={o4MiniHighTotal > 0 ? o4MiniHighProgress : 0}
+                            value={
+                              o4MiniHighTotal > 0
+                                ? o4MiniHighProgress
+                                : 0
+                            }
                             className="w-full"
                           />
                         </div>
                       )}
 
                       {/* Agent Messages */}
-                      {(hasAgentModeAccess || agentMessagesRemaining > 0) && (
+                      {(hasAgentModeAccess ||
+                        agentMessagesRemaining > 0) && (
                         <div className="space-y-2">
                           <div className="flex items-center justify-between">
                             <span className="text-sm font-medium">
@@ -841,7 +894,9 @@ export function HomeClient() {
                           </div>
                           <Progress
                             value={
-                              agentMessagesTotal > 0 ? agentMessagesProgress : 0
+                              agentMessagesTotal > 0
+                                ? agentMessagesProgress
+                                : 0
                             }
                             className="w-full"
                           />
@@ -849,7 +904,8 @@ export function HomeClient() {
                       )}
 
                       {/* Deep Research Requests */}
-                      {(hasDeepResearchAccess || deepResearchRemaining > 0) && (
+                      {(hasDeepResearchAccess ||
+                        deepResearchRemaining > 0) && (
                         <div className="space-y-2">
                           <div className="flex items-center justify-between">
                             <span className="text-sm font-medium">
@@ -865,7 +921,9 @@ export function HomeClient() {
                           </div>
                           <Progress
                             value={
-                              deepResearchTotal > 0 ? deepResearchProgress : 0
+                              deepResearchTotal > 0
+                                ? deepResearchProgress
+                                : 0
                             }
                             className="w-full"
                           />
@@ -880,5 +938,5 @@ export function HomeClient() {
         </div>
       </main>
     </div>
-  );
+  )
 }

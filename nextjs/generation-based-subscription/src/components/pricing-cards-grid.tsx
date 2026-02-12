@@ -1,38 +1,38 @@
-'use client';
+'use client'
 
-import { useRef, useMemo } from 'react';
-import Autoplay from 'embla-carousel-autoplay';
-import { PricingCard } from '@/components/pricing-card';
-import type { PricingPlan } from '@/components/pricing-card';
+import { useBilling } from '@flowglad/nextjs'
+import Autoplay from 'embla-carousel-autoplay'
+import { useMemo, useRef } from 'react'
+import type { PricingPlan } from '@/components/pricing-card'
+import { PricingCard } from '@/components/pricing-card'
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+} from '@/components/ui/card'
 import {
   Carousel,
   CarouselContent,
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
-} from '@/components/ui/carousel';
-import { useMobile } from '@/hooks/use-mobile';
-import { useBilling } from '@flowglad/nextjs';
-import { Skeleton } from '@/components/ui/skeleton';
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-} from '@/components/ui/card';
+} from '@/components/ui/carousel'
+import { Skeleton } from '@/components/ui/skeleton'
+import { useMobile } from '@/hooks/use-mobile'
 
 /**
  * PricingCardsGrid component displays all pricing plans in a responsive grid or carousel
  */
 export function PricingCardsGrid() {
-  const isMobile = useMobile();
+  const isMobile = useMobile()
   const autoplayPlugin = useRef(
     Autoplay({
       delay: 3000,
       stopOnInteraction: true,
     })
-  );
-  const billing = useBilling();
+  )
+  const billing = useBilling()
 
   // Build plans from pricingModel
   const plans = useMemo<PricingPlan[]>(() => {
@@ -43,40 +43,41 @@ export function PricingCardsGrid() {
       billing.errors ||
       !billing.pricingModel
     ) {
-      return [];
+      return []
     }
 
-    const { products } = billing.pricingModel;
+    const { products } = billing.pricingModel
 
     // Filter products: subscription type, active, not default/free
     const filteredProducts = products.filter((product) => {
       // Skip default/free products
-      if (product.default === true) return false;
+      if (product.default === true) return false
 
       // Find active subscription price
       const matchingPrice = product.prices.find(
-        (price) => price.type === 'subscription' && price.active === true
-      );
+        (price) =>
+          price.type === 'subscription' && price.active === true
+      )
 
-      return !!matchingPrice;
-    });
+      return !!matchingPrice
+    })
 
     // Transform products to PricingPlan format
     const transformedPlans = filteredProducts
       .map((product) => {
         const price = product.prices.find(
           (p) => p.type === 'subscription' && p.active === true
-        );
+        )
 
-        if (!price || !price.slug) return null;
+        if (!price || !price.slug) return null
 
         // Format price from cents to display string
         const formatPrice = (cents: number): string => {
-          const dollars = cents / 100;
-          return `$${dollars.toLocaleString('en-US', { maximumFractionDigits: 0 })}`;
-        };
+          const dollars = cents / 100
+          return `$${dollars.toLocaleString('en-US', { maximumFractionDigits: 0 })}`
+        }
 
-        const displayPrice = formatPrice(price.unitPrice);
+        const displayPrice = formatPrice(price.unitPrice)
 
         // Build features list from feature objects (features have name and description)
         const featureNames =
@@ -85,44 +86,46 @@ export function PricingCardsGrid() {
             .filter(
               (name): name is string =>
                 typeof name === 'string' && name.length > 0
-            ) ?? [];
+            ) ?? []
 
         const plan: PricingPlan = {
           name: product.name,
           displayPrice: displayPrice,
           slug: price.slug,
           features: featureNames,
-        };
+        }
 
         if (product.description) {
-          plan.description = product.description;
+          plan.description = product.description
         }
 
         // Determine if popular (hardcoded "Pro" as popular)
         if (product.name === 'Pro') {
-          plan.isPopular = true;
+          plan.isPopular = true
         }
 
-        return plan;
+        return plan
       })
-      .filter((plan): plan is PricingPlan => plan !== null);
+      .filter((plan): plan is PricingPlan => plan !== null)
 
     // Sort by price (extract numeric value for sorting)
     return transformedPlans.sort((a, b) => {
       const getPriceValue = (priceStr: string) => {
-        return parseFloat(priceStr.replace(/[$,]/g, '')) || 0;
-      };
-      return getPriceValue(a.displayPrice) - getPriceValue(b.displayPrice);
-    });
-  }, [billing]);
+        return parseFloat(priceStr.replace(/[$,]/g, '')) || 0
+      }
+      return (
+        getPriceValue(a.displayPrice) - getPriceValue(b.displayPrice)
+      )
+    })
+  }, [billing])
 
   // Early returns after all hooks to prevent type issues in the rest of the component
   if (!billing.loaded || !billing.loadBilling) {
-    return null; // or loading skeleton
+    return null // or loading skeleton
   }
 
   if (billing.errors) {
-    return null; // or error message
+    return null // or error message
   }
 
   const isPlanCurrent = (plan: PricingPlan): boolean => {
@@ -130,18 +133,21 @@ export function PricingCardsGrid() {
       !billing.currentSubscriptions ||
       billing.currentSubscriptions.length === 0
     ) {
-      return false;
+      return false
     }
-    const priceSlug = plan.slug;
-    const price = billing.getPrice(priceSlug);
-    if (!price) return false;
+    const priceSlug = plan.slug
+    const price = billing.getPrice(priceSlug)
+    if (!price) return false
     const currentPriceIds = new Set(
       billing.currentSubscriptions
         .map((sub) => sub.priceId)
-        .filter((id): id is string => typeof id === 'string' && id.length > 0)
-    );
-    return currentPriceIds.has(price.id);
-  };
+        .filter(
+          (id): id is string =>
+            typeof id === 'string' && id.length > 0
+        )
+    )
+    return currentPriceIds.has(price.id)
+  }
 
   return (
     <div className="w-full space-y-8">
@@ -196,7 +202,10 @@ export function PricingCardsGrid() {
                 <CardContent className="flex-1 px-3 md:px-6 pt-0">
                   <ul className="space-y-1.5 md:space-y-3">
                     {[1, 2, 3, 4].map((j) => (
-                      <li key={j} className="flex items-start gap-1.5 md:gap-2">
+                      <li
+                        key={j}
+                        className="flex items-start gap-1.5 md:gap-2"
+                      >
                         <Skeleton className="h-3 w-3 md:h-4 md:w-4 mt-0.5 shrink-0 rounded-full" />
                         <Skeleton className="h-3 md:h-4 flex-1" />
                       </li>
@@ -222,7 +231,10 @@ export function PricingCardsGrid() {
           >
             <CarouselContent className="-ml-1">
               {plans.map((plan) => (
-                <CarouselItem key={plan.name} className="pl-1 basis-1/2">
+                <CarouselItem
+                  key={plan.name}
+                  className="pl-1 basis-1/2"
+                >
                   <div className="p-1 h-full">
                     <PricingCard
                       plan={plan}
@@ -249,5 +261,5 @@ export function PricingCardsGrid() {
         </div>
       )}
     </div>
-  );
+  )
 }

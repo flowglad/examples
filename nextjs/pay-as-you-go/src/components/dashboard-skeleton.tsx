@@ -1,6 +1,12 @@
-'use client';;
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
+'use client'
+
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton'
 
 /**
  * DashboardSkeleton component displays a loading skeleton for the dashboard
@@ -62,5 +68,5 @@ export function DashboardSkeleton() {
         </div>
       </main>
     </div>
-  );
+  )
 }

@@ -8,7 +8,9 @@ export const authMiddleware = createMiddleware().server(
     const headers = getRequestHeaders()
     const session = await auth.api.getSession({ headers })
 
-    const isAuthRoute = request.url.includes('/sign-in') || request.url.includes('/sign-up')
+    const isAuthRoute =
+      request.url.includes('/sign-in') ||
+      request.url.includes('/sign-up')
 
     if (session && isAuthRoute) {
       throw redirect({ to: '/' })
@@ -17,5 +19,5 @@ export const authMiddleware = createMiddleware().server(
     }
 
     return await next()
-  },
+  }
 )

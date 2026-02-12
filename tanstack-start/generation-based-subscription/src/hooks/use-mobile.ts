@@ -27,5 +27,3 @@ export function useMobile(breakpoint: number = 768): boolean {
 
   return isMobile
 }
-
-
